@@ -1,0 +1,344 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'TrackGuard DHR';
+
+  @override
+  String get tagline => 'Darjeeling Himalayan Railway Alignment Inspection';
+
+  @override
+  String get gangman => 'Gangman';
+
+  @override
+  String get admin => 'Supervisor / Admin';
+
+  @override
+  String get signInTitle => 'TrackGuard DHR Sign In';
+
+  @override
+  String get signInSubtitle => 'Permanent-Way Inspection & Hazard Reporting';
+
+  @override
+  String get signInGoogle => 'Sign In with Google';
+
+  @override
+  String get devSignInGangman => 'Developer Sign In (Gangman)';
+
+  @override
+  String get devSignInAdmin => 'Developer Sign In (Admin)';
+
+  @override
+  String get signingIn => 'Signing in...';
+
+  @override
+  String get signOut => 'Sign Out';
+
+  @override
+  String signedInAs(String name) {
+    return 'Signed in as $name';
+  }
+
+  @override
+  String get pendingAccessTitle => 'Access Approval Pending';
+
+  @override
+  String get pendingAccessMessage =>
+      'Your account has been registered. An authorized permanent-way supervisor must approve your profile before you can access field tools.';
+
+  @override
+  String get inactiveAccountMessage =>
+      'Your account is marked inactive. Please contact your section engineer.';
+
+  @override
+  String get checkStatus => 'Check Status';
+
+  @override
+  String get homeTitle => 'Inspection Dashboard';
+
+  @override
+  String get newReport => 'New Report';
+
+  @override
+  String get myReports => 'My Reports';
+
+  @override
+  String get pendingQueue => 'Pending Sync Queue';
+
+  @override
+  String pendingReportsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reports pending',
+      one: '1 report pending',
+      zero: '0 reports pending',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String assignedSection(String section) {
+    return 'Assigned Section: $section';
+  }
+
+  @override
+  String get unassignedSection => 'No section assigned';
+
+  @override
+  String get onlineStatus => 'Online - Cloud Sync Ready';
+
+  @override
+  String get offlineStatus => 'Offline - Local Queue Active';
+
+  @override
+  String get aiStatusReady => 'AI Analysis: Ready (Offline)';
+
+  @override
+  String get aiStatusHeuristic => 'AI Analysis: Heuristic Fallback';
+
+  @override
+  String get aiStatusUnavailable => 'AI Analysis: Manual Only';
+
+  @override
+  String get offlineExplanation =>
+      'All inspection reports are saved to your device immediately. When you reach a station with connectivity, queued reports will sync automatically.';
+
+  @override
+  String get captureTitle => 'Capture Hazard Photo';
+
+  @override
+  String get cameraPermissionTitle => 'Camera Permission Required';
+
+  @override
+  String get cameraPermissionMessage =>
+      'TrackGuard needs camera access to capture track hazards and retaining wall defects.';
+
+  @override
+  String get locationPermissionTitle => 'Location Permission Required';
+
+  @override
+  String get locationPermissionMessage =>
+      'Precise GPS location is needed to estimate alignment kilometre markers and track sections.';
+
+  @override
+  String get grantPermission => 'Grant Permission';
+
+  @override
+  String get takePhoto => 'Capture Photo';
+
+  @override
+  String get retake => 'Retake';
+
+  @override
+  String get confirmPhoto => 'Use Photo';
+
+  @override
+  String get switchCamera => 'Switch Camera';
+
+  @override
+  String get galleryFallback => 'Select from Gallery';
+
+  @override
+  String get cameraUnavailable =>
+      'Camera unavailable. Please use gallery fallback.';
+
+  @override
+  String get processingImage => 'Processing image...';
+
+  @override
+  String get locationTitle => 'Location & Alignment';
+
+  @override
+  String get gpsAcquiring => 'Acquiring GPS fix...';
+
+  @override
+  String gpsLocked(String accuracy) {
+    return 'GPS Locked (±${accuracy}m)';
+  }
+
+  @override
+  String get gpsUnavailable => 'GPS Signal Unavailable';
+
+  @override
+  String get locationSourceGps => 'Source: Real GPS';
+
+  @override
+  String get locationSourceManual => 'Source: Manual Selection';
+
+  @override
+  String get locationSourceFallback => 'Source: Estimated Fallback';
+
+  @override
+  String kmMarker(String marker) {
+    return 'Km $marker';
+  }
+
+  @override
+  String nearestStation(String station) {
+    return 'Nearest Station: $station';
+  }
+
+  @override
+  String get selectWaypoint => 'Select Nearest DHR Station / Waypoint';
+
+  @override
+  String get editKm => 'Edit Km Marker';
+
+  @override
+  String get manualLocationNotice =>
+      'Warning: Fallback coordinates are estimated. Adjust km marker manually if needed.';
+
+  @override
+  String get reviewTitle => 'Review & Confirm Report';
+
+  @override
+  String get aiSuggestionTitle => 'AI Advisory Suggestion';
+
+  @override
+  String get aiDisclaimer =>
+      'AI suggestions are advisory only. Permanent-way staff must inspect and confirm the actual hazard and severity before saving.';
+
+  @override
+  String get aiAnalyzing => 'Analyzing image with on-device intelligence...';
+
+  @override
+  String aiSuggestedHazard(String hazard) {
+    return 'Suggested Hazard: $hazard';
+  }
+
+  @override
+  String aiSuggestedSeverity(String severity) {
+    return 'Suggested Severity: $severity';
+  }
+
+  @override
+  String aiNote(String note) {
+    return 'AI Observation: $note';
+  }
+
+  @override
+  String get humanConfirmationTitle => 'Human Confirmation (Required)';
+
+  @override
+  String get hazardType => 'Hazard Type';
+
+  @override
+  String get severity => 'Severity';
+
+  @override
+  String get gangmanNote => 'Gangman\'s Field Note';
+
+  @override
+  String get gangmanNoteHint =>
+      'Describe obstruction, track clearance, or slope movement...';
+
+  @override
+  String get saveAndQueue => 'Confirm & Save Locally';
+
+  @override
+  String get saving => 'Saving report locally...';
+
+  @override
+  String get savedSuccessTitle => 'Report Saved Locally!';
+
+  @override
+  String savedSuccessMessage(String id) {
+    return 'Report saved with ID: $id. It has been added to the local queue and will sync when station connectivity is reached.';
+  }
+
+  @override
+  String get backToHome => 'Back to Home';
+
+  @override
+  String get viewQueue => 'View Queue';
+
+  @override
+  String get hazardSlip => 'Landslip / Mudslide';
+
+  @override
+  String get hazardRockfall => 'Rockfall / Fallen Debris';
+
+  @override
+  String get hazardBlockedDrain => 'Blocked Catchwater Drain';
+
+  @override
+  String get hazardDamagedWall => 'Damaged Retaining Wall';
+
+  @override
+  String get hazardTrackDefect => 'Track Defect / Gauge Spread';
+
+  @override
+  String get hazardVegetation => 'Vegetation Overgrowth';
+
+  @override
+  String get hazardOther => 'Other Hazard';
+
+  @override
+  String get severityLow => 'Low - Monitor';
+
+  @override
+  String get severityMedium => 'Medium - Maintenance Needed';
+
+  @override
+  String get severityHigh => 'High - Speed Restriction Required';
+
+  @override
+  String get severityCritical => 'Critical - Track Obstruction / Danger';
+
+  @override
+  String get statusOpen => 'Open';
+
+  @override
+  String get statusAcknowledged => 'Acknowledged';
+
+  @override
+  String get statusInspectionRequired => 'Inspection Required';
+
+  @override
+  String get statusResolved => 'Resolved';
+
+  @override
+  String get syncDraft => 'Draft';
+
+  @override
+  String get syncPending => 'Pending Sync';
+
+  @override
+  String get syncSyncing => 'Syncing...';
+
+  @override
+  String get syncSynced => 'Synced to Server';
+
+  @override
+  String get syncFailed => 'Sync Failed';
+
+  @override
+  String get syncConflict => 'Conflict';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get selectLanguage => 'Select Language';
+}

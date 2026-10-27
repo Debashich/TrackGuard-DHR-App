@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+	<string>TrackGuard DHR requires camera access to document railway track hazards and infrastructure status.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>TrackGuard DHR requires photo library access to select existing inspection images.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>TrackGuard DHR requires location access to record precise GPS coordinates along the railway alignment.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

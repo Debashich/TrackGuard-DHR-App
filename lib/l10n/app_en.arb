@@ -1,0 +1,163 @@
+{
+  "@@locale": "en",
+  "appTitle": "TrackGuard DHR",
+  "@appTitle": { "description": "The title of the application" },
+
+  "tagline": "Darjeeling Himalayan Railway Alignment Inspection",
+  "gangman": "Gangman",
+  "admin": "Supervisor / Admin",
+  "signInTitle": "TrackGuard DHR Sign In",
+  "signInSubtitle": "Permanent-Way Inspection & Hazard Reporting",
+  "signInGoogle": "Sign In with Google",
+  "devSignInGangman": "Developer Sign In (Gangman)",
+  "devSignInAdmin": "Developer Sign In (Admin)",
+  "signingIn": "Signing in...",
+  "signOut": "Sign Out",
+  "signedInAs": "Signed in as {name}",
+  "@signedInAs": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "pendingAccessTitle": "Access Approval Pending",
+  "pendingAccessMessage": "Your account has been registered. An authorized permanent-way supervisor must approve your profile before you can access field tools.",
+  "inactiveAccountMessage": "Your account is marked inactive. Please contact your section engineer.",
+  "checkStatus": "Check Status",
+
+  "homeTitle": "Inspection Dashboard",
+  "newReport": "New Report",
+  "myReports": "My Reports",
+  "pendingQueue": "Pending Sync Queue",
+  "pendingReportsCount": "{count, plural, =0{0 reports pending} =1{1 report pending} other{{count} reports pending}}",
+  "@pendingReportsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "assignedSection": "Assigned Section: {section}",
+  "@assignedSection": {
+    "placeholders": {
+      "section": { "type": "String" }
+    }
+  },
+  "unassignedSection": "No section assigned",
+  "onlineStatus": "Online - Cloud Sync Ready",
+  "offlineStatus": "Offline - Local Queue Active",
+  "aiStatusReady": "AI Analysis: Ready (Offline)",
+  "aiStatusHeuristic": "AI Analysis: Heuristic Fallback",
+  "aiStatusUnavailable": "AI Analysis: Manual Only",
+  "offlineExplanation": "All inspection reports are saved to your device immediately. When you reach a station with connectivity, queued reports will sync automatically.",
+
+  "captureTitle": "Capture Hazard Photo",
+  "cameraPermissionTitle": "Camera Permission Required",
+  "cameraPermissionMessage": "TrackGuard needs camera access to capture track hazards and retaining wall defects.",
+  "locationPermissionTitle": "Location Permission Required",
+  "locationPermissionMessage": "Precise GPS location is needed to estimate alignment kilometre markers and track sections.",
+  "grantPermission": "Grant Permission",
+  "takePhoto": "Capture Photo",
+  "retake": "Retake",
+  "confirmPhoto": "Use Photo",
+  "switchCamera": "Switch Camera",
+  "galleryFallback": "Select from Gallery",
+  "cameraUnavailable": "Camera unavailable. Please use gallery fallback.",
+  "processingImage": "Processing image...",
+
+  "locationTitle": "Location & Alignment",
+  "gpsAcquiring": "Acquiring GPS fix...",
+  "gpsLocked": "GPS Locked (±{accuracy}m)",
+  "@gpsLocked": {
+    "placeholders": {
+      "accuracy": { "type": "String" }
+    }
+  },
+  "gpsUnavailable": "GPS Signal Unavailable",
+  "locationSourceGps": "Source: Real GPS",
+  "locationSourceManual": "Source: Manual Selection",
+  "locationSourceFallback": "Source: Estimated Fallback",
+  "kmMarker": "Km {marker}",
+  "@kmMarker": {
+    "placeholders": {
+      "marker": { "type": "String" }
+    }
+  },
+  "nearestStation": "Nearest Station: {station}",
+  "@nearestStation": {
+    "placeholders": {
+      "station": { "type": "String" }
+    }
+  },
+  "selectWaypoint": "Select Nearest DHR Station / Waypoint",
+  "editKm": "Edit Km Marker",
+  "manualLocationNotice": "Warning: Fallback coordinates are estimated. Adjust km marker manually if needed.",
+
+  "reviewTitle": "Review & Confirm Report",
+  "aiSuggestionTitle": "AI Advisory Suggestion",
+  "aiDisclaimer": "AI suggestions are advisory only. Permanent-way staff must inspect and confirm the actual hazard and severity before saving.",
+  "aiAnalyzing": "Analyzing image with on-device intelligence...",
+  "aiSuggestedHazard": "Suggested Hazard: {hazard}",
+  "@aiSuggestedHazard": {
+    "placeholders": {
+      "hazard": { "type": "String" }
+    }
+  },
+  "aiSuggestedSeverity": "Suggested Severity: {severity}",
+  "@aiSuggestedSeverity": {
+    "placeholders": {
+      "severity": { "type": "String" }
+    }
+  },
+  "aiNote": "AI Observation: {note}",
+  "@aiNote": {
+    "placeholders": {
+      "note": { "type": "String" }
+    }
+  },
+  "humanConfirmationTitle": "Human Confirmation (Required)",
+  "hazardType": "Hazard Type",
+  "severity": "Severity",
+  "gangmanNote": "Gangman's Field Note",
+  "gangmanNoteHint": "Describe obstruction, track clearance, or slope movement...",
+  "saveAndQueue": "Confirm & Save Locally",
+  "saving": "Saving report locally...",
+  "savedSuccessTitle": "Report Saved Locally!",
+  "savedSuccessMessage": "Report saved with ID: {id}. It has been added to the local queue and will sync when station connectivity is reached.",
+  "@savedSuccessMessage": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "backToHome": "Back to Home",
+  "viewQueue": "View Queue",
+
+  "hazardSlip": "Landslip / Mudslide",
+  "hazardRockfall": "Rockfall / Fallen Debris",
+  "hazardBlockedDrain": "Blocked Catchwater Drain",
+  "hazardDamagedWall": "Damaged Retaining Wall",
+  "hazardTrackDefect": "Track Defect / Gauge Spread",
+  "hazardVegetation": "Vegetation Overgrowth",
+  "hazardOther": "Other Hazard",
+
+  "severityLow": "Low - Monitor",
+  "severityMedium": "Medium - Maintenance Needed",
+  "severityHigh": "High - Speed Restriction Required",
+  "severityCritical": "Critical - Track Obstruction / Danger",
+
+  "statusOpen": "Open",
+  "statusAcknowledged": "Acknowledged",
+  "statusInspectionRequired": "Inspection Required",
+  "statusResolved": "Resolved",
+
+  "syncDraft": "Draft",
+  "syncPending": "Pending Sync",
+  "syncSyncing": "Syncing...",
+  "syncSynced": "Synced to Server",
+  "syncFailed": "Sync Failed",
+  "syncConflict": "Conflict",
+
+  "retry": "Retry",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "close": "Close",
+  "language": "Language",
+  "selectLanguage": "Select Language"
+}
