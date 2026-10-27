@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -31,22 +32,48 @@ class ReportQueueScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final repo = ref.watch(reportRepositoryProvider);
+    final reportsAsync = ref.watch(localReportsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.pendingQueue)),
-      body: FutureBuilder<List<HazardReport>>(
-        future: repo.getLocalReports(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final reports = snapshot.data ?? [];
+      appBar: AppBar(
+        title: Text(l10n.pendingQueue),
+      ),
+      body: reportsAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(),
+        ),
+        error: (error, stackTrace) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: Colors.redAccent,
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Could not load local reports.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: () {
+                    ref.invalidate(localReportsProvider);
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        data: (reports) {
           if (reports.isEmpty) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -79,93 +106,115 @@ class ReportQueueScreen extends ConsumerWidget {
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: reports.length,
-            itemBuilder: (context, index) {
-              final report = reports[index];
-              final syncColor = _syncColor(report.syncStatus);
-
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(12),
-                  leading: HazardIcon(
-                    hazardType: report.confirmedHazardType,
-                    size: 24,
-                  ),
-                  title: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          HazardIcon.getLocalizedLabel(
-                            context,
-                            report.confirmedHazardType,
-                          ),
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      SeverityBadge(severity: report.confirmedSeverity),
-                    ],
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 6),
-                      Text(
-                        'Km ${(report.kmMarker ?? 51.0).toStringAsFixed(1)} • ${report.nearestStationName ?? "DHR"}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.white70,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: syncColor.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: syncColor.withValues(alpha: 0.5),
-                              ),
-                            ),
-                            child: Text(
-                              report.syncStatus.name.toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: syncColor,
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            'ID: ${report.id.substring(0, 8)}',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.white38,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  onTap: () {
-                    context.push('/gangman/reports/${report.id}');
-                  },
-                ),
-              );
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(localReportsProvider);
+              await ref.read(localReportsProvider.future);
             },
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              itemCount: reports.length,
+              itemBuilder: (context, index) {
+                final report = reports[index];
+                final syncColor = _syncColor(report.syncStatus);
+
+                return _buildReportCard(
+                  context,
+                  report,
+                  syncColor,
+                );
+              },
+            ),
           );
+        },
+      ),
+    );
+  }
+
+  Widget _buildReportCard(
+    BuildContext context,
+    HazardReport report,
+    Color syncColor,
+  ) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(12),
+        leading: HazardIcon(
+          hazardType: report.confirmedHazardType,
+          size: 24,
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                HazardIcon.getLocalizedLabel(
+                  context,
+                  report.confirmedHazardType,
+                ),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            SeverityBadge(
+              severity: report.confirmedSeverity,
+            ),
+          ],
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 6),
+            Text(
+              'Km ${(report.kmMarker ?? 51.0).toStringAsFixed(1)}'
+              ' • ${report.nearestStationName ?? "DHR"}',
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white70,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: syncColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: syncColor.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: Text(
+                    report.syncStatus.name.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: syncColor,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'ID: ${report.id.substring(0, report.id.length < 8 ? report.id.length : 8)}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.white38,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        onTap: () {
+          context.push('/gangman/reports/${report.id}');
         },
       ),
     );
