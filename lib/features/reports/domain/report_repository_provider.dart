@@ -1,16 +1,28 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/models/hazard_report.dart';
+import '../../../shared/models/sync_status.dart';
 import '../data/report_repository.dart';
-import '../data/temporary_report_repository.dart';
+import '../data/sqlite_report_repository.dart';
 
 final reportRepositoryProvider = Provider<ReportRepository>((ref) {
-  // In-memory instance retained for app lifecycle in Phase 1
-  return _sharedTemporaryRepo;
+  final repository = SqliteReportRepository();
+  ref.onDispose(() => repository.dispose());
+  return repository;
 });
 
-final _sharedTemporaryRepo = TemporaryReportRepository();
+final localReportsProvider =
+    StreamProvider<List<HazardReport>>((ref) {
+  final repository = ref.watch(reportRepositoryProvider);
+  return repository.watchLocalReports();
+});
 
-final pendingReportsCountProvider = FutureProvider<int>((ref) async {
-  final repo = ref.watch(reportRepositoryProvider);
-  return repo.getPendingCount();
+final pendingReportsCountProvider = StreamProvider<int>((ref) {
+  final repository = ref.watch(reportRepositoryProvider);
+
+  return repository.watchLocalReports().map(
+    (reports) => reports
+        .where((report) => report.syncStatus == SyncStatus.pending)
+        .length,
+  );
 });

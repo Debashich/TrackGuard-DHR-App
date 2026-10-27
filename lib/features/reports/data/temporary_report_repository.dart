@@ -10,6 +10,11 @@ class TemporaryReportRepository implements ReportRepository {
   final List<HazardReport> _reports = [];
 
   @override
+  Stream<List<HazardReport>> watchLocalReports() async* {
+    yield await getLocalReports();
+  }
+
+  @override
   Future<void> saveDraft(ReportDraft draft) async {
     _currentDraft = draft;
   }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/storage/local_media_storage.dart';
 import '../../../core/constants/dhr_waypoints.dart';
 import '../../../core/utils/image_utils.dart';
 import '../../../shared/models/geo_location.dart';
@@ -148,25 +149,35 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
   Future<bool> confirmDraftAndProceed() async {
     if (state.capturedFile == null) return false;
 
-    // Ensure we have a location, fallback if none
-    final location =
-        state.location ?? _locationService.createFallbackLocation();
+    try {
+      final location =
+          state.location ?? _locationService.createFallbackLocation();
 
-    // Create thumbnail
-    final thumbnail = await ImageUtils.generateThumbnail(state.capturedFile!);
+      final thumbnail = await ImageUtils.generateThumbnail(state.capturedFile!);
 
-    final draft = ReportDraft(
-      photoPath: state.capturedFile!.path,
-      thumbnailPath: thumbnail.path,
-      location: location,
-      createdAt: DateTime.now(),
-    );
+      final draft = ReportDraft(
+        photoPath: state.capturedFile!.path,
+        thumbnailPath: thumbnail.path,
+        location: location,
+        createdAt: DateTime.now(),
+      );
 
-    // Save draft via repository abstraction
-    final repo = ref.read(reportRepositoryProvider);
-    await repo.saveDraft(draft);
+      // Copy images into persistent app-owned storage first.
+      final persistentDraft = await LocalMediaStorage().persistDraftMedia(
+        draft,
+      );
 
-    return true;
+      // Only save the draft after both media paths are valid.
+      final repo = ref.read(reportRepositoryProvider);
+      await repo.saveDraft(persistentDraft);
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        errorMessage: 'Failed to save inspection draft: $e',
+      );
+      return false;
+    }
   }
 }
 
