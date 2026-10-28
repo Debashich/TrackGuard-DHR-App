@@ -10,10 +10,33 @@ import 'auth_repository.dart';
 
 class DevelopmentAuthRepository implements AuthRepository {
   final _controller = StreamController<AppUser?>.broadcast();
-  AppUser? _currentUser;
 
   DevelopmentAuthRepository() {
-    _currentUser = null;
+    final client = _getSupabaseClient();
+
+    if (client != null) {
+      client.auth.onAuthStateChange.listen((data) async {
+        final supaUser = data.session?.user;
+
+        if (supaUser == null) {
+          _controller.add(null);
+          return;
+        }
+
+        try {
+          final profile = await loadProfile(supaUser.id);
+
+          if (profile == null) {
+            _controller.addError(ProfileNotFoundException(supaUser.id));
+            return;
+          }
+
+          _controller.add(profile);
+        } catch (error, stackTrace) {
+          _controller.addError(error, stackTrace);
+        }
+      });
+    }
   }
 
   SupabaseClient? _getSupabaseClient() {
@@ -29,51 +52,43 @@ class DevelopmentAuthRepository implements AuthRepository {
 
   @override
   Future<AppUser?> getCurrentUser() async {
-    if (_currentUser != null) return _currentUser;
     final client = _getSupabaseClient();
-    if (client != null && client.auth.currentUser != null) {
-      final supaUser = client.auth.currentUser!;
-      final profile = await loadProfile(supaUser.id);
-      if (profile != null) {
-        _currentUser = profile;
-        _controller.add(profile);
-        return profile;
-      }
+    final supaUser = client?.auth.currentUser;
+
+    if (supaUser == null) {
+      return null;
     }
-    return null;
+
+    final profile = await loadProfile(supaUser.id);
+
+    if (profile == null) {
+      throw ProfileNotFoundException(supaUser.id);
+    }
+
+    return profile;
   }
 
   @override
-  Future<AppUser> signInWithGoogle() async {
+  Future<void> signInWithGoogle() async {
     final client = _getSupabaseClient();
-    if (client != null) {
-      try {
-        await client.auth.signInWithOAuth(
-          OAuthProvider.google,
-          redirectTo: 'io.supabase.trackguard://login-callback/',
-        );
-      } catch (e) {
-        debugPrint('[DevelopmentAuthRepository] Google sign-in note: $e');
-      }
+
+    if (client == null) {
+      throw StateError(
+        'Supabase is not configured. Provide SUPABASE_URL and SUPABASE_ANON_KEY.',
+      );
     }
 
-    await Future.delayed(const Duration(milliseconds: 300));
-    final user = AppUser(
-      id: client?.auth.currentUser?.id ?? 'dhr-gangman-001',
-      fullName: 'Ramesh Sharma',
-      email:
-          client?.auth.currentUser?.email ??
-          'ramesh.sharma@dhr.railways.gov.in',
-      role: UserRole.gangman,
-      assignedSection: 'kurseong-ghum',
-      preferredLanguage: AppLanguage.en,
-      isActive: true,
-      createdAt: DateTime.now().subtract(const Duration(days: 30)),
-      updatedAt: DateTime.now(),
+    final launched = await client.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: 'io.supabase.trackguard://login-callback/',
+      authScreenLaunchMode: LaunchMode.externalApplication,
     );
-    _currentUser = user;
-    _controller.add(user);
-    return user;
+
+    if (!launched) {
+      throw StateError('Could not start Google sign-in.');
+    }
+
+    // The auth-state listener handles the completed OAuth redirect.
   }
 
   @override
@@ -81,26 +96,22 @@ class DevelopmentAuthRepository implements AuthRepository {
     required UserRole role,
     bool isActive = true,
   }) async {
+    if (!kDebugMode) {
+      throw StateError('Development sign-in is disabled in release builds.');
+    }
+
     final client = _getSupabaseClient();
-    String userId = role == UserRole.gangman
-        ? 'dhr-gangman-001'
-        : 'dhr-admin-001';
+    var userId = role == UserRole.gangman ? 'dhr-gangman-001' : 'dhr-admin-001';
 
     if (client != null) {
       try {
         if (client.auth.currentUser == null) {
-          final res = await client.auth.signInAnonymously();
-          if (res.user != null) {
-            userId = res.user!.id;
-            debugPrint(
-              '[DevelopmentAuthRepository] Signed into Supabase anonymously as $userId',
-            );
+          final response = await client.auth.signInAnonymously();
+          if (response.user != null) {
+            userId = response.user!.id;
           }
         } else {
           userId = client.auth.currentUser!.id;
-          debugPrint(
-            '[DevelopmentAuthRepository] Using active Supabase session $userId',
-          );
         }
 
         try {
@@ -117,19 +128,11 @@ class DevelopmentAuthRepository implements AuthRepository {
             'preferred_language': 'en',
             'is_active': isActive,
           });
-          debugPrint(
-            '[DevelopmentAuthRepository] Ensured profile in Supabase for $userId',
-          );
-        } catch (profileError) {
-          debugPrint(
-            '[DevelopmentAuthRepository] Note: Profile upsert error: $profileError',
-          );
+        } catch (error) {
+          debugPrint('Development profile upsert failed: $error');
         }
-      } catch (authError) {
-        debugPrint(
-          '[DevelopmentAuthRepository] Supabase anonymous sign-in not available: $authError. '
-          'If you want dev users to sync to Supabase, enable Anonymous Sign-Ins in Supabase Dashboard (Auth -> Providers -> Anonymous).',
-        );
+      } catch (error) {
+        debugPrint('Development Supabase sign-in failed: $error');
       }
     }
 
@@ -148,106 +151,38 @@ class DevelopmentAuthRepository implements AuthRepository {
       createdAt: DateTime.now().subtract(const Duration(days: 30)),
       updatedAt: DateTime.now(),
     );
-    _currentUser = user;
+
     _controller.add(user);
     return user;
   }
 
   @override
-  Future<AppUser> signInWithEmail({
-    required String email,
-    required String password,
-    bool isSignUp = false,
-  }) async {
-    final client = _getSupabaseClient();
-    if (client == null) {
-      throw StateError(
-        'Supabase is not configured. Run with SUPABASE_URL and SUPABASE_ANON_KEY.',
-      );
-    }
-
-    final AuthResponse res;
-    if (isSignUp) {
-      res = await client.auth.signUp(email: email, password: password);
-    } else {
-      res = await client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-    }
-
-    final supaUser = res.user;
-    if (supaUser == null) {
-      throw StateError('Sign-in failed: no user returned.');
-    }
-
-    AppUser? profile = await loadProfile(supaUser.id);
-    if (profile == null) {
-      final role = email.toLowerCase().contains('admin')
-          ? UserRole.admin
-          : UserRole.gangman;
-      final name = email.split('@').first;
-      try {
-        await client.from('profiles').upsert({
-          'id': supaUser.id,
-          'full_name': name,
-          'email': supaUser.email ?? email,
-          'role': role.name,
-          'assigned_section': 'kurseong-ghum',
-          'preferred_language': 'en',
-          'is_active': true,
-        });
-      } catch (e) {
-        debugPrint('[DevelopmentAuthRepository] Profile creation error: $e');
-      }
-
-      profile = AppUser(
-        id: supaUser.id,
-        fullName: name,
-        email: supaUser.email ?? email,
-        role: role,
-        assignedSection: 'kurseong-ghum',
-        preferredLanguage: AppLanguage.en,
-        isActive: true,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-    }
-
-    _currentUser = profile;
-    _controller.add(profile);
-    return profile;
-  }
-
-  @override
   Future<void> signOut() async {
     final client = _getSupabaseClient();
-    if (client != null) {
-      try {
-        await client.auth.signOut();
-      } catch (_) {}
+
+    if (client != null && client.auth.currentSession != null) {
+      await client.auth.signOut();
     }
-    _currentUser = null;
+
     _controller.add(null);
   }
 
   @override
   Future<AppUser?> loadProfile(String userId) async {
     final client = _getSupabaseClient();
-    if (client == null) return _currentUser;
 
-    try {
-      final rows = await client
-          .from('profiles')
-          .select()
-          .eq('id', userId)
-          .maybeSingle();
+    if (client == null) {
+      throw StateError('Supabase is not configured.');
+    }
 
-      if (rows != null) {
-        return AppUser.fromJson(Map<String, dynamic>.from(rows));
-      }
-    } catch (_) {}
+    final row = await client
+        .from('profiles')
+        .select()
+        .eq('id', userId)
+        .maybeSingle();
 
-    return _currentUser;
+    if (row == null) return null;
+
+    return AppUser.fromJson(Map<String, dynamic>.from(row));
   }
 }

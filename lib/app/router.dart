@@ -33,8 +33,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: notifier,
     redirect: (context, state) {
       final authState = ref.read(authControllerProvider);
-      final location = state.uri.toString();
+      final location = state.uri.path;
       final isAuthRoute = location.startsWith('/auth');
+      final isAdminRoute = location.startsWith('/admin');
+      final isGangmanRoute = location.startsWith('/gangman');
 
       switch (authState.status) {
         case AuthStatus.unauthenticated:
@@ -49,13 +51,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return location == '/auth/inactive' ? null : '/auth/inactive';
 
         case AuthStatus.authorizedAdmin:
-          if (isAuthRoute) return '/admin/dashboard';
+          if (isAuthRoute || isGangmanRoute) {
+            return '/admin/dashboard';
+          }
           return null;
 
         case AuthStatus.authorizedGangman:
         case AuthStatus.authenticated:
         case AuthStatus.loadingProfile:
-          if (isAuthRoute) return '/gangman/home';
+          if (isAuthRoute || isAdminRoute) {
+            return '/gangman/home';
+          }
           return null;
       }
     },
