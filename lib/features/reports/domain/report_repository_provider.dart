@@ -34,8 +34,8 @@ final pendingReportsCountProvider = StreamProvider<int>((ref) {
 final reportSyncServiceProvider = Provider<ReportSyncService?>((ref) {
   final client = ref.watch(supabaseClientProvider);
 
-  // Don't attempt remote sync until Supabase is configured and signed in.
-  if (client == null || client.auth.currentUser == null) {
+  // Allow remote sync whenever Supabase client is initialized.
+  if (client == null) {
     return null;
   }
 

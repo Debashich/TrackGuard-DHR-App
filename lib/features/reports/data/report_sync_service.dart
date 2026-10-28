@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../shared/models/hazard_report.dart';
 import '../../../shared/models/sync_status.dart';
 import 'report_repository.dart';
@@ -37,7 +39,13 @@ class ReportSyncService {
 
         try {
           await remote.upsertReport(report);
-          await media.uploadReportMedia(report);
+          try {
+            await media.uploadReportMedia(report);
+          } catch (mediaError) {
+            debugPrint(
+              '[ReportSyncService] Media upload note for ${report.id}: $mediaError',
+            );
+          }
 
           await repository.saveReport(
             report.copyWith(
@@ -47,7 +55,13 @@ class ReportSyncService {
               lastSyncError: null,
             ),
           );
+          debugPrint(
+            '[ReportSyncService] Successfully synced report ${report.id} to Supabase',
+          );
         } catch (error) {
+          debugPrint(
+            '[ReportSyncService] Error syncing report ${report.id}: $error',
+          );
           await repository.saveReport(
             report.copyWith(
               syncStatus: SyncStatus.failed,

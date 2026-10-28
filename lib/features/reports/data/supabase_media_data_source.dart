@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../shared/models/hazard_report.dart';
 
@@ -12,9 +13,6 @@ class SupabaseMediaDataSource {
 
   Future<void> uploadReportMedia(HazardReport report) async {
     final user = _client.auth.currentUser;
-    if (user == null) {
-      throw StateError('Sign in before uploading report media.');
-    }
 
     final originalPath = report.originalPhotoPath;
     if (originalPath == null || originalPath.isEmpty) return;
@@ -28,7 +26,8 @@ class SupabaseMediaDataSource {
     }
 
     final bucket = _client.storage.from('report-media');
-    final prefix = '${user.id}/${report.id}';
+    final userPrefix = user?.id ?? 'anonymous';
+    final prefix = '$userPrefix/${report.id}';
     final extension = _extension(originalPath);
     final mimeType = _mimeType(extension);
     final remoteOriginalPath = '$prefix/original.$extension';
@@ -65,6 +64,7 @@ class SupabaseMediaDataSource {
     }
 
     await _client.from('report_media').upsert({
+      'id': const Uuid().v4(),
       'report_id': report.id,
       'original_path': remoteOriginalPath,
       'thumbnail_path': remoteThumbnailPath,

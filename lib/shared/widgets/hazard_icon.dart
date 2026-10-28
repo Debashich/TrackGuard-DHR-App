@@ -92,12 +92,15 @@ class HazardIcon extends StatelessWidget {
       children: [
         iconWidget,
         const SizedBox(width: 8),
-        Text(
-          getLocalizedLabel(context, hazardType),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
+        Flexible(
+          child: Text(
+            getLocalizedLabel(context, hazardType),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],

@@ -90,7 +90,11 @@ class AiSuggestionCard extends StatelessWidget {
                 ),
               ),
             ] else if (aiResult != null) ...[
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 8,
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   if (aiResult!.hazardType != null)
                     HazardIcon(
@@ -98,7 +102,6 @@ class AiSuggestionCard extends StatelessWidget {
                       size: 18,
                       showLabel: true,
                     ),
-                  const Spacer(),
                   if (aiResult!.severity != null)
                     SeverityBadge(severity: aiResult!.severity!),
                 ],

@@ -70,7 +70,11 @@ class GangmanReportDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
 
                 // Status & Sync State Banner
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -93,7 +97,6 @@ class GangmanReportDetailScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -134,14 +137,17 @@ class GangmanReportDetailScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Row(
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             HazardIcon(
                               hazardType: report.confirmedHazardType,
                               size: 24,
                               showLabel: true,
                             ),
-                            const Spacer(),
                             SeverityBadge(
                               severity: report.confirmedSeverity,
                               isLarge: true,

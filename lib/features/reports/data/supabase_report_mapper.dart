@@ -7,7 +7,7 @@ class SupabaseReportMapper {
 
   static Map<String, dynamic> toRemoteRow(
     HazardReport report, {
-    required String userId,
+    String? userId,
   }) {
     final sectionId = report.sectionId;
     if (sectionId.isEmpty) {
@@ -16,9 +16,14 @@ class SupabaseReportMapper {
       );
     }
 
-    return {
+    final isUuid = RegExp(
+      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+    );
+    final validUserId = userId ??
+        (isUuid.hasMatch(report.createdBy) ? report.createdBy : null);
+
+    final map = <String, dynamic>{
       'id': report.id,
-      'created_by': userId,
       'created_at': report.createdAt.toUtc().toIso8601String(),
       'updated_at': report.updatedAt.toUtc().toIso8601String(),
       'latitude': report.latitude,
@@ -45,6 +50,10 @@ class SupabaseReportMapper {
       'inspection_status': report.inspectionStatus.toJson(),
       'sync_version': report.syncVersion,
     };
+    if (validUserId != null) {
+      map['created_by'] = validUserId;
+    }
+    return map;
   }
 
   static HazardReport fromRemoteRow(Map<String, dynamic> row) {

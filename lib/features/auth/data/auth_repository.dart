@@ -9,6 +9,11 @@ abstract class AuthRepository {
     required UserRole role,
     bool isActive = true,
   });
+  Future<AppUser> signInWithEmail({
+    required String email,
+    required String password,
+    bool isSignUp = false,
+  });
   Future<void> signOut();
   Future<AppUser?> loadProfile(String userId);
 }

@@ -9,6 +9,7 @@ import '../../../shared/models/hazard_report.dart';
 import '../../../shared/models/sync_status.dart';
 import '../../../shared/widgets/hazard_icon.dart';
 import '../../../shared/widgets/severity_badge.dart';
+import '../../../core/supabase/supabase_provider.dart';
 import '../../reports/domain/report_repository_provider.dart';
 
 class ReportQueueScreen extends ConsumerWidget {
@@ -37,6 +38,58 @@ class ReportQueueScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.pendingQueue),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.sync_rounded),
+            tooltip: 'Sync Now',
+            onPressed: () async {
+              final syncService = ref.read(reportSyncServiceProvider);
+              if (syncService == null) {
+                final client = ref.read(supabaseClientProvider);
+                final reason = client == null
+                    ? 'Supabase client not initialized'
+                    : 'Sync service unavailable';
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Cannot sync: $reason'),
+                    backgroundColor: AppTheme.statusRed,
+                  ),
+                );
+                return;
+              }
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Syncing pending reports with Supabase...'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+
+              try {
+                await syncService.syncPendingReports();
+                ref.invalidate(localReportsProvider);
+                ref.invalidate(pendingReportsCountProvider);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Sync completed successfully!'),
+                      backgroundColor: AppTheme.statusGreen,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Sync failed: $e'),
+                      backgroundColor: AppTheme.statusRed,
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+        ],
       ),
       body: reportsAsync.when(
         loading: () => const Center(
@@ -108,7 +161,14 @@ class ReportQueueScreen extends ConsumerWidget {
 
           return RefreshIndicator(
             onRefresh: () async {
+              final syncService = ref.read(reportSyncServiceProvider);
+              if (syncService != null) {
+                try {
+                  await syncService.syncPendingReports();
+                } catch (_) {}
+              }
               ref.invalidate(localReportsProvider);
+              ref.invalidate(pendingReportsCountProvider);
               await ref.read(localReportsProvider.future);
             },
             child: ListView.builder(

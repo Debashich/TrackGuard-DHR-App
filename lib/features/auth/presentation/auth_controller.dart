@@ -18,13 +18,41 @@ class AuthController extends Notifier<AuthState> {
   @override
   AuthState build() {
     _repository = ref.watch(authRepositoryProvider);
+    _restoreSession();
     return AuthState.unauthenticated();
+  }
+
+  Future<void> _restoreSession() async {
+    try {
+      final user = await _repository.getCurrentUser();
+      if (user != null) {
+        _handleUserLoaded(user);
+      }
+    } catch (_) {}
   }
 
   Future<void> signInWithGoogle() async {
     state = AuthState.authenticating();
     try {
       final user = await _repository.signInWithGoogle();
+      _handleUserLoaded(user);
+    } catch (e) {
+      state = AuthState.error(e.toString());
+    }
+  }
+
+  Future<void> signInWithEmail({
+    required String email,
+    required String password,
+    bool isSignUp = false,
+  }) async {
+    state = AuthState.authenticating();
+    try {
+      final user = await _repository.signInWithEmail(
+        email: email,
+        password: password,
+        isSignUp: isSignUp,
+      );
       _handleUserLoaded(user);
     } catch (e) {
       state = AuthState.error(e.toString());
