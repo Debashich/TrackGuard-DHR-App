@@ -270,7 +270,9 @@ class SignInScreen extends ConsumerWidget {
               final pass = passwordController.text.trim();
               if (email.isNotEmpty && pass.isNotEmpty) {
                 Navigator.pop(dialogCtx);
-                ref.read(authControllerProvider.notifier).signInWithEmail(
+                ref
+                    .read(authControllerProvider.notifier)
+                    .signInWithEmail(
                       email: email,
                       password: pass,
                       isSignUp: true,
@@ -285,7 +287,9 @@ class SignInScreen extends ConsumerWidget {
               final pass = passwordController.text.trim();
               if (email.isNotEmpty && pass.isNotEmpty) {
                 Navigator.pop(dialogCtx);
-                ref.read(authControllerProvider.notifier).signInWithEmail(
+                ref
+                    .read(authControllerProvider.notifier)
+                    .signInWithEmail(
                       email: email,
                       password: pass,
                       isSignUp: false,

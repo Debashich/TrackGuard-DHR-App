@@ -10,6 +10,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/app_language.dart';
 import '../../../shared/widgets/connectivity_indicator.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../../../shared/widgets/sync_summary_card.dart';
 import '../../ai/domain/ai_service_provider.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../reports/domain/report_repository_provider.dart';
@@ -24,8 +25,7 @@ class HomeScreen extends ConsumerWidget {
     final user = authState.user;
     final isOnlineAsync = ref.watch(isOnlineProvider);
     final isOnline = isOnlineAsync.value ?? false;
-    final pendingCountAsync = ref.watch(pendingReportsCountProvider);
-    final pendingCount = pendingCountAsync.value ?? 0;
+    final syncSummary = ref.watch(syncSummaryProvider);
     final isAiReadyAsync = ref.watch(isAiModelReadyProvider);
     final isAiReady = isAiReadyAsync.value ?? false;
     final currentLang = ref.watch(appLanguageProvider);
@@ -223,6 +223,46 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
+                // Synchronization Summary Card
+                SyncSummaryCard(
+                  summary: syncSummary,
+                  onSyncNow:
+                      (isOnline &&
+                          (syncSummary.pendingCount > 0 ||
+                              syncSummary.failedCount > 0) &&
+                          !syncSummary.isSyncing)
+                      ? () async {
+                          final syncService = ref.read(
+                            reportSyncServiceProvider,
+                          );
+                          if (syncService != null) {
+                            try {
+                              await syncService.syncPendingReports();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.syncAllReportsSynced),
+                                    backgroundColor: AppTheme.statusGreen,
+                                  ),
+                                );
+                              }
+                            } catch (_) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.syncFailedButSafe),
+                                    backgroundColor: AppTheme.statusRed,
+                                  ),
+                                );
+                              }
+                            }
+                          }
+                        }
+                      : null,
+                  onViewQueue: () => context.push('/gangman/reports'),
+                ),
+                const SizedBox(height: 16),
+
                 // Pending reports queue card
                 Card(
                   child: InkWell(
@@ -261,13 +301,15 @@ class HomeScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  l10n.pendingReportsCount(pendingCount),
+                                  l10n.pendingReportsCount(
+                                    syncSummary.pendingCount,
+                                  ),
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: pendingCount > 0
+                                    color: syncSummary.pendingCount > 0
                                         ? AppTheme.primaryAmber
                                         : Colors.white60,
-                                    fontWeight: pendingCount > 0
+                                    fontWeight: syncSummary.pendingCount > 0
                                         ? FontWeight.w600
                                         : FontWeight.normal,
                                   ),

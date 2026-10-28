@@ -325,6 +325,162 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncConflict => 'Conflict';
 
   @override
+  String get syncStatusDraft => 'Draft';
+
+  @override
+  String get syncStatusPending => 'Pending Sync';
+
+  @override
+  String get syncStatusSyncing => 'Syncing...';
+
+  @override
+  String get syncStatusSynced => 'Synced';
+
+  @override
+  String get syncStatusFailed => 'Sync Failed';
+
+  @override
+  String get syncStatusConflict => 'Conflict';
+
+  @override
+  String get syncSummaryTitle => 'Sync Summary';
+
+  @override
+  String syncPendingReports(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reports waiting to sync',
+      one: '1 report waiting to sync',
+      zero: '0 reports waiting',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncFailedReports(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reports failed',
+      one: '1 report failed',
+      zero: '0 reports failed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncReportsSyncing => 'Syncing reports...';
+
+  @override
+  String get syncAllReportsSynced => 'All reports synced';
+
+  @override
+  String syncLastSuccessful(String time) {
+    return 'Last synced: $time';
+  }
+
+  @override
+  String get syncNoSuccessfulSync => 'Not synced yet';
+
+  @override
+  String get syncOfflineSafe =>
+      'Offline — reports remain safely stored on this device.';
+
+  @override
+  String get syncWaitingForSignal => 'Offline — waiting for station signal';
+
+  @override
+  String get syncStationSignalAvailable => 'Station signal available';
+
+  @override
+  String get syncSavedLocally => 'Saved locally on this device';
+
+  @override
+  String get syncSavedAndSynced => 'Saved and synced to server';
+
+  @override
+  String get syncFailedButSafe =>
+      'Some reports could not sync. They remain safe locally.';
+
+  @override
+  String get syncNeedsAttention => 'This report needs attention';
+
+  @override
+  String get syncErrorOffline =>
+      'No network connection. The report is safely stored on this device.';
+
+  @override
+  String get syncErrorTimeout =>
+      'The station connection took too long. The report remains saved locally.';
+
+  @override
+  String get syncErrorServerUnavailable =>
+      'The control service is temporarily unavailable. Please try again later.';
+
+  @override
+  String get syncErrorUnauthorized =>
+      'Your access has expired or is unauthorized. Sign in again when connectivity is available.';
+
+  @override
+  String get syncErrorMediaUpload =>
+      'The report details were prepared, but the photo could not be uploaded yet.';
+
+  @override
+  String get syncErrorConflict =>
+      'This report was changed elsewhere and needs review.';
+
+  @override
+  String get syncErrorUnknown =>
+      'The report could not be synchronized. It remains safely stored locally.';
+
+  @override
+  String get aiProviderOfflineGemma => 'Offline Gemma';
+
+  @override
+  String get aiProviderHeuristic => 'Heuristic Rules';
+
+  @override
+  String get aiProviderManual => 'Manual Classification';
+
+  @override
+  String get aiProviderOnlineGemini => 'Online Gemini';
+
+  @override
+  String get aiModelLabel => 'AI Model';
+
+  @override
+  String get aiProviderLabel => 'AI Provider';
+
+  @override
+  String get aiLanguageLabel => 'AI Language';
+
+  @override
+  String get aiConfidenceLabel => 'Confidence';
+
+  @override
+  String get aiAdvisoryNotice =>
+      'AI suggestion is advisory only. Gangman inspection confirmed.';
+
+  @override
+  String get syncNow => 'Sync Now';
+
+  @override
+  String get syncSuccessMessage => 'Synchronization completed successfully';
+
+  @override
+  String get retrySync => 'Retry Sync';
+
+  @override
+  String get viewSyncDetails => 'View Details';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
   String get retry => 'Retry';
 
   @override
@@ -341,4 +497,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectLanguage => 'Select Language';
+
+  @override
+  String get allFilter => 'All';
+
+  @override
+  String get noReportsMatchFilter => 'No reports match the selected filter.';
 }

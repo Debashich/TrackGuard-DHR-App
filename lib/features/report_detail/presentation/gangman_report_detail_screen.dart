@@ -5,28 +5,54 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/constants/dhr_waypoints.dart';
+import '../../../core/utils/date_format_utils.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/hazard_report.dart';
+import '../../../shared/models/sync_status.dart';
+import '../../../shared/widgets/ai_metadata_card.dart';
 import '../../../shared/widgets/hazard_icon.dart';
 import '../../../shared/widgets/severity_badge.dart';
+import '../../../shared/widgets/sync_status_card.dart';
 import '../../reports/domain/report_repository_provider.dart';
 
-class GangmanReportDetailScreen extends ConsumerWidget {
+class GangmanReportDetailScreen extends ConsumerStatefulWidget {
   final String reportId;
 
   const GangmanReportDetailScreen({super.key, required this.reportId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GangmanReportDetailScreen> createState() =>
+      _GangmanReportDetailScreenState();
+}
+
+class _GangmanReportDetailScreenState
+    extends ConsumerState<GangmanReportDetailScreen> {
+  Future<void> _triggerRetry(HazardReport report) async {
+    final syncService = ref.read(reportSyncServiceProvider);
+    if (syncService != null) {
+      try {
+        await syncService.syncPendingReports();
+        ref.invalidate(localReportsProvider);
+        if (mounted) {
+          setState(() {});
+        }
+      } catch (_) {}
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final repo = ref.watch(reportRepositoryProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Report ${reportId.length >= 8 ? reportId.substring(0, 8) : reportId}',
+          '${l10n.reviewTitle} ${widget.reportId.length >= 8 ? widget.reportId.substring(0, 8) : widget.reportId}',
         ),
       ),
       body: FutureBuilder<HazardReport?>(
-        future: repo.getReportById(reportId),
+        future: repo.getReportById(widget.reportId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -34,13 +60,22 @@ class GangmanReportDetailScreen extends ConsumerWidget {
 
           final report = snapshot.data;
           if (report == null) {
-            return const Center(
+            return Center(
               child: Text(
                 'Report not found',
-                style: TextStyle(color: Colors.white70),
+                style: const TextStyle(color: Colors.white70),
               ),
             );
           }
+
+          final createdAtText = DateFormatUtils.formatDateTime(
+            report.createdAt,
+            l10n,
+          );
+          final updatedAtText = DateFormatUtils.formatDateTime(
+            report.updatedAt,
+            l10n,
+          );
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -48,7 +83,7 @@ class GangmanReportDetailScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Original Photo
-                if (report.originalPhotoPath != null)
+                if (report.originalPhotoPath != null) ...[
                   Card(
                     clipBehavior: Clip.antiAlias,
                     child: SizedBox(
@@ -67,56 +102,15 @@ class GangmanReportDetailScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 12),
+                ],
 
-                // Status & Sync State Banner
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 6,
-                  alignment: WrapAlignment.spaceBetween,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryAmber.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: AppTheme.primaryAmber.withValues(alpha: 0.6),
-                        ),
-                      ),
-                      child: Text(
-                        'STATUS: ${report.inspectionStatus.name.toUpperCase()}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.primaryAmber,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.surfaceDarkElevated,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: AppTheme.borderDark),
-                      ),
-                      child: Text(
-                        'SYNC: ${report.syncStatus.name.toUpperCase()}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ),
-                  ],
+                // Full Sync Status Card
+                SyncStatusCard(
+                  report: report,
+                  onRetry: report.syncStatus == SyncStatus.failed
+                      ? () => _triggerRetry(report)
+                      : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -127,9 +121,9 @@ class GangmanReportDetailScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'CONFIRMED CLASSIFICATION',
-                          style: TextStyle(
+                        Text(
+                          l10n.humanConfirmationTitle.toUpperCase(),
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.primaryAmber,
@@ -156,9 +150,9 @@ class GangmanReportDetailScreen extends ConsumerWidget {
                         ),
                         if (report.userNote.isNotEmpty) ...[
                           const SizedBox(height: 14),
-                          const Text(
-                            "Gangman's Note:",
-                            style: TextStyle(
+                          Text(
+                            l10n.gangmanNote,
+                            style: const TextStyle(
                               fontSize: 12,
                               color: Colors.white60,
                             ),
@@ -204,7 +198,9 @@ class GangmanReportDetailScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Section: ${DhrWaypoints.getSectionName(report.sectionId)}',
+                          l10n.assignedSection(
+                            DhrWaypoints.getSectionName(report.sectionId),
+                          ),
                           style: const TextStyle(
                             fontSize: 13,
                             color: Colors.white70,
@@ -224,61 +220,80 @@ class GangmanReportDetailScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // AI Suggestion Audit Card
+                // AI Suggestion and Audit Card
+                AiMetadataCard.fromReport(report),
+                const SizedBox(height: 16),
+
+                // Audit Timestamps Card
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const Text(
+                          'REPORT AUDIT INFORMATION',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.primaryAmber,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
                         Row(
                           children: [
                             const Icon(
-                              Icons.psychology,
-                              size: 18,
-                              color: AppTheme.primaryAmber,
+                              Icons.history,
+                              size: 16,
+                              color: Colors.white54,
                             ),
                             const SizedBox(width: 8),
-                            const Text(
-                              'AI SUGGESTION AUDIT',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.primaryAmber,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            const Spacer(),
                             Text(
-                              report.aiProvider.name.toUpperCase(),
+                              'Created: $createdAtText',
                               style: const TextStyle(
-                                fontSize: 11,
-                                color: Colors.white54,
+                                fontSize: 12,
+                                color: Colors.white70,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        if (report.aiSuggestedHazardType != null)
-                          Text(
-                            'Suggested: ${report.aiSuggestedHazardType!.name} (${report.aiSuggestedSeverity?.name ?? "unknown"})',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        if (report.aiNote != null &&
-                            report.aiNote!.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            report.aiNote!,
-                            style: const TextStyle(
-                              fontSize: 12,
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.update,
+                              size: 16,
                               color: Colors.white54,
-                              fontStyle: FontStyle.italic,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Text(
+                              'Updated: $updatedAtText',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.badge_outlined,
+                              size: 16,
+                              color: Colors.white54,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Report ID: ${report.id}',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.white38,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),

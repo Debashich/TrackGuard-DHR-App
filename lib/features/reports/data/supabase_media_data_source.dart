@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -35,10 +34,7 @@ class SupabaseMediaDataSource {
     await bucket.upload(
       remoteOriginalPath,
       originalFile,
-      fileOptions: FileOptions(
-        contentType: mimeType,
-        upsert: true,
-      ),
+      fileOptions: FileOptions(contentType: mimeType, upsert: true),
     );
 
     String? remoteThumbnailPath;
@@ -49,8 +45,7 @@ class SupabaseMediaDataSource {
 
       if (await thumbnailFile.exists()) {
         final thumbnailExtension = _extension(thumbnailPath);
-        remoteThumbnailPath =
-            '$prefix/thumbnail.$thumbnailExtension';
+        remoteThumbnailPath = '$prefix/thumbnail.$thumbnailExtension';
 
         await bucket.upload(
           remoteThumbnailPath,

@@ -325,6 +325,162 @@ class AppLocalizationsNe extends AppLocalizations {
   String get syncConflict => 'द्वन्द्व';
 
   @override
+  String get syncStatusDraft => 'ड्राफ्ट';
+
+  @override
+  String get syncStatusPending => 'सिङ्क हुन बाँकी';
+
+  @override
+  String get syncStatusSyncing => 'सिङ्क हुँदैछ...';
+
+  @override
+  String get syncStatusSynced => 'सिङ्क भयो';
+
+  @override
+  String get syncStatusFailed => 'सिङ्क असफल';
+
+  @override
+  String get syncStatusConflict => 'द्वन्द्व';
+
+  @override
+  String get syncSummaryTitle => 'सिङ्क सारांश';
+
+  @override
+  String syncPendingReports(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count रिपोर्टहरू सिङ्क हुन बाँकी',
+      one: '1 रिपोर्ट सिङ्क हुन बाँकी',
+      zero: '0 रिपोर्ट बाँकी',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncFailedReports(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count रिपोर्टहरू असफल',
+      one: '1 रिपोर्ट असफल',
+      zero: '0 रिपोर्ट असफल',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncReportsSyncing => 'रिपोर्टहरू सिङ्क हुँदैछन्...';
+
+  @override
+  String get syncAllReportsSynced => 'सबै रिपोर्टहरू सिङ्क भए';
+
+  @override
+  String syncLastSuccessful(String time) {
+    return 'अन्तिम सिङ्क: $time';
+  }
+
+  @override
+  String get syncNoSuccessfulSync => 'अहिलेसम्म सिङ्क भएको छैन';
+
+  @override
+  String get syncOfflineSafe =>
+      'अफलाइन — रिपोर्टहरू यस यन्त्रमा सुरक्षित भण्डारण गरिएका छन्।';
+
+  @override
+  String get syncWaitingForSignal => 'अफलाइन — स्टेसन सिग्नलको पर्खाइमा';
+
+  @override
+  String get syncStationSignalAvailable => 'स्टेसन सिग्नल उपलब्ध छ';
+
+  @override
+  String get syncSavedLocally => 'यस यन्त्रमा स्थानीय रूपमा सुरक्षित गरियो';
+
+  @override
+  String get syncSavedAndSynced => 'सुरक्षित गरियो र सर्भरमा सिङ्क भयो';
+
+  @override
+  String get syncFailedButSafe =>
+      'केही रिपोर्टहरू सिङ्क हुन सकेनन्। तिनीहरू स्थानीय रूपमा सुरक्षित छन्।';
+
+  @override
+  String get syncNeedsAttention => 'यो रिपोर्टमा ध्यान दिन आवश्यक छ';
+
+  @override
+  String get syncErrorOffline =>
+      'कुनै नेटवर्क जडान छैन। रिपोर्ट यस यन्त्रमा सुरक्षित छ।';
+
+  @override
+  String get syncErrorTimeout =>
+      'स्टेसन जडानमा धेरै समय लाग्यो। रिपोर्ट स्थानीय रूपमा सुरक्षित छ।';
+
+  @override
+  String get syncErrorServerUnavailable =>
+      'नियन्त्रण सेवा अस्थायी रूपमा अनुपलब्ध छ। कृपया पछि पुनः प्रयास गर्नुहोस्।';
+
+  @override
+  String get syncErrorUnauthorized =>
+      'तपाईंको पहुँच समाप्त भएको छ वा अनधिकृत छ। जडान उपलब्ध भएपछि पुनः साइन इन गर्नुहोस्।';
+
+  @override
+  String get syncErrorMediaUpload =>
+      'रिपोर्ट विवरण तयार थियो, तर तस्बिर अझै अपलोड हुन सकेन।';
+
+  @override
+  String get syncErrorConflict =>
+      'यो रिपोर्ट अन्यत्र परिवर्तन गरिएको थियो र समीक्षा आवश्यक छ।';
+
+  @override
+  String get syncErrorUnknown =>
+      'रिपोर्ट सिङ्क गर्न सकिएन। यो स्थानीय रूपमा सुरक्षित भण्डारण गरिएको छ।';
+
+  @override
+  String get aiProviderOfflineGemma => 'अफलाइन जेमा';
+
+  @override
+  String get aiProviderHeuristic => 'ह्युरिस्टिक नियमहरू';
+
+  @override
+  String get aiProviderManual => 'म्यानुअल वर्गीकरण';
+
+  @override
+  String get aiProviderOnlineGemini => 'अनलाइन जेमिनी';
+
+  @override
+  String get aiModelLabel => 'एआई मोडल';
+
+  @override
+  String get aiProviderLabel => 'एआई प्रदायक';
+
+  @override
+  String get aiLanguageLabel => 'एआई भाषा';
+
+  @override
+  String get aiConfidenceLabel => 'विश्वास स्तर';
+
+  @override
+  String get aiAdvisoryNotice =>
+      'एआई सुझाव सल्लाहकार मात्र हो। ग्याङम्यान निरीक्षणद्वारा पुष्टि गरिएको।';
+
+  @override
+  String get syncNow => 'अहिले सिङ्क गर्नुहोस्';
+
+  @override
+  String get syncSuccessMessage => 'सिङ्क्रोनाइजेसन सफलतापूर्वक पूरा भयो';
+
+  @override
+  String get retrySync => 'पुनः सिङ्क प्रयास';
+
+  @override
+  String get viewSyncDetails => 'विवरण हेर्नुहोस्';
+
+  @override
+  String get today => 'आज';
+
+  @override
+  String get yesterday => 'हिजो';
+
+  @override
   String get retry => 'पुनः प्रयास';
 
   @override
@@ -341,4 +497,11 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get selectLanguage => 'भाषा छान्नुहोस्';
+
+  @override
+  String get allFilter => 'सबै';
+
+  @override
+  String get noReportsMatchFilter =>
+      'चयन गरिएको फिल्टरसँग कुनै रिपोर्ट मेल खाएन।';
 }

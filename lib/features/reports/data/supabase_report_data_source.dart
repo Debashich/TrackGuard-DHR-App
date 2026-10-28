@@ -1,4 +1,3 @@
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../shared/models/hazard_report.dart';
@@ -12,22 +11,15 @@ class SupabaseReportDataSource {
   Future<void> upsertReport(HazardReport report) async {
     final user = _client.auth.currentUser;
 
-    final row = SupabaseReportMapper.toRemoteRow(
-      report,
-      userId: user?.id,
-    );
+    final row = SupabaseReportMapper.toRemoteRow(report, userId: user?.id);
 
-    await _client.from('reports').upsert(
-      row,
-      onConflict: 'id',
-    );
+    await _client.from('reports').upsert(row, onConflict: 'id');
   }
 
   Future<List<HazardReport>> fetchReports({
     int page = 0,
     int pageSize = 50,
   }) async {
-
     if (page < 0 || pageSize < 1 || pageSize > 100) {
       throw ArgumentError('Invalid report pagination values.');
     }

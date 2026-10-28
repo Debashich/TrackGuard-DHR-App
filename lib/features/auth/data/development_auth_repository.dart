@@ -61,7 +61,9 @@ class DevelopmentAuthRepository implements AuthRepository {
     final user = AppUser(
       id: client?.auth.currentUser?.id ?? 'dhr-gangman-001',
       fullName: 'Ramesh Sharma',
-      email: client?.auth.currentUser?.email ?? 'ramesh.sharma@dhr.railways.gov.in',
+      email:
+          client?.auth.currentUser?.email ??
+          'ramesh.sharma@dhr.railways.gov.in',
       role: UserRole.gangman,
       assignedSection: 'kurseong-ghum',
       preferredLanguage: AppLanguage.en,
@@ -80,7 +82,9 @@ class DevelopmentAuthRepository implements AuthRepository {
     bool isActive = true,
   }) async {
     final client = _getSupabaseClient();
-    String userId = role == UserRole.gangman ? 'dhr-gangman-001' : 'dhr-admin-001';
+    String userId = role == UserRole.gangman
+        ? 'dhr-gangman-001'
+        : 'dhr-admin-001';
 
     if (client != null) {
       try {
@@ -88,11 +92,15 @@ class DevelopmentAuthRepository implements AuthRepository {
           final res = await client.auth.signInAnonymously();
           if (res.user != null) {
             userId = res.user!.id;
-            debugPrint('[DevelopmentAuthRepository] Signed into Supabase anonymously as $userId');
+            debugPrint(
+              '[DevelopmentAuthRepository] Signed into Supabase anonymously as $userId',
+            );
           }
         } else {
           userId = client.auth.currentUser!.id;
-          debugPrint('[DevelopmentAuthRepository] Using active Supabase session $userId');
+          debugPrint(
+            '[DevelopmentAuthRepository] Using active Supabase session $userId',
+          );
         }
 
         try {
@@ -109,9 +117,13 @@ class DevelopmentAuthRepository implements AuthRepository {
             'preferred_language': 'en',
             'is_active': isActive,
           });
-          debugPrint('[DevelopmentAuthRepository] Ensured profile in Supabase for $userId');
+          debugPrint(
+            '[DevelopmentAuthRepository] Ensured profile in Supabase for $userId',
+          );
         } catch (profileError) {
-          debugPrint('[DevelopmentAuthRepository] Note: Profile upsert error: $profileError');
+          debugPrint(
+            '[DevelopmentAuthRepository] Note: Profile upsert error: $profileError',
+          );
         }
       } catch (authError) {
         debugPrint(

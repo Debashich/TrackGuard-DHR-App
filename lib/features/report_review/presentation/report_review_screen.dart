@@ -5,14 +5,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/connectivity/connectivity_provider.dart';
 import '../../../core/constants/dhr_waypoints.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/hazard_type.dart';
 import '../../../shared/models/location_source.dart';
 import '../../../shared/models/severity.dart';
+import '../../../shared/models/sync_status.dart';
+import '../../../shared/widgets/ai_metadata_card.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../../../shared/widgets/sync_status_badge.dart';
 import '../../auth/presentation/auth_controller.dart';
 import 'report_review_controller.dart';
 import 'widgets/ai_suggestion_card.dart';
@@ -85,26 +89,25 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
             ),
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppTheme.surfaceDarkElevated,
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.borderDark),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
-                    Icons.cloud_off,
-                    size: 16,
-                    color: AppTheme.primaryAmber,
+                  const Row(
+                    children: [SyncStatusBadge(status: SyncStatus.pending)],
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l10n.offlineStatus,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.primaryAmber,
-                      ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.syncWaitingForSignal,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white70,
+                      height: 1.3,
                     ),
                   ),
                 ],
@@ -143,6 +146,8 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
     final controller = ref.read(reportReviewControllerProvider.notifier);
     final authState = ref.watch(authControllerProvider);
     final userId = authState.user?.id ?? 'dhr-gangman-001';
+    final isOnlineAsync = ref.watch(isOnlineProvider);
+    final isOnline = isOnlineAsync.value ?? false;
 
     if (reviewState.isLoadingDraft) {
       return Scaffold(
@@ -269,6 +274,10 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                 aiResult: reviewState.aiResult,
                 isAnalyzing: reviewState.isAnalyzing,
               ),
+              if (reviewState.aiResult != null && !reviewState.isAnalyzing) ...[
+                const SizedBox(height: 12),
+                AiMetadataCard(result: reviewState.aiResult),
+              ],
               const SizedBox(height: 20),
 
               // Human Confirmation Section Header
@@ -379,7 +388,74 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
+
+              // Offline / Sync readiness banner before saving
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceDark,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppTheme.borderDark),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isOnline ? Icons.wifi : Icons.wifi_off,
+                      size: 20,
+                      color: isOnline
+                          ? AppTheme.statusGreen
+                          : AppTheme.primaryAmber,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        isOnline
+                            ? l10n.syncStationSignalAvailable
+                            : l10n.syncOfflineSafe,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Show local save error if any
+              if (reviewState.errorMessage != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.statusRed.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppTheme.statusRed),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: AppTheme.statusRed,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          reviewState.errorMessage!,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
 
               // Confirm and Save Button
               PrimaryButton(

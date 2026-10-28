@@ -9,7 +9,7 @@ class DefaultConnectivityService implements ConnectivityService {
   final Connectivity _connectivity;
 
   DefaultConnectivityService([Connectivity? connectivity])
-      : _connectivity = connectivity ?? Connectivity();
+    : _connectivity = connectivity ?? Connectivity();
 
   @override
   Stream<bool> watchOnlineStatus() async* {
@@ -17,17 +17,13 @@ class DefaultConnectivityService implements ConnectivityService {
     yield await isOnline();
 
     // Continue listening for network-interface changes.
-    yield* _connectivity.onConnectivityChanged.map(
-      _hasConnection,
-    );
+    yield* _connectivity.onConnectivityChanged.map(_hasConnection);
   }
 
   @override
   Future<bool> isOnline() async {
     try {
-      return _hasConnection(
-        await _connectivity.checkConnectivity(),
-      );
+      return _hasConnection(await _connectivity.checkConnectivity());
     } catch (_) {
       return false;
     }

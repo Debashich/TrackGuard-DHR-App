@@ -154,10 +154,74 @@
   "syncFailed": "Sync Failed",
   "syncConflict": "Conflict",
 
+  "syncStatusDraft": "Draft",
+  "syncStatusPending": "Pending Sync",
+  "syncStatusSyncing": "Syncing...",
+  "syncStatusSynced": "Synced",
+  "syncStatusFailed": "Sync Failed",
+  "syncStatusConflict": "Conflict",
+
+  "syncSummaryTitle": "Sync Summary",
+  "syncPendingReports": "{count, plural, =0{0 reports waiting} =1{1 report waiting to sync} other{{count} reports waiting to sync}}",
+  "@syncPendingReports": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "syncFailedReports": "{count, plural, =0{0 reports failed} =1{1 report failed} other{{count} reports failed}}",
+  "@syncFailedReports": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "syncReportsSyncing": "Syncing reports...",
+  "syncAllReportsSynced": "All reports synced",
+  "syncLastSuccessful": "Last synced: {time}",
+  "@syncLastSuccessful": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "syncNoSuccessfulSync": "Not synced yet",
+  "syncOfflineSafe": "Offline — reports remain safely stored on this device.",
+  "syncWaitingForSignal": "Offline — waiting for station signal",
+  "syncStationSignalAvailable": "Station signal available",
+  "syncSavedLocally": "Saved locally on this device",
+  "syncSavedAndSynced": "Saved and synced to server",
+  "syncFailedButSafe": "Some reports could not sync. They remain safe locally.",
+  "syncNeedsAttention": "This report needs attention",
+
+  "syncErrorOffline": "No network connection. The report is safely stored on this device.",
+  "syncErrorTimeout": "The station connection took too long. The report remains saved locally.",
+  "syncErrorServerUnavailable": "The control service is temporarily unavailable. Please try again later.",
+  "syncErrorUnauthorized": "Your access has expired or is unauthorized. Sign in again when connectivity is available.",
+  "syncErrorMediaUpload": "The report details were prepared, but the photo could not be uploaded yet.",
+  "syncErrorConflict": "This report was changed elsewhere and needs review.",
+  "syncErrorUnknown": "The report could not be synchronized. It remains safely stored locally.",
+
+  "aiProviderOfflineGemma": "Offline Gemma",
+  "aiProviderHeuristic": "Heuristic Rules",
+  "aiProviderManual": "Manual Classification",
+  "aiProviderOnlineGemini": "Online Gemini",
+  "aiModelLabel": "AI Model",
+  "aiProviderLabel": "AI Provider",
+  "aiLanguageLabel": "AI Language",
+  "aiConfidenceLabel": "Confidence",
+  "aiAdvisoryNotice": "AI suggestion is advisory only. Gangman inspection confirmed.",
+
+  "syncNow": "Sync Now",
+  "syncSuccessMessage": "Synchronization completed successfully",
+  "retrySync": "Retry Sync",
+  "viewSyncDetails": "View Details",
+  "today": "Today",
+  "yesterday": "Yesterday",
+
   "retry": "Retry",
   "cancel": "Cancel",
   "confirm": "Confirm",
   "close": "Close",
   "language": "Language",
-  "selectLanguage": "Select Language"
+  "selectLanguage": "Select Language",
+  "allFilter": "All",
+  "noReportsMatchFilter": "No reports match the selected filter."
 }

@@ -19,8 +19,8 @@ class SupabaseReportMapper {
     final isUuid = RegExp(
       r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
     );
-    final validUserId = userId ??
-        (isUuid.hasMatch(report.createdBy) ? report.createdBy : null);
+    final validUserId =
+        userId ?? (isUuid.hasMatch(report.createdBy) ? report.createdBy : null);
 
     final map = <String, dynamic>{
       'id': report.id,

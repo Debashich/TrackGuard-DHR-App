@@ -5,8 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app/app.dart';
 
 const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-const _supabasePublishableKey =
-    String.fromEnvironment('SUPABASE_ANON_KEY');
+const _supabasePublishableKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -15,9 +14,5 @@ Future<void> main() async {
     publishableKey: _supabasePublishableKey,
   );
 
-  runApp(
-    const ProviderScope(
-      child: TrackGuardApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: TrackGuardApp()));
 }

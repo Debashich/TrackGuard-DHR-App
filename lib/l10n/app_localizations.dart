@@ -660,6 +660,258 @@ abstract class AppLocalizations {
   /// **'Conflict'**
   String get syncConflict;
 
+  /// No description provided for @syncStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get syncStatusDraft;
+
+  /// No description provided for @syncStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Sync'**
+  String get syncStatusPending;
+
+  /// No description provided for @syncStatusSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing...'**
+  String get syncStatusSyncing;
+
+  /// No description provided for @syncStatusSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get syncStatusSynced;
+
+  /// No description provided for @syncStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Failed'**
+  String get syncStatusFailed;
+
+  /// No description provided for @syncStatusConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Conflict'**
+  String get syncStatusConflict;
+
+  /// No description provided for @syncSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Summary'**
+  String get syncSummaryTitle;
+
+  /// No description provided for @syncPendingReports.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 reports waiting} =1{1 report waiting to sync} other{{count} reports waiting to sync}}'**
+  String syncPendingReports(int count);
+
+  /// No description provided for @syncFailedReports.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{0 reports failed} =1{1 report failed} other{{count} reports failed}}'**
+  String syncFailedReports(int count);
+
+  /// No description provided for @syncReportsSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing reports...'**
+  String get syncReportsSyncing;
+
+  /// No description provided for @syncAllReportsSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'All reports synced'**
+  String get syncAllReportsSynced;
+
+  /// No description provided for @syncLastSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synced: {time}'**
+  String syncLastSuccessful(String time);
+
+  /// No description provided for @syncNoSuccessfulSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get syncNoSuccessfulSync;
+
+  /// No description provided for @syncOfflineSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — reports remain safely stored on this device.'**
+  String get syncOfflineSafe;
+
+  /// No description provided for @syncWaitingForSignal.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — waiting for station signal'**
+  String get syncWaitingForSignal;
+
+  /// No description provided for @syncStationSignalAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Station signal available'**
+  String get syncStationSignalAvailable;
+
+  /// No description provided for @syncSavedLocally.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved locally on this device'**
+  String get syncSavedLocally;
+
+  /// No description provided for @syncSavedAndSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved and synced to server'**
+  String get syncSavedAndSynced;
+
+  /// No description provided for @syncFailedButSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Some reports could not sync. They remain safe locally.'**
+  String get syncFailedButSafe;
+
+  /// No description provided for @syncNeedsAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'This report needs attention'**
+  String get syncNeedsAttention;
+
+  /// No description provided for @syncErrorOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'No network connection. The report is safely stored on this device.'**
+  String get syncErrorOffline;
+
+  /// No description provided for @syncErrorTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The station connection took too long. The report remains saved locally.'**
+  String get syncErrorTimeout;
+
+  /// No description provided for @syncErrorServerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The control service is temporarily unavailable. Please try again later.'**
+  String get syncErrorServerUnavailable;
+
+  /// No description provided for @syncErrorUnauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Your access has expired or is unauthorized. Sign in again when connectivity is available.'**
+  String get syncErrorUnauthorized;
+
+  /// No description provided for @syncErrorMediaUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'The report details were prepared, but the photo could not be uploaded yet.'**
+  String get syncErrorMediaUpload;
+
+  /// No description provided for @syncErrorConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'This report was changed elsewhere and needs review.'**
+  String get syncErrorConflict;
+
+  /// No description provided for @syncErrorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The report could not be synchronized. It remains safely stored locally.'**
+  String get syncErrorUnknown;
+
+  /// No description provided for @aiProviderOfflineGemma.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Gemma'**
+  String get aiProviderOfflineGemma;
+
+  /// No description provided for @aiProviderHeuristic.
+  ///
+  /// In en, this message translates to:
+  /// **'Heuristic Rules'**
+  String get aiProviderHeuristic;
+
+  /// No description provided for @aiProviderManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual Classification'**
+  String get aiProviderManual;
+
+  /// No description provided for @aiProviderOnlineGemini.
+  ///
+  /// In en, this message translates to:
+  /// **'Online Gemini'**
+  String get aiProviderOnlineGemini;
+
+  /// No description provided for @aiModelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Model'**
+  String get aiModelLabel;
+
+  /// No description provided for @aiProviderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Provider'**
+  String get aiProviderLabel;
+
+  /// No description provided for @aiLanguageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Language'**
+  String get aiLanguageLabel;
+
+  /// No description provided for @aiConfidenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confidence'**
+  String get aiConfidenceLabel;
+
+  /// No description provided for @aiAdvisoryNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'AI suggestion is advisory only. Gangman inspection confirmed.'**
+  String get aiAdvisoryNotice;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Now'**
+  String get syncNow;
+
+  /// No description provided for @syncSuccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Synchronization completed successfully'**
+  String get syncSuccessMessage;
+
+  /// No description provided for @retrySync.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry Sync'**
+  String get retrySync;
+
+  /// No description provided for @viewSyncDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'View Details'**
+  String get viewSyncDetails;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
   /// No description provided for @retry.
   ///
   /// In en, this message translates to:
@@ -695,6 +947,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select Language'**
   String get selectLanguage;
+
+  /// No description provided for @allFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allFilter;
+
+  /// No description provided for @noReportsMatchFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports match the selected filter.'**
+  String get noReportsMatchFilter;
 }
 
 class _AppLocalizationsDelegate
