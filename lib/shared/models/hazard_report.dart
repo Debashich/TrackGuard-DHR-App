@@ -79,7 +79,7 @@ class HazardReport {
     this.thumbnailPhotoPath,
     this.deviceInfo,
   });
-
+  static const Object _unsetSyncError = Object();
   HazardReport copyWith({
     String? id,
     String? createdBy,
@@ -109,7 +109,7 @@ class HazardReport {
     int? syncVersion,
     DateTime? syncTimestamp,
     int? retryCount,
-    String? lastSyncError,
+    Object? lastSyncError = _unsetSyncError,
     String? originalPhotoPath,
     String? thumbnailPhotoPath,
     String? deviceInfo,
@@ -145,7 +145,9 @@ class HazardReport {
       syncVersion: syncVersion ?? this.syncVersion,
       syncTimestamp: syncTimestamp ?? this.syncTimestamp,
       retryCount: retryCount ?? this.retryCount,
-      lastSyncError: lastSyncError ?? this.lastSyncError,
+      lastSyncError: identical(lastSyncError, _unsetSyncError)
+          ? this.lastSyncError
+          : lastSyncError as String?,
       originalPhotoPath: originalPhotoPath ?? this.originalPhotoPath,
       thumbnailPhotoPath: thumbnailPhotoPath ?? this.thumbnailPhotoPath,
       deviceInfo: deviceInfo ?? this.deviceInfo,

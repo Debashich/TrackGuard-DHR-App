@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter/foundation.dart';
+
+import '../../../core/supabase/supabase_provider.dart';
 
 import '../../../core/constants/dhr_waypoints.dart';
 import '../../../core/localization/l10n.dart';
@@ -185,8 +188,35 @@ class ReportReviewController extends Notifier<ReportReviewState> {
       );
 
       final repo = ref.read(reportRepositoryProvider);
+
+      // Save locally first so a network failure never loses the report.
       await repo.saveReport(report);
       await repo.clearDraft();
+
+      ref.invalidate(pendingReportsCountProvider);
+
+      // Attempt remote sync if Supabase is configured and authenticated.
+      try {
+        final client = ref.read(supabaseClientProvider);
+
+        debugPrint('Supabase client available: ${client != null}');
+        debugPrint(
+          'Supabase user: ${client?.auth.currentUser?.id ?? "NOT SIGNED IN"}',
+        );
+
+        final syncService = ref.read(reportSyncServiceProvider);
+        debugPrint('Sync service available: ${syncService != null}');
+
+        if (syncService != null) {
+          await syncService.syncPendingReports();
+          debugPrint('Sync attempt completed');
+        }
+      } catch (error, stackTrace) {
+        debugPrint('Report sync failed: $error');
+        debugPrintStack(stackTrace: stackTrace);
+      }
+
+      ref.invalidate(pendingReportsCountProvider);
 
       ref.invalidate(pendingReportsCountProvider);
 
