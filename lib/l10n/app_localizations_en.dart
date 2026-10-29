@@ -503,4 +503,154 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noReportsMatchFilter => 'No reports match the selected filter.';
+
+  @override
+  String get profileTitle => 'User Profile';
+
+  @override
+  String get profileName => 'Full Name';
+
+  @override
+  String get profileEmail => 'Email Address';
+
+  @override
+  String get profileRole => 'Role';
+
+  @override
+  String get profileAssignedSection => 'Assigned Section';
+
+  @override
+  String get profileLanguage => 'Preferred Language';
+
+  @override
+  String get profileAccountStatus => 'Account Status';
+
+  @override
+  String get profileActive => 'Active';
+
+  @override
+  String get profileInactive => 'Inactive';
+
+  @override
+  String get profileBackToHome => 'Return to Dashboard';
+
+  @override
+  String get roleGangman => 'Gangman';
+
+  @override
+  String get roleAdmin => 'Supervisor / Admin';
+
+  @override
+  String get navigationHome => 'Home';
+
+  @override
+  String get navigationMyReports => 'My Reports';
+
+  @override
+  String get navigationDashboard => 'Dashboard';
+
+  @override
+  String get navigationProfile => 'Profile';
+
+  @override
+  String get navigationLogout => 'Sign Out';
+
+  @override
+  String get navigationReports => 'Reports';
+
+  @override
+  String get navigationUsers => 'Users';
+
+  @override
+  String get navigationBack => 'Back';
+
+  @override
+  String get navigationRefresh => 'Refresh';
+
+  @override
+  String get logoutTitle => 'Confirm Sign Out';
+
+  @override
+  String get logoutConfirmation =>
+      'Are you sure you want to sign out of your account?';
+
+  @override
+  String get logoutConfirm => 'Sign Out';
+
+  @override
+  String get logoutCancel => 'Stay Signed In';
+
+  @override
+  String get logoutSigningOut => 'Signing out...';
+
+  @override
+  String get logoutSuccess => 'Signed out successfully';
+
+  @override
+  String get logoutError => 'Failed to sign out. Please try again.';
+
+  @override
+  String logoutPendingReportsWarning(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pending reports',
+      one: '1 pending report',
+    );
+    return 'You have $_temp0 waiting to synchronize.';
+  }
+
+  @override
+  String get logoutReportsRemainOnDevice =>
+      'Unsynced reports remain safely stored on this device and will not be lost.';
+
+  @override
+  String get routeAccessDenied => 'Access denied for your role.';
+
+  @override
+  String get routeSessionRequired => 'Please sign in to continue.';
+
+  @override
+  String get routeProfilePending =>
+      'Your profile is pending supervisor approval.';
+
+  @override
+  String get routeInactiveAccount => 'Your account is currently inactive.';
+
+  @override
+  String get reportDetailTitle => 'Inspection Detail';
+
+  @override
+  String get reportDetailLocation => 'Location & Track Alignment';
+
+  @override
+  String reportDetailCreated(String time) {
+    return 'Created: $time';
+  }
+
+  @override
+  String reportDetailUpdated(String time) {
+    return 'Updated: $time';
+  }
+
+  @override
+  String get reportDetailInspectionStatus => 'Inspection Status';
+
+  @override
+  String get reportDetailSyncStatus => 'Sync Status';
+
+  @override
+  String get reportDetailAiInformation => 'AI Suggestion (Advisory)';
+
+  @override
+  String get reportDetailHumanConfirmed => 'Confirmed by Inspector';
+
+  @override
+  String get reportDetailViewImage => 'View Full Image';
+
+  @override
+  String get reportDetailRetrySync => 'Retry Synchronization';
+
+  @override
+  String get reportDetailUnavailable => 'Report not found or unavailable.';
 }

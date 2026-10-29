@@ -959,6 +959,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No reports match the selected filter.'**
   String get noReportsMatchFilter;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User Profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get profileName;
+
+  /// No description provided for @profileEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address'**
+  String get profileEmail;
+
+  /// No description provided for @profileRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get profileRole;
+
+  /// No description provided for @profileAssignedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned Section'**
+  String get profileAssignedSection;
+
+  /// No description provided for @profileLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferred Language'**
+  String get profileLanguage;
+
+  /// No description provided for @profileAccountStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Status'**
+  String get profileAccountStatus;
+
+  /// No description provided for @profileActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get profileActive;
+
+  /// No description provided for @profileInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get profileInactive;
+
+  /// No description provided for @profileBackToHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to Dashboard'**
+  String get profileBackToHome;
+
+  /// No description provided for @roleGangman.
+  ///
+  /// In en, this message translates to:
+  /// **'Gangman'**
+  String get roleGangman;
+
+  /// No description provided for @roleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Supervisor / Admin'**
+  String get roleAdmin;
+
+  /// No description provided for @navigationHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navigationHome;
+
+  /// No description provided for @navigationMyReports.
+  ///
+  /// In en, this message translates to:
+  /// **'My Reports'**
+  String get navigationMyReports;
+
+  /// No description provided for @navigationDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get navigationDashboard;
+
+  /// No description provided for @navigationProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navigationProfile;
+
+  /// No description provided for @navigationLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out'**
+  String get navigationLogout;
+
+  /// No description provided for @navigationReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get navigationReports;
+
+  /// No description provided for @navigationUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get navigationUsers;
+
+  /// No description provided for @navigationBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get navigationBack;
+
+  /// No description provided for @navigationRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get navigationRefresh;
+
+  /// No description provided for @logoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Sign Out'**
+  String get logoutTitle;
+
+  /// No description provided for @logoutConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to sign out of your account?'**
+  String get logoutConfirmation;
+
+  /// No description provided for @logoutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out'**
+  String get logoutConfirm;
+
+  /// No description provided for @logoutCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay Signed In'**
+  String get logoutCancel;
+
+  /// No description provided for @logoutSigningOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing out...'**
+  String get logoutSigningOut;
+
+  /// No description provided for @logoutSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out successfully'**
+  String get logoutSuccess;
+
+  /// No description provided for @logoutError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sign out. Please try again.'**
+  String get logoutError;
+
+  /// No description provided for @logoutPendingReportsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {count, plural, =1{1 pending report} other{{count} pending reports}} waiting to synchronize.'**
+  String logoutPendingReportsWarning(int count);
+
+  /// No description provided for @logoutReportsRemainOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsynced reports remain safely stored on this device and will not be lost.'**
+  String get logoutReportsRemainOnDevice;
+
+  /// No description provided for @routeAccessDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Access denied for your role.'**
+  String get routeAccessDenied;
+
+  /// No description provided for @routeSessionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in to continue.'**
+  String get routeSessionRequired;
+
+  /// No description provided for @routeProfilePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile is pending supervisor approval.'**
+  String get routeProfilePending;
+
+  /// No description provided for @routeInactiveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is currently inactive.'**
+  String get routeInactiveAccount;
+
+  /// No description provided for @reportDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspection Detail'**
+  String get reportDetailTitle;
+
+  /// No description provided for @reportDetailLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location & Track Alignment'**
+  String get reportDetailLocation;
+
+  /// No description provided for @reportDetailCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created: {time}'**
+  String reportDetailCreated(String time);
+
+  /// No description provided for @reportDetailUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated: {time}'**
+  String reportDetailUpdated(String time);
+
+  /// No description provided for @reportDetailInspectionStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspection Status'**
+  String get reportDetailInspectionStatus;
+
+  /// No description provided for @reportDetailSyncStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Status'**
+  String get reportDetailSyncStatus;
+
+  /// No description provided for @reportDetailAiInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Suggestion (Advisory)'**
+  String get reportDetailAiInformation;
+
+  /// No description provided for @reportDetailHumanConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed by Inspector'**
+  String get reportDetailHumanConfirmed;
+
+  /// No description provided for @reportDetailViewImage.
+  ///
+  /// In en, this message translates to:
+  /// **'View Full Image'**
+  String get reportDetailViewImage;
+
+  /// No description provided for @reportDetailRetrySync.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry Synchronization'**
+  String get reportDetailRetrySync;
+
+  /// No description provided for @reportDetailUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Report not found or unavailable.'**
+  String get reportDetailUnavailable;
 }
 
 class _AppLocalizationsDelegate

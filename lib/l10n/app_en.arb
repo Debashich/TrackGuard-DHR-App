@@ -223,5 +223,71 @@
   "language": "Language",
   "selectLanguage": "Select Language",
   "allFilter": "All",
-  "noReportsMatchFilter": "No reports match the selected filter."
+  "noReportsMatchFilter": "No reports match the selected filter.",
+
+  "profileTitle": "User Profile",
+  "profileName": "Full Name",
+  "profileEmail": "Email Address",
+  "profileRole": "Role",
+  "profileAssignedSection": "Assigned Section",
+  "profileLanguage": "Preferred Language",
+  "profileAccountStatus": "Account Status",
+  "profileActive": "Active",
+  "profileInactive": "Inactive",
+  "profileBackToHome": "Return to Dashboard",
+
+  "roleGangman": "Gangman",
+  "roleAdmin": "Supervisor / Admin",
+
+  "navigationHome": "Home",
+  "navigationMyReports": "My Reports",
+  "navigationDashboard": "Dashboard",
+  "navigationProfile": "Profile",
+  "navigationLogout": "Sign Out",
+  "navigationReports": "Reports",
+  "navigationUsers": "Users",
+  "navigationBack": "Back",
+  "navigationRefresh": "Refresh",
+
+  "logoutTitle": "Confirm Sign Out",
+  "logoutConfirmation": "Are you sure you want to sign out of your account?",
+  "logoutConfirm": "Sign Out",
+  "logoutCancel": "Stay Signed In",
+  "logoutSigningOut": "Signing out...",
+  "logoutSuccess": "Signed out successfully",
+  "logoutError": "Failed to sign out. Please try again.",
+  "logoutPendingReportsWarning": "You have {count, plural, =1{1 pending report} other{{count} pending reports}} waiting to synchronize.",
+  "@logoutPendingReportsWarning": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "logoutReportsRemainOnDevice": "Unsynced reports remain safely stored on this device and will not be lost.",
+
+  "routeAccessDenied": "Access denied for your role.",
+  "routeSessionRequired": "Please sign in to continue.",
+  "routeProfilePending": "Your profile is pending supervisor approval.",
+  "routeInactiveAccount": "Your account is currently inactive.",
+
+  "reportDetailTitle": "Inspection Detail",
+  "reportDetailLocation": "Location & Track Alignment",
+  "reportDetailCreated": "Created: {time}",
+  "@reportDetailCreated": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "reportDetailUpdated": "Updated: {time}",
+  "@reportDetailUpdated": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "reportDetailInspectionStatus": "Inspection Status",
+  "reportDetailSyncStatus": "Sync Status",
+  "reportDetailAiInformation": "AI Suggestion (Advisory)",
+  "reportDetailHumanConfirmed": "Confirmed by Inspector",
+  "reportDetailViewImage": "View Full Image",
+  "reportDetailRetrySync": "Retry Synchronization",
+  "reportDetailUnavailable": "Report not found or unavailable."
 }

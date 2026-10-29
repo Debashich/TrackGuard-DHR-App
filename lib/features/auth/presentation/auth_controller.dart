@@ -121,3 +121,15 @@ class AuthController extends Notifier<AuthState> {
 final authControllerProvider = NotifierProvider<AuthController, AuthState>(
   AuthController.new,
 );
+
+final currentUserProvider = Provider<AppUser?>((ref) {
+  return ref.watch(authControllerProvider).user;
+});
+
+final isAdminProvider = Provider<bool>((ref) {
+  return ref.watch(currentUserProvider)?.role == UserRole.admin;
+});
+
+final isGangmanProvider = Provider<bool>((ref) {
+  return ref.watch(currentUserProvider)?.role == UserRole.gangman;
+});

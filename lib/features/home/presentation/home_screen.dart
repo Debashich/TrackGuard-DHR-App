@@ -9,7 +9,9 @@ import '../../../core/localization/l10n.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/app_language.dart';
 import '../../../shared/widgets/connectivity_indicator.dart';
+import '../../../shared/widgets/logout_confirmation.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../../../shared/widgets/role_navigation_drawer.dart';
 import '../../../shared/widgets/sync_summary_card.dart';
 import '../../ai/domain/ai_service_provider.dart';
 import '../../auth/presentation/auth_controller.dart';
@@ -35,6 +37,7 @@ class HomeScreen extends ConsumerWidget {
         : l10n.unassignedSection;
 
     return Scaffold(
+      drawer: const RoleNavigationDrawer(currentRoute: '/gangman/home'),
       appBar: AppBar(
         title: Text(l10n.appTitle),
         actions: [
@@ -67,10 +70,14 @@ class HomeScreen extends ConsumerWidget {
             }).toList(),
           ),
           IconButton(
+            icon: const Icon(Icons.person_outline),
+            tooltip: l10n.navigationProfile,
+            onPressed: () => context.push('/profile'),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             tooltip: l10n.signOut,
-            onPressed: () =>
-                ref.read(authControllerProvider.notifier).signOut(),
+            onPressed: () => showLogoutConfirmationDialog(context, ref),
           ),
         ],
       ),
@@ -127,89 +134,99 @@ class HomeScreen extends ConsumerWidget {
 
                 // Gangman profile & Section card
                 Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: AppTheme.primaryAmber.withValues(
-                                alpha: 0.2,
-                              ),
-                              radius: 22,
-                              child: const Icon(
-                                Icons.engineering,
-                                color: AppTheme.primaryAmber,
-                                size: 26,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    user?.fullName ?? 'Gangman',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Text(
-                                    user?.email ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white60,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppTheme.primaryAmber.withValues(
-                                  alpha: 0.15,
-                                ),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                l10n.gangman.toUpperCase(),
-                                style: const TextStyle(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => context.push('/profile'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: AppTheme.primaryAmber
+                                    .withValues(alpha: 0.2),
+                                radius: 22,
+                                child: const Icon(
+                                  Icons.engineering,
                                   color: AppTheme.primaryAmber,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
+                                  size: 26,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const Divider(height: 24),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.alt_route,
-                              size: 16,
-                              color: AppTheme.primaryAmber,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              l10n.assignedSection(sectionName),
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      user?.fullName ?? 'Gangman',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
+                                      user?.email ?? '',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white60,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryAmber.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  l10n.gangman.toUpperCase(),
+                                  style: const TextStyle(
+                                    color: AppTheme.primaryAmber,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Divider(height: 24),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.alt_route,
+                                size: 16,
+                                color: AppTheme.primaryAmber,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  l10n.assignedSection(sectionName),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              const Icon(
+                                Icons.chevron_right,
+                                size: 18,
+                                color: Colors.white38,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -14,6 +14,7 @@ import '../../../shared/models/ai_provider.dart';
 import '../../../shared/models/hazard_report.dart';
 import '../../../shared/models/sync_status.dart';
 import '../../../shared/widgets/hazard_icon.dart';
+import '../../../shared/widgets/logout_confirmation.dart';
 import '../../../shared/widgets/severity_badge.dart';
 import '../../../shared/widgets/sync_error_banner.dart';
 import '../../../shared/widgets/sync_status_badge.dart';
@@ -99,6 +100,16 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
                     }
                   }
                 : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.person_outline_rounded),
+            tooltip: l10n.navigationProfile,
+            onPressed: () => context.push('/profile'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout_rounded),
+            tooltip: l10n.signOut,
+            onPressed: () => showLogoutConfirmationDialog(context, ref),
           ),
         ],
       ),

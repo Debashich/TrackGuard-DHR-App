@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../app/theme.dart';
@@ -7,6 +8,8 @@ import '../../../shared/models/app_user.dart';
 import '../../../shared/models/hazard_report.dart';
 import '../../../shared/models/inspection_status.dart';
 import '../../../shared/models/user_role.dart';
+import '../../../shared/widgets/logout_confirmation.dart';
+import '../../../shared/widgets/role_navigation_drawer.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/admin_repository.dart';
 
@@ -47,6 +50,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   Widget build(BuildContext context) {
     final user = ref.watch(authControllerProvider).user;
     return Scaffold(
+      drawer: const RoleNavigationDrawer(currentRoute: '/admin/dashboard'),
       appBar: AppBar(
         title: const Text('TrackGuard Admin'),
         actions: [
@@ -56,9 +60,13 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             icon: const Icon(Icons.refresh),
           ),
           IconButton(
+            tooltip: 'Profile',
+            onPressed: () => context.push('/profile'),
+            icon: const Icon(Icons.person_outline),
+          ),
+          IconButton(
             tooltip: 'Sign out',
-            onPressed: () =>
-                ref.read(authControllerProvider.notifier).signOut(),
+            onPressed: () => showLogoutConfirmationDialog(context, ref),
             icon: const Icon(Icons.logout),
           ),
         ],
@@ -71,6 +79,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             ),
             title: Text(user?.fullName ?? 'Supervisor'),
             subtitle: Text(user?.assignedSection ?? 'All assigned sections'),
+            trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+            onTap: () => context.push('/profile'),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),

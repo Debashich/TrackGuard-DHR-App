@@ -16,6 +16,7 @@ class AppTheme {
     0xFFF97316,
   ); // High / Inspection Required
   static const Color statusRed = Color(0xFFEF4444); // Critical / Open / Error
+  static const Color statusBlue = Color(0xFF3B82F6); // Admin / Info
 
   static ThemeData get darkTheme {
     return ThemeData(

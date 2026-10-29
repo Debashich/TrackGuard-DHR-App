@@ -351,8 +351,8 @@ class AppLocalizationsBn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count রিপোর্ট সিঙ্কের অপেক্ষায়',
-      one: '1 রিপোর্ট সিঙ্কের অপেক্ষায়',
+      other: '$countটি রিপোর্ট সিঙ্কের অপেক্ষায়',
+      one: '1 report waiting to sync',
       zero: '0 রিপোর্ট অপেক্ষমাণ',
     );
     return '$_temp0';
@@ -363,8 +363,8 @@ class AppLocalizationsBn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count রিপোর্ট ব্যর্থ',
-      one: '1 রিপোর্ট ব্যর্থ',
+      other: '$countটি রিপোর্ট ব্যর্থ',
+      one: '1 report failed',
       zero: '0 রিপোর্ট ব্যর্থ',
     );
     return '$_temp0';
@@ -505,4 +505,148 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get noReportsMatchFilter =>
       'নির্বাচিত ফিল্টারের সাথে কোনো রিপোর্ট মেলে না।';
+
+  @override
+  String get profileTitle => 'ব্যবহারকারীর প্রোফাইল';
+
+  @override
+  String get profileName => 'সম্পূর্ণ নাম';
+
+  @override
+  String get profileEmail => 'ইমেল ঠিকানা';
+
+  @override
+  String get profileRole => 'ভূমিকা';
+
+  @override
+  String get profileAssignedSection => 'বরাদ্দকৃত সেকশন';
+
+  @override
+  String get profileLanguage => 'পছন্দের ভাষা';
+
+  @override
+  String get profileAccountStatus => 'অ্যাকাউন্টের অবস্থা';
+
+  @override
+  String get profileActive => 'সক্রিয়';
+
+  @override
+  String get profileInactive => 'নিষ্ক্রিয়';
+
+  @override
+  String get profileBackToHome => 'ড্যাশবোর্ডে ফিরে যান';
+
+  @override
+  String get roleGangman => 'গ্যাংম্যান';
+
+  @override
+  String get roleAdmin => 'সুপারভাইজার / অ্যাডমিন';
+
+  @override
+  String get navigationHome => 'হোম';
+
+  @override
+  String get navigationMyReports => 'আমার রিপোর্ট';
+
+  @override
+  String get navigationDashboard => 'ড্যাশবোর্ড';
+
+  @override
+  String get navigationProfile => 'প্রোফাইল';
+
+  @override
+  String get navigationLogout => 'সাইন আউট';
+
+  @override
+  String get navigationReports => 'রিপোর্টসমূহ';
+
+  @override
+  String get navigationUsers => 'ব্যবহারকারীগণ';
+
+  @override
+  String get navigationBack => 'পেছনে';
+
+  @override
+  String get navigationRefresh => 'রিফ্রেশ';
+
+  @override
+  String get logoutTitle => 'সাইন আউট নিশ্চিত করুন';
+
+  @override
+  String get logoutConfirmation => 'আপনি কি নিশ্চিতভাবে সাইন আউট করতে চান?';
+
+  @override
+  String get logoutConfirm => 'সাইন আউট করুন';
+
+  @override
+  String get logoutCancel => 'লগইন থাকুন';
+
+  @override
+  String get logoutSigningOut => 'সাইন আউট হচ্ছে...';
+
+  @override
+  String get logoutSuccess => 'সফলভাবে সাইন আউট হয়েছে';
+
+  @override
+  String get logoutError => 'সাইন আউট ব্যর্থ হয়েছে। আবার চেষ্টা করুন।';
+
+  @override
+  String logoutPendingReportsWarning(int count) {
+    return 'আপনার $countটি রিপোর্ট সিঙ্ক করার জন্য অপেক্ষারত রয়েছে।';
+  }
+
+  @override
+  String get logoutReportsRemainOnDevice =>
+      'আনসিঙ্ক রিপোর্টগুলি এই ডিভাইসে নিরাপদে সংরক্ষিত থাকবে এবং মুছে যাবে না।';
+
+  @override
+  String get routeAccessDenied =>
+      'আপনার ভূমিকার জন্য প্রবেশাধিকার অস্বীকার করা হয়েছে।';
+
+  @override
+  String get routeSessionRequired => 'চালিয়ে যেতে দয়া করে সাইন ইন করুন।';
+
+  @override
+  String get routeProfilePending =>
+      'আপনার প্রোফাইল সুপারভাইজারের অনুমোদনের অপেক্ষায় রয়েছে।';
+
+  @override
+  String get routeInactiveAccount => 'আপনার অ্যাকাউন্টটি বর্তমানে নিষ্ক্রিয়।';
+
+  @override
+  String get reportDetailTitle => 'পরিদর্শন বিবরণ';
+
+  @override
+  String get reportDetailLocation => 'অবস্থান এবং ট্র্যাক অ্যালাইনমেন্ট';
+
+  @override
+  String reportDetailCreated(String time) {
+    return 'তৈরি: $time';
+  }
+
+  @override
+  String reportDetailUpdated(String time) {
+    return 'আপডেট: $time';
+  }
+
+  @override
+  String get reportDetailInspectionStatus => 'পরিদর্শন স্থিতি';
+
+  @override
+  String get reportDetailSyncStatus => 'সিঙ্ক স্থিতি';
+
+  @override
+  String get reportDetailAiInformation => 'এআই পরামর্শ (পরামর্শমূলক)';
+
+  @override
+  String get reportDetailHumanConfirmed => 'পরিদর্শক দ্বারা নিশ্চিত';
+
+  @override
+  String get reportDetailViewImage => 'সম্পূর্ণ ছবি দেখুন';
+
+  @override
+  String get reportDetailRetrySync => 'পুনরায় সিঙ্ক করুন';
+
+  @override
+  String get reportDetailUnavailable => 'রিপোর্ট পাওয়া যায়নি বা অনুপলব্ধ।';
 }

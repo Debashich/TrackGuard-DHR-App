@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/constants/dhr_waypoints.dart';
@@ -11,6 +12,7 @@ import '../../../shared/models/hazard_report.dart';
 import '../../../shared/models/sync_status.dart';
 import '../../../shared/widgets/ai_metadata_card.dart';
 import '../../../shared/widgets/hazard_icon.dart';
+import '../../../shared/widgets/logout_confirmation.dart';
 import '../../../shared/widgets/severity_badge.dart';
 import '../../../shared/widgets/sync_status_card.dart';
 import '../../reports/domain/report_repository_provider.dart';
@@ -27,6 +29,22 @@ class GangmanReportDetailScreen extends ConsumerStatefulWidget {
 
 class _GangmanReportDetailScreenState
     extends ConsumerState<GangmanReportDetailScreen> {
+  late Future<HazardReport?> _reportFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _reportFuture = ref.read(reportRepositoryProvider).getReportById(widget.reportId);
+  }
+
+  @override
+  void didUpdateWidget(covariant GangmanReportDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.reportId != widget.reportId) {
+      _reportFuture = ref.read(reportRepositoryProvider).getReportById(widget.reportId);
+    }
+  }
+
   Future<void> _triggerRetry(HazardReport report) async {
     final syncService = ref.read(reportSyncServiceProvider);
     if (syncService != null) {
@@ -34,25 +52,76 @@ class _GangmanReportDetailScreenState
         await syncService.syncPendingReports();
         ref.invalidate(localReportsProvider);
         if (mounted) {
-          setState(() {});
+          setState(() {
+            _reportFuture = ref.read(reportRepositoryProvider).getReportById(widget.reportId);
+          });
         }
       } catch (_) {}
     }
   }
 
+  void _showFullImage(BuildContext context, String photoPath) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.black,
+        insetPadding: EdgeInsets.zero,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: Image.file(
+                File(photoPath),
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => const Center(
+                  child: Icon(
+                    Icons.broken_image,
+                    size: 64,
+                    color: Colors.white38,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 40,
+              right: 16,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                onPressed: () => Navigator.of(ctx).pop(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final repo = ref.watch(reportRepositoryProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '${l10n.reviewTitle} ${widget.reportId.length >= 8 ? widget.reportId.substring(0, 8) : widget.reportId}',
+          '${l10n.reportDetailTitle} ${widget.reportId.length >= 8 ? widget.reportId.substring(0, 8) : widget.reportId}',
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person_outline),
+            tooltip: l10n.navigationProfile,
+            onPressed: () => context.push('/profile'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: l10n.signOut,
+            onPressed: () => showLogoutConfirmationDialog(context, ref),
+          ),
+        ],
       ),
       body: FutureBuilder<HazardReport?>(
-        future: repo.getReportById(widget.reportId),
+        future: _reportFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -61,9 +130,24 @@ class _GangmanReportDetailScreenState
           final report = snapshot.data;
           if (report == null) {
             return Center(
-              child: Text(
-                'Report not found',
-                style: const TextStyle(color: Colors.white70),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.search_off,
+                      size: 48,
+                      color: Colors.white38,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      l10n.reportDetailUnavailable,
+                      style: const TextStyle(color: Colors.white70),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -77,33 +161,94 @@ class _GangmanReportDetailScreenState
             l10n,
           );
 
+          final photoPath =
+              report.originalPhotoPath ?? report.thumbnailPhotoPath;
+          final hasValidFile =
+              photoPath != null && File(photoPath).existsSync();
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Original Photo
-                if (report.originalPhotoPath != null) ...[
-                  Card(
-                    clipBehavior: Clip.antiAlias,
+                // Captured Photo Card with Tap-to-Enlarge
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: hasValidFile
+                        ? () => _showFullImage(context, photoPath)
+                        : null,
                     child: SizedBox(
                       height: 220,
-                      child: Image.file(
-                        File(report.originalPhotoPath!),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Center(
-                              child: Icon(
-                                Icons.broken_image,
-                                size: 48,
-                                color: Colors.white38,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          if (hasValidFile)
+                            Image.file(File(photoPath), fit: BoxFit.cover)
+                          else
+                            Container(
+                              color: AppTheme.surfaceDarkElevated,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.broken_image_outlined,
+                                    size: 48,
+                                    color: Colors.white38,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    photoPath == null
+                                        ? 'No photo attached'
+                                        : 'Photo not found on device',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white38,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
+                          if (hasValidFile)
+                            Positioned(
+                              bottom: 8,
+                              right: 8,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black87,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.fullscreen,
+                                      size: 16,
+                                      color: AppTheme.primaryAmber,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      l10n.reportDetailViewImage,
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                ],
+                ),
+                const SizedBox(height: 12),
 
                 // Full Sync Status Card
                 SyncStatusCard(
@@ -179,9 +324,9 @@ class _GangmanReportDetailScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'LOCATION & DHR ALIGNMENT',
-                          style: TextStyle(
+                        Text(
+                          l10n.reportDetailLocation.toUpperCase(),
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.primaryAmber,
@@ -250,7 +395,7 @@ class _GangmanReportDetailScreenState
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Created: $createdAtText',
+                              l10n.reportDetailCreated(createdAtText),
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.white70,
@@ -268,7 +413,7 @@ class _GangmanReportDetailScreenState
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Updated: $updatedAtText',
+                              l10n.reportDetailUpdated(updatedAtText),
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.white70,

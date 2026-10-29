@@ -503,4 +503,148 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get noReportsMatchFilter =>
       'चयनित फ़िल्टर से कोई रिपोर्ट मेल नहीं खाती।';
+
+  @override
+  String get profileTitle => 'उपयोगकर्ता प्रोफ़ाइल';
+
+  @override
+  String get profileName => 'पूरा नाम';
+
+  @override
+  String get profileEmail => 'ईमेल पता';
+
+  @override
+  String get profileRole => 'भूमिका';
+
+  @override
+  String get profileAssignedSection => 'आवंटित अनुभाग';
+
+  @override
+  String get profileLanguage => 'पसंदीदा भाषा';
+
+  @override
+  String get profileAccountStatus => 'खाता स्थिति';
+
+  @override
+  String get profileActive => 'सक्रिय';
+
+  @override
+  String get profileInactive => 'निष्क्रिय';
+
+  @override
+  String get profileBackToHome => 'डैशबोर्ड पर वापस जाएं';
+
+  @override
+  String get roleGangman => 'गैंगमैन';
+
+  @override
+  String get roleAdmin => 'पर्यवेक्षक / व्यवस्थापक';
+
+  @override
+  String get navigationHome => 'होम';
+
+  @override
+  String get navigationMyReports => 'मेरी रिपोर्टें';
+
+  @override
+  String get navigationDashboard => 'डैशबोर्ड';
+
+  @override
+  String get navigationProfile => 'प्रोफ़ाइल';
+
+  @override
+  String get navigationLogout => 'साइन आउट';
+
+  @override
+  String get navigationReports => 'रिपोर्टें';
+
+  @override
+  String get navigationUsers => 'उपयोगकर्ता';
+
+  @override
+  String get navigationBack => 'पीछे';
+
+  @override
+  String get navigationRefresh => 'ताज़ा करें';
+
+  @override
+  String get logoutTitle => 'साइन आउट की पुष्टि करें';
+
+  @override
+  String get logoutConfirmation =>
+      'क्या आप वाकई अपने खाते से साइन आउट करना चाहते हैं?';
+
+  @override
+  String get logoutConfirm => 'साइन आउट करें';
+
+  @override
+  String get logoutCancel => 'लॉग इन रहें';
+
+  @override
+  String get logoutSigningOut => 'साइन आउट हो रहा है...';
+
+  @override
+  String get logoutSuccess => 'सफलतापूर्वक साइन आउट किया गया';
+
+  @override
+  String get logoutError => 'साइन आउट करने में विफल। कृपया पुनः प्रयास करें।';
+
+  @override
+  String logoutPendingReportsWarning(int count) {
+    return 'आपके पास $count रिपोर्ट सिंक होने के लिए लंबित हैं।';
+  }
+
+  @override
+  String get logoutReportsRemainOnDevice =>
+      'अनसिंक की गई रिपोर्टें इस उपकरण पर सुरक्षित रहेंगी और खोएंगी नहीं।';
+
+  @override
+  String get routeAccessDenied => 'आपकी भूमिका के लिए पहुंच अस्वीकृत है।';
+
+  @override
+  String get routeSessionRequired => 'जारी रखने के लिए कृपया साइन इन करें।';
+
+  @override
+  String get routeProfilePending =>
+      'आपकी प्रोफ़ाइल पर्यवेक्षक की मंज़ूरी के लिए लंबित है।';
+
+  @override
+  String get routeInactiveAccount => 'आपका खाता वर्तमान में निष्क्रिय है।';
+
+  @override
+  String get reportDetailTitle => 'निरीक्षण विवरण';
+
+  @override
+  String get reportDetailLocation => 'स्थान और ट्रैक संरेखण';
+
+  @override
+  String reportDetailCreated(String time) {
+    return 'निर्मित: $time';
+  }
+
+  @override
+  String reportDetailUpdated(String time) {
+    return 'अद्यतन: $time';
+  }
+
+  @override
+  String get reportDetailInspectionStatus => 'निरीक्षण स्थिति';
+
+  @override
+  String get reportDetailSyncStatus => 'सिंक स्थिति';
+
+  @override
+  String get reportDetailAiInformation => 'एआई सुझाव (सलाहकारी)';
+
+  @override
+  String get reportDetailHumanConfirmed => 'निरीक्षक द्वारा पुष्ट';
+
+  @override
+  String get reportDetailViewImage => 'पूरी छवि देखें';
+
+  @override
+  String get reportDetailRetrySync => 'सिंक्रनाइज़ेशन पुनः प्रयास करें';
+
+  @override
+  String get reportDetailUnavailable => 'रिपोर्ट नहीं मिली या अनुपलब्ध है।';
 }

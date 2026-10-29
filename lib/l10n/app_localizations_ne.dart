@@ -351,7 +351,7 @@ class AppLocalizationsNe extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count रिपोर्टहरू सिङ्क हुन बाँकी',
-      one: '1 रिपोर्ट सिङ्क हुन बाँकी',
+      one: '1 report waiting to sync',
       zero: '0 रिपोर्ट बाँकी',
     );
     return '$_temp0';
@@ -363,7 +363,7 @@ class AppLocalizationsNe extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count रिपोर्टहरू असफल',
-      one: '1 रिपोर्ट असफल',
+      one: '1 report failed',
       zero: '0 रिपोर्ट असफल',
     );
     return '$_temp0';
@@ -504,4 +504,148 @@ class AppLocalizationsNe extends AppLocalizations {
   @override
   String get noReportsMatchFilter =>
       'चयन गरिएको फिल्टरसँग कुनै रिपोर्ट मेल खाएन।';
+
+  @override
+  String get profileTitle => 'प्रयोगकर्ता प्रोफाइल';
+
+  @override
+  String get profileName => 'पूरा नाम';
+
+  @override
+  String get profileEmail => 'इमेल ठेगाना';
+
+  @override
+  String get profileRole => 'भूमिका';
+
+  @override
+  String get profileAssignedSection => 'तोकिएको खण्ड';
+
+  @override
+  String get profileLanguage => 'रुचाइएको भाषा';
+
+  @override
+  String get profileAccountStatus => 'खाता स्थिति';
+
+  @override
+  String get profileActive => 'सक्रिय';
+
+  @override
+  String get profileInactive => 'निष्क्रिय';
+
+  @override
+  String get profileBackToHome => 'ड्यासबोर्डमा फर्कनुहोस्';
+
+  @override
+  String get roleGangman => 'ग्याङम्यान';
+
+  @override
+  String get roleAdmin => 'सुपरभाइजर / प्रशासक';
+
+  @override
+  String get navigationHome => 'गृह';
+
+  @override
+  String get navigationMyReports => 'मेरा रिपोर्टहरू';
+
+  @override
+  String get navigationDashboard => 'ड्यासबोर्ड';
+
+  @override
+  String get navigationProfile => 'प्रोफाइल';
+
+  @override
+  String get navigationLogout => 'साइन आउट';
+
+  @override
+  String get navigationReports => 'रिपोर्टहरू';
+
+  @override
+  String get navigationUsers => 'प्रयोगकर्ताहरू';
+
+  @override
+  String get navigationBack => 'पछाडि';
+
+  @override
+  String get navigationRefresh => 'ताजा गर्नुहोस्';
+
+  @override
+  String get logoutTitle => 'साइन आउट पुष्टि गर्नुहोस्';
+
+  @override
+  String get logoutConfirmation => 'के तपाईं पक्का साइन आउट गर्न चाहनुहुन्छ?';
+
+  @override
+  String get logoutConfirm => 'साइन आउट गर्नुहोस्';
+
+  @override
+  String get logoutCancel => 'लगइन रहनुहोस्';
+
+  @override
+  String get logoutSigningOut => 'साइन आउट हुँदैछ...';
+
+  @override
+  String get logoutSuccess => 'सफलतापूर्वक साइन आउट भयो';
+
+  @override
+  String get logoutError => 'साइन आउट गर्न असफल। कृपया फेरि प्रयास गर्नुहोस्।';
+
+  @override
+  String logoutPendingReportsWarning(int count) {
+    return 'तपाईंसँग सिङ्क हुन बाँकी $count रिपोर्टहरू छन्।';
+  }
+
+  @override
+  String get logoutReportsRemainOnDevice =>
+      'सिङ्क नभएका रिपोर्टहरू यस यन्त्रमा सुरक्षित रहनेछन् र हराउने छैनन्।';
+
+  @override
+  String get routeAccessDenied =>
+      'तपाईंको भूमिकाको लागि पहुँच अस्वीकार गरिएको छ।';
+
+  @override
+  String get routeSessionRequired => 'जारी राख्न कृपया साइन इन गर्नुहोस्।';
+
+  @override
+  String get routeProfilePending =>
+      'तपाईंको प्रोफाइल पर्यवेक्षकको स्वीकृतिको प्रतीक्षामा छ।';
+
+  @override
+  String get routeInactiveAccount => 'तपाईंको खाता हाल निष्क्रिय छ।';
+
+  @override
+  String get reportDetailTitle => 'निरीक्षण विवरण';
+
+  @override
+  String get reportDetailLocation => 'स्थान र ट्रयाक पङ्क्तिबद्धता';
+
+  @override
+  String reportDetailCreated(String time) {
+    return 'सिर्जना: $time';
+  }
+
+  @override
+  String reportDetailUpdated(String time) {
+    return 'अद्यावधिक: $time';
+  }
+
+  @override
+  String get reportDetailInspectionStatus => 'निरीक्षण स्थिति';
+
+  @override
+  String get reportDetailSyncStatus => 'सिङ्क स्थिति';
+
+  @override
+  String get reportDetailAiInformation => 'एआई सुझाव (सल्लाहकार)';
+
+  @override
+  String get reportDetailHumanConfirmed => 'निरीक्षकद्वारा पुष्टि गरिएको';
+
+  @override
+  String get reportDetailViewImage => 'पूर्ण तस्बिर हेर्नुहोस्';
+
+  @override
+  String get reportDetailRetrySync => 'सिङ्क्रोनाइजेसन पुनः प्रयास';
+
+  @override
+  String get reportDetailUnavailable => 'रिपोर्ट फेला परेन वा उपलब्ध छैन।';
 }
