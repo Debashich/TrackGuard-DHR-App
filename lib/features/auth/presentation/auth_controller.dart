@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/models/app_user.dart';
@@ -13,49 +16,61 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 final _sharedAuthRepo = DevelopmentAuthRepository();
 
 class AuthController extends Notifier<AuthState> {
-  late final AuthRepository _repository;
+  late AuthRepository _repository;
+  StreamSubscription<AppUser?>? _authSubscription;
 
   @override
   AuthState build() {
     _repository = ref.watch(authRepositoryProvider);
+
+    _authSubscription = _repository.watchAuthState().listen(
+      (user) {
+        if (user == null) {
+          state = AuthState.unauthenticated();
+        } else {
+          _handleUserLoaded(user);
+        }
+      },
+      onError: (Object error) {
+        if (error is ProfileNotFoundException) {
+          state = AuthState.profilePending();
+        } else {
+          state = AuthState.error(error.toString());
+        }
+      },
+    );
+
+    ref.onDispose(() {
+      _authSubscription?.cancel();
+    });
+
     _restoreSession();
+
     return AuthState.unauthenticated();
   }
 
   Future<void> _restoreSession() async {
     try {
       final user = await _repository.getCurrentUser();
+
       if (user != null) {
         _handleUserLoaded(user);
       }
-    } catch (_) {}
+    } on ProfileNotFoundException {
+      state = AuthState.profilePending();
+    } catch (error) {
+      state = AuthState.error(error.toString());
+    }
   }
 
   Future<void> signInWithGoogle() async {
     state = AuthState.authenticating();
-    try {
-      final user = await _repository.signInWithGoogle();
-      _handleUserLoaded(user);
-    } catch (e) {
-      state = AuthState.error(e.toString());
-    }
-  }
 
-  Future<void> signInWithEmail({
-    required String email,
-    required String password,
-    bool isSignUp = false,
-  }) async {
-    state = AuthState.authenticating();
     try {
-      final user = await _repository.signInWithEmail(
-        email: email,
-        password: password,
-        isSignUp: isSignUp,
-      );
-      _handleUserLoaded(user);
-    } catch (e) {
-      state = AuthState.error(e.toString());
+      await _repository.signInWithGoogle();
+      // The auth-state listener handles the completed OAuth redirect.
+    } catch (error) {
+      state = AuthState.error(error.toString());
     }
   }
 
@@ -63,15 +78,21 @@ class AuthController extends Notifier<AuthState> {
     required UserRole role,
     bool isActive = true,
   }) async {
+    if (!kDebugMode) {
+      state = AuthState.error('Development sign-in is disabled.');
+      return;
+    }
+
     state = AuthState.authenticating();
+
     try {
       final user = await _repository.signInDevelopment(
         role: role,
         isActive: isActive,
       );
       _handleUserLoaded(user);
-    } catch (e) {
-      state = AuthState.error(e.toString());
+    } catch (error) {
+      state = AuthState.error(error.toString());
     }
   }
 
@@ -88,11 +109,15 @@ class AuthController extends Notifier<AuthState> {
   }
 
   Future<void> signOut() async {
-    await _repository.signOut();
-    state = AuthState.unauthenticated();
+    try {
+      await _repository.signOut();
+      state = AuthState.unauthenticated();
+    } catch (error) {
+      state = AuthState.error('Sign-out failed: $error');
+    }
   }
 }
 
-final authControllerProvider = NotifierProvider<AuthController, AuthState>(() {
-  return AuthController();
-});
+final authControllerProvider = NotifierProvider<AuthController, AuthState>(
+  AuthController.new,
+);

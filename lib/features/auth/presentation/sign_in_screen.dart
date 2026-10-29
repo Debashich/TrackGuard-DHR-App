@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/localization/l10n.dart';
@@ -139,60 +140,51 @@ class SignInScreen extends ConsumerWidget {
                             .signInWithGoogle(),
                 ),
 
-                const SizedBox(height: 24),
-                const Row(
-                  children: [
-                    Expanded(child: Divider()),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        'DEVELOPMENT ACCESS',
-                        style: TextStyle(
-                          color: Colors.white38,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                if (kDebugMode) ...[
+                  const SizedBox(height: 24),
+                  const Row(
+                    children: [
+                      Expanded(child: Divider()),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          'DEVELOPMENT ACCESS',
+                          style: TextStyle(
+                            color: Colors.white38,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 16),
+                      Expanded(child: Divider()),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
 
-                // Development Gangman Sign In
-                OutlinedButton.icon(
-                  onPressed: isAuthenticating
-                      ? null
-                      : () => ref
-                            .read(authControllerProvider.notifier)
-                            .signInDevelopment(role: UserRole.gangman),
-                  icon: const Icon(Icons.engineering_outlined),
-                  label: Text(l10n.devSignInGangman),
-                ),
+                  // Development Gangman Sign In
+                  OutlinedButton.icon(
+                    onPressed: isAuthenticating
+                        ? null
+                        : () => ref
+                              .read(authControllerProvider.notifier)
+                              .signInDevelopment(role: UserRole.gangman),
+                    icon: const Icon(Icons.engineering_outlined),
+                    label: Text(l10n.devSignInGangman),
+                  ),
 
-                const SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
-                // Development Admin Sign In
-                OutlinedButton.icon(
-                  onPressed: isAuthenticating
-                      ? null
-                      : () => ref
-                            .read(authControllerProvider.notifier)
-                            .signInDevelopment(role: UserRole.admin),
-                  icon: const Icon(Icons.admin_panel_settings_outlined),
-                  label: Text(l10n.devSignInAdmin),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Email & Password Sign In (Supabase)
-                TextButton.icon(
-                  onPressed: isAuthenticating
-                      ? null
-                      : () => _showEmailSignInDialog(context, ref),
-                  icon: const Icon(Icons.mail_outline, size: 18),
-                  label: const Text('Sign In with Email (Supabase)'),
-                ),
+                  // Development Admin Sign In
+                  OutlinedButton.icon(
+                    onPressed: isAuthenticating
+                        ? null
+                        : () => ref
+                              .read(authControllerProvider.notifier)
+                              .signInDevelopment(role: UserRole.admin),
+                    icon: const Icon(Icons.admin_panel_settings_outlined),
+                    label: Text(l10n.devSignInAdmin),
+                  ),
+                ],
 
                 const SizedBox(height: 32),
                 // Offline Notice
@@ -228,77 +220,6 @@ class SignInScreen extends ConsumerWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  void _showEmailSignInDialog(BuildContext context, WidgetRef ref) {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        title: const Text('Supabase Sign In'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                hintText: 'gangman@dhr.railways.gov.in',
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogCtx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              final email = emailController.text.trim();
-              final pass = passwordController.text.trim();
-              if (email.isNotEmpty && pass.isNotEmpty) {
-                Navigator.pop(dialogCtx);
-                ref
-                    .read(authControllerProvider.notifier)
-                    .signInWithEmail(
-                      email: email,
-                      password: pass,
-                      isSignUp: true,
-                    );
-              }
-            },
-            child: const Text('Sign Up'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final email = emailController.text.trim();
-              final pass = passwordController.text.trim();
-              if (email.isNotEmpty && pass.isNotEmpty) {
-                Navigator.pop(dialogCtx);
-                ref
-                    .read(authControllerProvider.notifier)
-                    .signInWithEmail(
-                      email: email,
-                      password: pass,
-                      isSignUp: false,
-                    );
-              }
-            },
-            child: const Text('Sign In'),
-          ),
-        ],
       ),
     );
   }

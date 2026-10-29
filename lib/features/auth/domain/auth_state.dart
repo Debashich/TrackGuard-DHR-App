@@ -34,7 +34,7 @@ class AuthState {
   factory AuthState.authorizedAdmin(AppUser user) =>
       AuthState(status: AuthStatus.authorizedAdmin, user: user);
 
-  factory AuthState.profilePending(AppUser user) =>
+  factory AuthState.profilePending([AppUser? user]) =>
       AuthState(status: AuthStatus.profilePending, user: user);
 
   factory AuthState.inactiveUser(AppUser user) =>

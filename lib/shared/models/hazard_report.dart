@@ -194,7 +194,7 @@ class HazardReport {
   factory HazardReport.fromJson(Map<String, dynamic> json) {
     return HazardReport(
       id: json['id'] as String,
-      createdBy: json['created_by'] as String,
+      createdBy: json['created_by'] as String? ?? '',
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
