@@ -648,4 +648,125 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get reportDetailUnavailable => 'रिपोर्ट फेला परेन वा उपलब्ध छैन।';
+
+  @override
+  String get aiSettingsTitle => 'एआई र मोडल सेटिङहरू';
+
+  @override
+  String get aiModeAutomatic => 'स्वचालित (अफलाइन-पहिलो)';
+
+  @override
+  String get aiModeOfflineGemma => 'अफलाइन गेम्मा 4 E2B';
+
+  @override
+  String get aiModeOnlineGemini => 'अनलाइन जेमिनी क्लाउड';
+
+  @override
+  String get aiModeManual => 'म्यानुअल वर्गीकरण मात्र';
+
+  @override
+  String get aiOfflineGemma => 'अफलाइन गेम्मा इन्जिन';
+
+  @override
+  String get aiGemmaModelName => 'गेम्मा 4 E2B';
+
+  @override
+  String get aiGemmaReady => 'मोडल तयार (उपकरणमा)';
+
+  @override
+  String get aiGemmaLoading => 'गेम्मा मोडल लोड हुँदैछ...';
+
+  @override
+  String get aiGemmaUnavailable => 'अफलाइन मोडल उपलब्ध छैन';
+
+  @override
+  String get aiGemmaFailed => 'अफलाइन मोडल लोड हुन असफल';
+
+  @override
+  String get aiGemini => 'जेमिनी क्लाउड रिजनिङ';
+
+  @override
+  String get aiGeminiRequiresNetwork =>
+      'अनलाइन जेमिनीका लागि सक्रिय नेटवर्क आवश्यक छ';
+
+  @override
+  String get aiGeminiUnavailable => 'अनलाइन जेमिनी सेवा अनुपलब्ध';
+
+  @override
+  String get aiProviderUsed => 'वास्तविक प्रदायक';
+
+  @override
+  String get aiRequestedProvider => 'अनुरोध गरिएको प्रदायक';
+
+  @override
+  String get aiModelName => 'मोडलको नाम';
+
+  @override
+  String get aiPromptLanguage => 'प्रम्प्ट भाषा';
+
+  @override
+  String get aiConfidence => 'मोडल विश्वास';
+
+  @override
+  String get aiFallbackReason => 'फलब्याकको कारण';
+
+  @override
+  String get aiHumanConfirmationRequired => 'मानव पुष्टि अनिवार्य';
+
+  @override
+  String get aiAnalyzingOffline => 'अफलाइन गेम्मा 4 E2B बाट विश्लेषण हुँदैछ...';
+
+  @override
+  String get aiAnalyzingOnline => 'अनलाइन जेमिनी क्लाउडबाट विश्लेषण हुँदैछ...';
+
+  @override
+  String get aiManualClassification =>
+      'एआई बाइपास गरियो। म्यानुअल निरीक्षण मान लागू गरियो।';
+
+  @override
+  String get aiInvalidResult =>
+      'एआई नतिजा प्रमाणीकरण हुन सकेन। कृपया म्यानुअल समीक्षा गर्नुहोस्।';
+
+  @override
+  String get aiValidationFailed =>
+      'एआई आउटपुट सुरक्षा वा स्कीमा प्रमाणीकरणमा असफल भयो।';
+
+  @override
+  String get aiModelInitializationFailed =>
+      'अफलाइन गेम्मा रनटाइम सुरु गर्न असफल भयो।';
+
+  @override
+  String get aiInferenceFailed => 'एआई मोडल अनुमान निष्पादन असफल भयो।';
+
+  @override
+  String get aiOnlineRequestFailed => 'अनलाइन एआई ब्याकइन्ड अनुरोध असफल भयो।';
+
+  @override
+  String get aiRateLimited =>
+      'एआई सेवा दर सीमा पुग्यो। कृपया पछि पुनः प्रयास गर्नुहोस्।';
+
+  @override
+  String get aiTimeout =>
+      'एआई विश्लेषण समय समाप्त भयो। रिपोर्ट म्यानुअल रूपमा वर्गीकृत गरिनेछ।';
+
+  @override
+  String get aiImageTooLarge =>
+      'तस्बिर विश्लेषणका लागि धेरै ठूलो छ। कम्प्रेस गरिएको संस्करण प्रयोग गरिनेछ।';
+
+  @override
+  String get aiPrivacyNotice =>
+      'अन-डिभाइस गेम्मा मोडलहरूले बाह्य क्लाउड सर्भरमा डेटा नपठाई स्थानीय रूपमा तस्बिरहरू प्रशोधन गर्छन्।';
+
+  @override
+  String get aiOfflineFirstNotice =>
+      'उपलब्ध हुँदा निजी अन-डिभाइस गेम्मा, कनेक्ट हुँदा क्लाउड जेमिनी, वा ह्युरिस्टिक नियमहरू प्रयोग गर्दछ।';
+
+  @override
+  String get aiRetryAnalysis => 'एआई विश्लेषण पुनः प्रयास';
+
+  @override
+  String get aiUseManualClassification => 'म्यानुअलमा स्विच गर्नुहोस्';
+
+  @override
+  String get aiActualProvider => 'सक्रिय प्रदायक';
 }

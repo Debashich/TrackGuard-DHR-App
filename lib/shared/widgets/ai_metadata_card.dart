@@ -14,6 +14,7 @@ class AiMetadataCard extends StatelessWidget {
   final AppLanguage? language;
   final double? confidence;
   final bool showAdvisoryNotice;
+  final String? fallbackReason;
 
   AiMetadataCard({
     super.key,
@@ -23,10 +24,12 @@ class AiMetadataCard extends StatelessWidget {
     AppLanguage? language,
     double? confidence,
     this.showAdvisoryNotice = true,
+    String? fallbackReason,
   }) : provider = provider ?? result?.provider ?? AiProvider.manual,
        modelName = modelName ?? result?.modelName,
        language = language ?? result?.language,
-       confidence = confidence ?? result?.confidence;
+       confidence = confidence ?? result?.confidence,
+       fallbackReason = fallbackReason ?? result?.fallbackReason;
 
   factory AiMetadataCard.fromResult({
     Key? key,
@@ -41,6 +44,7 @@ class AiMetadataCard extends StatelessWidget {
       language: result.language,
       confidence: result.confidence,
       showAdvisoryNotice: showAdvisoryNotice,
+      fallbackReason: result.fallbackReason,
     );
   }
 
@@ -108,9 +112,9 @@ class AiMetadataCard extends StatelessWidget {
               children: [
                 Icon(_providerIcon, size: 18, color: AppTheme.primaryAmber),
                 const SizedBox(width: 8),
-                Text(
+                const Text(
                   'AI ADVISORY METADATA',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                     color: AppTheme.primaryAmber,
@@ -164,6 +168,42 @@ class AiMetadataCard extends StatelessWidget {
                   ),
               ],
             ),
+
+            // Fallback reason if present
+            if (fallbackReason != null && fallbackReason!.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppTheme.statusOrange.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: AppTheme.statusOrange.withValues(alpha: 0.35),
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.info_outline_rounded,
+                      size: 14,
+                      color: AppTheme.statusOrange,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        fallbackReason!,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppTheme.statusOrange,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
 
             // Mandatory Advisory Notice
             if (showAdvisoryNotice) ...[

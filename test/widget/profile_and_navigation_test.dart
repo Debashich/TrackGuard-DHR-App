@@ -245,8 +245,7 @@ void main() {
               body: Consumer(
                 builder: (context, ref, _) {
                   return ElevatedButton(
-                    onPressed: () =>
-                        showLogoutConfirmationDialog(context, ref),
+                    onPressed: () => showLogoutConfirmationDialog(context, ref),
                     child: const Text('TRIGGER_LOGOUT'),
                   );
                 },

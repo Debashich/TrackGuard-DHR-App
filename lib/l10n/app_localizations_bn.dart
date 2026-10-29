@@ -649,4 +649,128 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get reportDetailUnavailable => 'রিপোর্ট পাওয়া যায়নি বা অনুপলব্ধ।';
+
+  @override
+  String get aiSettingsTitle => 'এআই ও মডেল সেটিংস';
+
+  @override
+  String get aiModeAutomatic => 'স্বয়ংক্রিয় (অফলাইন-প্রথম)';
+
+  @override
+  String get aiModeOfflineGemma => 'অফলাইন গেমা 4 E2B';
+
+  @override
+  String get aiModeOnlineGemini => 'অনলাইন জেমিনি ক্লাউড';
+
+  @override
+  String get aiModeManual => 'শুধুমাত্র ম্যানুয়াল শ্রেণিবিভাগ';
+
+  @override
+  String get aiOfflineGemma => 'অফলাইন গেমা ইঞ্জিন';
+
+  @override
+  String get aiGemmaModelName => 'গেমা 4 E2B';
+
+  @override
+  String get aiGemmaReady => 'মডেল প্রস্তুত (ডিভাইসে)';
+
+  @override
+  String get aiGemmaLoading => 'গেমা মডেল লোড হচ্ছে...';
+
+  @override
+  String get aiGemmaUnavailable => 'অফলাইন মডেল অনুপলব্ধ';
+
+  @override
+  String get aiGemmaFailed => 'অফলাইন মডেল শুরু করতে ব্যর্থ';
+
+  @override
+  String get aiGemini => 'জেমিনি ক্লাউড রিজনিং';
+
+  @override
+  String get aiGeminiRequiresNetwork =>
+      'অনলাইন জেমিনির জন্য নেটওয়ার্ক সংযোগ প্রয়োজন';
+
+  @override
+  String get aiGeminiUnavailable => 'অনলাইন জেমিনি সেবা অনুপলব্ধ';
+
+  @override
+  String get aiProviderUsed => 'প্রকৃত প্রদানকারী';
+
+  @override
+  String get aiRequestedProvider => 'অনুরোধকৃত প্রদানকারী';
+
+  @override
+  String get aiModelName => 'মডেলের নাম';
+
+  @override
+  String get aiPromptLanguage => 'প্রম্পট ভাষা';
+
+  @override
+  String get aiConfidence => 'মডেলের আত্মবিশ্বাস';
+
+  @override
+  String get aiFallbackReason => 'ফলব্যাকের কারণ';
+
+  @override
+  String get aiHumanConfirmationRequired => 'মানুষের নিশ্চিতকরণ বাধ্যতামূলক';
+
+  @override
+  String get aiAnalyzingOffline =>
+      'অফলাইন গেমা 4 E2B দ্বারা বিশ্লেষণ করা হচ্ছে...';
+
+  @override
+  String get aiAnalyzingOnline =>
+      'অনলাইন জেমিনি ক্লাউড দ্বারা বিশ্লেষণ করা হচ্ছে...';
+
+  @override
+  String get aiManualClassification =>
+      'এআই বাইপাস করা হয়েছে। ম্যানুয়াল পরিদর্শন মান প্রয়োগ করা হয়েছে।';
+
+  @override
+  String get aiInvalidResult =>
+      'এআই ফলাফল যাচাই করা যায়নি। দয়া করে ম্যানুয়ালি পর্যালোচনা করুন।';
+
+  @override
+  String get aiValidationFailed =>
+      'এআই আউটপুট সুরক্ষা বা স্কিমা যাচাইয়ে ব্যর্থ হয়েছে।';
+
+  @override
+  String get aiModelInitializationFailed =>
+      'অফলাইন গেমা রানটাইম শুরু করতে ব্যর্থ।';
+
+  @override
+  String get aiInferenceFailed => 'এআই মডেল অনুমান সম্পাদন ব্যর্থ হয়েছে।';
+
+  @override
+  String get aiOnlineRequestFailed =>
+      'অনলাইন এআই ব্যাকএন্ড অনুরোধ ব্যর্থ হয়েছে।';
+
+  @override
+  String get aiRateLimited =>
+      'এআই সেবার রেট সীমা পৌঁছেছে। দয়া করে পরে চেষ্টা করুন।';
+
+  @override
+  String get aiTimeout =>
+      'এআই বিশ্লেষণের সময় শেষ। রিপোর্টটি ম্যানুয়ালি শ্রেণিবদ্ধ করা হবে।';
+
+  @override
+  String get aiImageTooLarge =>
+      'ছবিটি বিশ্লেষণের জন্য খুব বড়। একটি সংকুচিত সংস্করণ ব্যবহার করা হবে।';
+
+  @override
+  String get aiPrivacyNotice =>
+      'অন-ডিভাইস গেমা মডেলগুলি বাহ্যিক ক্লাউড সার্ভারে ডেটা না পাঠিয়ে স্থানীয়ভাবে ছবি প্রক্রিয়া করে।';
+
+  @override
+  String get aiOfflineFirstNotice =>
+      'উপলব্ধ থাকলে ব্যক্তিগত অন-ডিভাইস গেমা, সংযুক্ত থাকলে ক্লাউড জেমিনি, বা হিউরিস্টিক নিয়ম ব্যবহার করে।';
+
+  @override
+  String get aiRetryAnalysis => 'পুনরায় এআই বিশ্লেষণ করুন';
+
+  @override
+  String get aiUseManualClassification => 'ম্যানুয়ালে পরিবর্তন করুন';
+
+  @override
+  String get aiActualProvider => 'সক্রিয় প্রদানকারী';
 }

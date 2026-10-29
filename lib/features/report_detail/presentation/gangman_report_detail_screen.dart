@@ -34,14 +34,18 @@ class _GangmanReportDetailScreenState
   @override
   void initState() {
     super.initState();
-    _reportFuture = ref.read(reportRepositoryProvider).getReportById(widget.reportId);
+    _reportFuture = ref
+        .read(reportRepositoryProvider)
+        .getReportById(widget.reportId);
   }
 
   @override
   void didUpdateWidget(covariant GangmanReportDetailScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.reportId != widget.reportId) {
-      _reportFuture = ref.read(reportRepositoryProvider).getReportById(widget.reportId);
+      _reportFuture = ref
+          .read(reportRepositoryProvider)
+          .getReportById(widget.reportId);
     }
   }
 
@@ -53,7 +57,9 @@ class _GangmanReportDetailScreenState
         ref.invalidate(localReportsProvider);
         if (mounted) {
           setState(() {
-            _reportFuture = ref.read(reportRepositoryProvider).getReportById(widget.reportId);
+            _reportFuture = ref
+                .read(reportRepositoryProvider)
+                .getReportById(widget.reportId);
           });
         }
       } catch (_) {}

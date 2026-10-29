@@ -1,13 +1,12 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter/foundation.dart';
-
-import '../../../core/supabase/supabase_provider.dart';
 
 import '../../../core/constants/dhr_waypoints.dart';
 import '../../../core/localization/l10n.dart';
+import '../../../core/supabase/supabase_provider.dart';
 import '../../../shared/models/ai_analysis_result.dart';
 import '../../../shared/models/ai_provider.dart';
 import '../../../shared/models/hazard_report.dart';
@@ -17,6 +16,7 @@ import '../../../shared/models/report_draft.dart';
 import '../../../shared/models/severity.dart';
 import '../../../shared/models/sync_status.dart';
 import '../../ai/domain/ai_service_provider.dart';
+import '../../ai/domain/ai_settings.dart';
 import '../../reports/domain/report_repository_provider.dart';
 
 class ReportReviewState {
@@ -102,18 +102,26 @@ class ReportReviewController extends Notifier<ReportReviewState> {
       draft: draft,
       isLoadingDraft: false,
       kmMarker: initialKm,
-      isAnalyzing: true,
     );
 
-    // Run AI analysis
+    await runAnalysis();
+  }
+
+  Future<void> runAnalysis([AiMode? requestedMode]) async {
+    final draft = state.draft;
+    if (draft == null) return;
+
+    state = state.copyWith(isAnalyzing: true);
     final aiService = ref.read(aiAnalysisServiceProvider);
     final language = ref.read(appLanguageProvider);
+    final mode = requestedMode ?? ref.read(aiSettingsProvider).mode;
 
     try {
       final result = await aiService.analyze(
         image: File(draft.photoPath),
         location: draft.location,
         language: language,
+        requestedMode: mode,
       );
 
       state = state.copyWith(
@@ -125,6 +133,10 @@ class ReportReviewController extends Notifier<ReportReviewState> {
     } catch (_) {
       state = state.copyWith(isAnalyzing: false);
     }
+  }
+
+  void switchToManual() {
+    runAnalysis(AiMode.manual);
   }
 
   void setConfirmedHazard(HazardType hazard) {
@@ -215,8 +227,6 @@ class ReportReviewController extends Notifier<ReportReviewState> {
         debugPrint('Report sync failed: $error');
         debugPrintStack(stackTrace: stackTrace);
       }
-
-      ref.invalidate(pendingReportsCountProvider);
 
       ref.invalidate(pendingReportsCountProvider);
 

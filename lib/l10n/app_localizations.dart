@@ -1229,6 +1229,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report not found or unavailable.'**
   String get reportDetailUnavailable;
+
+  /// No description provided for @aiSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI & Model Settings'**
+  String get aiSettingsTitle;
+
+  /// No description provided for @aiModeAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic (Offline-First)'**
+  String get aiModeAutomatic;
+
+  /// No description provided for @aiModeOfflineGemma.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Gemma 4 E2B'**
+  String get aiModeOfflineGemma;
+
+  /// No description provided for @aiModeOnlineGemini.
+  ///
+  /// In en, this message translates to:
+  /// **'Online Gemini Cloud'**
+  String get aiModeOnlineGemini;
+
+  /// No description provided for @aiModeManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual Classification Only'**
+  String get aiModeManual;
+
+  /// No description provided for @aiOfflineGemma.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Gemma Engine'**
+  String get aiOfflineGemma;
+
+  /// No description provided for @aiGemmaModelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemma 4 E2B'**
+  String get aiGemmaModelName;
+
+  /// No description provided for @aiGemmaReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Model Ready (On-Device)'**
+  String get aiGemmaReady;
+
+  /// No description provided for @aiGemmaLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing Gemma Model...'**
+  String get aiGemmaLoading;
+
+  /// No description provided for @aiGemmaUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Model Unavailable'**
+  String get aiGemmaUnavailable;
+
+  /// No description provided for @aiGemmaFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Model Initialization Failed'**
+  String get aiGemmaFailed;
+
+  /// No description provided for @aiGemini.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemini Cloud Reasoning'**
+  String get aiGemini;
+
+  /// No description provided for @aiGeminiRequiresNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Online Gemini requires active station or cellular network'**
+  String get aiGeminiRequiresNetwork;
+
+  /// No description provided for @aiGeminiUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Online Gemini service unavailable'**
+  String get aiGeminiUnavailable;
+
+  /// No description provided for @aiProviderUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual Provider'**
+  String get aiProviderUsed;
+
+  /// No description provided for @aiRequestedProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested Provider'**
+  String get aiRequestedProvider;
+
+  /// No description provided for @aiModelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Model Name'**
+  String get aiModelName;
+
+  /// No description provided for @aiPromptLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Prompt Language'**
+  String get aiPromptLanguage;
+
+  /// No description provided for @aiConfidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Model Confidence'**
+  String get aiConfidence;
+
+  /// No description provided for @aiFallbackReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Fallback Reason'**
+  String get aiFallbackReason;
+
+  /// No description provided for @aiHumanConfirmationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Human Confirmation Mandatory'**
+  String get aiHumanConfirmationRequired;
+
+  /// No description provided for @aiAnalyzingOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing with Offline Gemma 4 E2B...'**
+  String get aiAnalyzingOffline;
+
+  /// No description provided for @aiAnalyzingOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing with Online Gemini Cloud...'**
+  String get aiAnalyzingOnline;
+
+  /// No description provided for @aiManualClassification.
+  ///
+  /// In en, this message translates to:
+  /// **'AI bypassed. Manual field inspection values applied.'**
+  String get aiManualClassification;
+
+  /// No description provided for @aiInvalidResult.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI result could not be verified. Please review the fields manually.'**
+  String get aiInvalidResult;
+
+  /// No description provided for @aiValidationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'AI output failed safety or schema validation.'**
+  String get aiValidationFailed;
+
+  /// No description provided for @aiModelInitializationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to initialize offline Gemma runtime.'**
+  String get aiModelInitializationFailed;
+
+  /// No description provided for @aiInferenceFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'AI model inference execution failed.'**
+  String get aiInferenceFailed;
+
+  /// No description provided for @aiOnlineRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Online AI backend request failed.'**
+  String get aiOnlineRequestFailed;
+
+  /// No description provided for @aiRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'AI service rate limit reached. Please retry later.'**
+  String get aiRateLimited;
+
+  /// No description provided for @aiTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'AI analysis timed out. Your report will be classified manually.'**
+  String get aiTimeout;
+
+  /// No description provided for @aiImageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'The image is too large for analysis. A compressed version will be used.'**
+  String get aiImageTooLarge;
+
+  /// No description provided for @aiPrivacyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'On-device Gemma models process images locally without uploading data to external cloud servers.'**
+  String get aiPrivacyNotice;
+
+  /// No description provided for @aiOfflineFirstNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses private on-device Gemma when available, cloud Gemini when connected, or heuristic rules.'**
+  String get aiOfflineFirstNotice;
+
+  /// No description provided for @aiRetryAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry AI Analysis'**
+  String get aiRetryAnalysis;
+
+  /// No description provided for @aiUseManualClassification.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Manual'**
+  String get aiUseManualClassification;
+
+  /// No description provided for @aiActualProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Provider'**
+  String get aiActualProvider;
 }
 
 class _AppLocalizationsDelegate

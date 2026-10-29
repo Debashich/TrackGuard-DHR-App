@@ -653,4 +653,125 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportDetailUnavailable => 'Report not found or unavailable.';
+
+  @override
+  String get aiSettingsTitle => 'AI & Model Settings';
+
+  @override
+  String get aiModeAutomatic => 'Automatic (Offline-First)';
+
+  @override
+  String get aiModeOfflineGemma => 'Offline Gemma 4 E2B';
+
+  @override
+  String get aiModeOnlineGemini => 'Online Gemini Cloud';
+
+  @override
+  String get aiModeManual => 'Manual Classification Only';
+
+  @override
+  String get aiOfflineGemma => 'Offline Gemma Engine';
+
+  @override
+  String get aiGemmaModelName => 'Gemma 4 E2B';
+
+  @override
+  String get aiGemmaReady => 'Model Ready (On-Device)';
+
+  @override
+  String get aiGemmaLoading => 'Initializing Gemma Model...';
+
+  @override
+  String get aiGemmaUnavailable => 'Offline Model Unavailable';
+
+  @override
+  String get aiGemmaFailed => 'Offline Model Initialization Failed';
+
+  @override
+  String get aiGemini => 'Gemini Cloud Reasoning';
+
+  @override
+  String get aiGeminiRequiresNetwork =>
+      'Online Gemini requires active station or cellular network';
+
+  @override
+  String get aiGeminiUnavailable => 'Online Gemini service unavailable';
+
+  @override
+  String get aiProviderUsed => 'Actual Provider';
+
+  @override
+  String get aiRequestedProvider => 'Requested Provider';
+
+  @override
+  String get aiModelName => 'Model Name';
+
+  @override
+  String get aiPromptLanguage => 'Prompt Language';
+
+  @override
+  String get aiConfidence => 'Model Confidence';
+
+  @override
+  String get aiFallbackReason => 'Fallback Reason';
+
+  @override
+  String get aiHumanConfirmationRequired => 'Human Confirmation Mandatory';
+
+  @override
+  String get aiAnalyzingOffline => 'Analyzing with Offline Gemma 4 E2B...';
+
+  @override
+  String get aiAnalyzingOnline => 'Analyzing with Online Gemini Cloud...';
+
+  @override
+  String get aiManualClassification =>
+      'AI bypassed. Manual field inspection values applied.';
+
+  @override
+  String get aiInvalidResult =>
+      'The AI result could not be verified. Please review the fields manually.';
+
+  @override
+  String get aiValidationFailed =>
+      'AI output failed safety or schema validation.';
+
+  @override
+  String get aiModelInitializationFailed =>
+      'Failed to initialize offline Gemma runtime.';
+
+  @override
+  String get aiInferenceFailed => 'AI model inference execution failed.';
+
+  @override
+  String get aiOnlineRequestFailed => 'Online AI backend request failed.';
+
+  @override
+  String get aiRateLimited =>
+      'AI service rate limit reached. Please retry later.';
+
+  @override
+  String get aiTimeout =>
+      'AI analysis timed out. Your report will be classified manually.';
+
+  @override
+  String get aiImageTooLarge =>
+      'The image is too large for analysis. A compressed version will be used.';
+
+  @override
+  String get aiPrivacyNotice =>
+      'On-device Gemma models process images locally without uploading data to external cloud servers.';
+
+  @override
+  String get aiOfflineFirstNotice =>
+      'Uses private on-device Gemma when available, cloud Gemini when connected, or heuristic rules.';
+
+  @override
+  String get aiRetryAnalysis => 'Retry AI Analysis';
+
+  @override
+  String get aiUseManualClassification => 'Switch to Manual';
+
+  @override
+  String get aiActualProvider => 'Active Provider';
 }

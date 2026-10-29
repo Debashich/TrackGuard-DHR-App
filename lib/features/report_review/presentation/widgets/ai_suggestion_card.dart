@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trackguard_dhr/app/theme.dart';
+import 'package:trackguard_dhr/features/ai/domain/ai_settings.dart';
 import 'package:trackguard_dhr/l10n/app_localizations.dart';
 import 'package:trackguard_dhr/shared/models/ai_analysis_result.dart';
 import 'package:trackguard_dhr/shared/models/ai_provider.dart';
@@ -9,16 +10,28 @@ import 'package:trackguard_dhr/shared/widgets/severity_badge.dart';
 class AiSuggestionCard extends StatelessWidget {
   final AiAnalysisResult? aiResult;
   final bool isAnalyzing;
+  final AiMode? currentMode;
+  final VoidCallback? onRetry;
+  final VoidCallback? onSwitchToManual;
 
   const AiSuggestionCard({
     super.key,
     required this.aiResult,
     required this.isAnalyzing,
+    this.currentMode,
+    this.onRetry,
+    this.onSwitchToManual,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
+    final analyzingText = currentMode == AiMode.offlineGemma
+        ? l10n.aiAnalyzingOffline
+        : currentMode == AiMode.onlineGemini
+        ? l10n.aiAnalyzingOnline
+        : l10n.aiAnalyzing;
 
     return Card(
       child: Padding(
@@ -44,7 +57,7 @@ class AiSuggestionCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (aiResult != null)
+                if (aiResult != null && !isAnalyzing)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -58,6 +71,8 @@ class AiSuggestionCard extends StatelessWidget {
                     child: Text(
                       aiResult!.provider == AiProvider.offlineGemma
                           ? 'Gemma 4 E2B'
+                          : aiResult!.provider == AiProvider.onlineGemini
+                          ? 'Gemini Cloud'
                           : aiResult!.provider == AiProvider.heuristic
                           ? 'Heuristic'
                           : 'Manual',
@@ -85,7 +100,7 @@ class AiSuggestionCard extends StatelessWidget {
               ),
               Center(
                 child: Text(
-                  l10n.aiAnalyzing,
+                  analyzingText,
                   style: const TextStyle(fontSize: 12, color: Colors.white70),
                 ),
               ),
@@ -124,8 +139,45 @@ class AiSuggestionCard extends StatelessWidget {
                   ),
                 ),
               ],
+
+              // Actions row: Switch to Manual / Retry
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (onRetry != null)
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: AppTheme.primaryAmber,
+                      ),
+                      onPressed: onRetry,
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: Text(
+                        l10n.aiRetryAnalysis,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  if (onSwitchToManual != null &&
+                      aiResult!.provider != AiProvider.manual) ...[
+                    const SizedBox(width: 8),
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: Colors.white60,
+                      ),
+                      onPressed: onSwitchToManual,
+                      icon: const Icon(Icons.edit_note, size: 16),
+                      label: Text(
+                        l10n.aiUseManualClassification,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ],
-            const Divider(height: 20),
+            const Divider(height: 16),
             // Mandatory AI advisory disclaimer
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

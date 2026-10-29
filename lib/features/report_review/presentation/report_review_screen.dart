@@ -17,6 +17,7 @@ import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/sync_status_badge.dart';
+import '../../ai/domain/ai_settings.dart';
 import '../../auth/presentation/auth_controller.dart';
 import 'report_review_controller.dart';
 import 'widgets/ai_suggestion_card.dart';
@@ -273,6 +274,9 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
               AiSuggestionCard(
                 aiResult: reviewState.aiResult,
                 isAnalyzing: reviewState.isAnalyzing,
+                currentMode: ref.watch(aiSettingsProvider).mode,
+                onRetry: () => controller.runAnalysis(),
+                onSwitchToManual: () => controller.switchToManual(),
               ),
               if (reviewState.aiResult != null && !reviewState.isAnalyzing) ...[
                 const SizedBox(height: 12),

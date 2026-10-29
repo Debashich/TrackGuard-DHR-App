@@ -11,6 +11,8 @@ class AiAnalysisResult {
   final String? modelName;
   final AppLanguage? language;
   final double? confidence;
+  final AiProvider? requestedProvider;
+  final String? fallbackReason;
 
   const AiAnalysisResult({
     this.hazardType,
@@ -20,7 +22,33 @@ class AiAnalysisResult {
     this.modelName,
     this.language,
     this.confidence,
+    this.requestedProvider,
+    this.fallbackReason,
   });
+
+  AiAnalysisResult copyWith({
+    HazardType? hazardType,
+    Severity? severity,
+    String? note,
+    AiProvider? provider,
+    String? modelName,
+    AppLanguage? language,
+    double? confidence,
+    AiProvider? requestedProvider,
+    String? fallbackReason,
+  }) {
+    return AiAnalysisResult(
+      hazardType: hazardType ?? this.hazardType,
+      severity: severity ?? this.severity,
+      note: note ?? this.note,
+      provider: provider ?? this.provider,
+      modelName: modelName ?? this.modelName,
+      language: language ?? this.language,
+      confidence: confidence ?? this.confidence,
+      requestedProvider: requestedProvider ?? this.requestedProvider,
+      fallbackReason: fallbackReason ?? this.fallbackReason,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -31,6 +59,9 @@ class AiAnalysisResult {
       'model_name': modelName,
       'language': language?.code,
       'confidence': confidence,
+      if (requestedProvider != null)
+        'requested_provider': requestedProvider!.toJson(),
+      if (fallbackReason != null) 'fallback_reason': fallbackReason,
     };
   }
 
@@ -49,6 +80,10 @@ class AiAnalysisResult {
           ? AppLanguage.fromCode(json['language'] as String?)
           : null,
       confidence: (json['confidence'] as num?)?.toDouble(),
+      requestedProvider: json['requested_provider'] != null
+          ? AiProvider.fromString(json['requested_provider'] as String?)
+          : null,
+      fallbackReason: json['fallback_reason'] as String?,
     );
   }
 }

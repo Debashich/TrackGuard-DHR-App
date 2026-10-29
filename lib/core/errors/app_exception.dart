@@ -49,6 +49,7 @@ class LocationTimeoutException extends AppException {
     : super(message, 'LOCATION_TIMEOUT');
 }
 
+// AI Exceptions
 class AiUnavailableException extends AppException {
   const AiUnavailableException([
     String message = 'AI analysis model is unavailable',
@@ -65,6 +66,81 @@ class AiInvalidOutputException extends AppException {
   const AiInvalidOutputException([
     String message = 'AI returned an invalid or unparseable response',
   ]) : super(message, 'AI_INVALID_OUTPUT');
+}
+
+class OfflineModelUnavailableException extends AppException {
+  const OfflineModelUnavailableException([
+    String message =
+        'Offline Gemma model is not installed or available on this device',
+  ]) : super(message, 'OFFLINE_MODEL_UNAVAILABLE');
+}
+
+class OfflineModelInitializationFailedException extends AppException {
+  const OfflineModelInitializationFailedException([
+    String message = 'Failed to initialize offline Gemma model runtime',
+  ]) : super(message, 'OFFLINE_MODEL_INIT_FAILED');
+}
+
+class OfflineModelInferenceFailedException extends AppException {
+  const OfflineModelInferenceFailedException([
+    String message = 'Offline Gemma inference execution failed',
+  ]) : super(message, 'OFFLINE_MODEL_INFERENCE_FAILED');
+}
+
+class OfflineModelOutOfMemoryException extends AppException {
+  const OfflineModelOutOfMemoryException([
+    String message =
+        'Device has insufficient memory to run the offline AI model',
+  ]) : super(message, 'OFFLINE_MODEL_OOM');
+}
+
+class GeminiUnavailableException extends AppException {
+  const GeminiUnavailableException([
+    String message =
+        'Online Gemini backend is unavailable or device is offline',
+  ]) : super(message, 'GEMINI_UNAVAILABLE');
+}
+
+class GeminiUnauthorizedException extends AppException {
+  const GeminiUnauthorizedException([
+    String message = 'Unauthorized request to Gemini backend service',
+  ]) : super(message, 'GEMINI_UNAUTHORIZED');
+}
+
+class GeminiRateLimitedException extends AppException {
+  const GeminiRateLimitedException([
+    String message = 'Gemini service rate limit reached. Please retry later',
+  ]) : super(message, 'GEMINI_RATE_LIMITED');
+}
+
+class GeminiTimeoutException extends AppException {
+  const GeminiTimeoutException([
+    String message = 'Gemini online analysis timed out',
+  ]) : super(message, 'GEMINI_TIMEOUT');
+}
+
+class GeminiInvalidResponseException extends AppException {
+  const GeminiInvalidResponseException([
+    String message = 'Gemini backend returned an invalid response structure',
+  ]) : super(message, 'GEMINI_INVALID_RESPONSE');
+}
+
+class AiValidationFailedException extends AppException {
+  const AiValidationFailedException([
+    String message = 'AI response failed schema validation or safety checks',
+  ]) : super(message, 'AI_VALIDATION_FAILED');
+}
+
+class AiImageTooLargeException extends AppException {
+  const AiImageTooLargeException([
+    String message = 'Image exceeds acceptable dimensions or size for analysis',
+  ]) : super(message, 'AI_IMAGE_TOO_LARGE');
+}
+
+class AiUnsupportedLanguageException extends AppException {
+  const AiUnsupportedLanguageException([
+    String message = 'Requested language is not supported by the AI provider',
+  ]) : super(message, 'AI_UNSUPPORTED_LANGUAGE');
 }
 
 class DraftMissingException extends AppException {

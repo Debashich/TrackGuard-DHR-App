@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/admin_dashboard/presentation/admin_dashboard_screen.dart';
+import '../features/ai/presentation/ai_settings_screen.dart';
 import '../features/auth/domain/auth_state.dart';
 import '../features/auth/presentation/auth_controller.dart';
 import '../features/auth/presentation/logout_screen.dart';
@@ -31,7 +32,7 @@ bool canAccessRoute(AppUser? user, AuthStatus status, String path) {
     return false;
   }
 
-  if (path == '/profile' || path == '/logout') {
+  if (path == '/profile' || path == '/logout' || path == '/settings/ai') {
     return true;
   }
 
@@ -139,6 +140,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/settings/ai',
+        builder: (context, state) => const AiSettingsScreen(),
       ),
       GoRoute(
         path: '/logout',

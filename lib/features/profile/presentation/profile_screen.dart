@@ -6,6 +6,7 @@ import '../../../app/theme.dart';
 import '../../../core/constants/dhr_waypoints.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../features/auth/presentation/auth_controller.dart';
+import '../../ai/domain/ai_settings.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/app_language.dart';
 import '../../../shared/models/user_role.dart';
@@ -194,6 +195,34 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // AI & Model Settings Entry
+              Card(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.psychology,
+                    color: AppTheme.primaryAmber,
+                  ),
+                  title: Text(
+                    l10n.aiSettingsTitle,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${ref.watch(aiSettingsProvider).mode.name.toUpperCase()} • Gemma 4 E2B / Gemini',
+                    style: const TextStyle(fontSize: 11, color: Colors.white54),
+                  ),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    color: Colors.white38,
+                  ),
+                  onTap: () => context.push('/settings/ai'),
                 ),
               ),
               const SizedBox(height: 16),
