@@ -42,7 +42,7 @@ void main() {
 
         // Verify Gemini Card
         expect(find.text('GEMINI CLOUD REASONING'), findsOneWidget);
-        expect(find.text('Gemini 1.5 Flash (Edge Function)'), findsOneWidget);
+        expect(find.text('Gemini (Secure Edge Function)'), findsOneWidget);
 
         // Verify Mandatory Human Confirmation
         expect(find.text('Human Confirmation Mandatory'), findsOneWidget);

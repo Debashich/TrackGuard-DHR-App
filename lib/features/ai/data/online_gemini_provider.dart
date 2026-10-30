@@ -74,9 +74,11 @@ class OnlineGeminiProvider implements OnlineAiProvider {
 
     final imageBytes = await image.readAsBytes();
     final base64Image = base64Encode(imageBytes);
+    final imageMimeType = _mimeTypeForPath(image.path);
 
     final requestBody = {
       'image': base64Image,
+      'mimeType': imageMimeType,
       'language': language.code,
       'location': {
         'sectionId': location.sectionId,
@@ -159,5 +161,12 @@ class OnlineGeminiProvider implements OnlineAiProvider {
     throw const GeminiUnavailableException(
       'Gemini backend edge function client is not configured.',
     );
+  }
+
+  String _mimeTypeForPath(String path) {
+    final lowerPath = path.toLowerCase();
+    if (lowerPath.endsWith('.png')) return 'image/png';
+    if (lowerPath.endsWith('.webp')) return 'image/webp';
+    return 'image/jpeg';
   }
 }

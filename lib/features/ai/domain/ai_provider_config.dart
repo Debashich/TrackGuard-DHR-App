@@ -1,8 +1,7 @@
 class AiProviderConfig {
   static const String offlineGemmaModelName = 'Gemma 4 E2B';
   static const String offlineGemmaSlug = 'gemma-4-e2b-it';
-  static const String onlineGeminiModelLabel =
-      'Gemini 1.5 Flash (Edge Function)';
+  static const String onlineGeminiModelLabel = 'Gemini (Secure Edge Function)';
   static const String promptVersion = 'phase4-v1';
 
   static const int maxNoteLength = 500;
