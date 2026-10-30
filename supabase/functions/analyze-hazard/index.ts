@@ -582,45 +582,45 @@ Prompt version: ${PROMPT_VERSION}
     );
 
     if (!geminiResponse.ok) {
-  const status = geminiResponse.status;
-  const upstreamBody = await geminiResponse.text();
+      const status = geminiResponse.status;
+      const upstreamBody = await geminiResponse.text();
 
-  let upstreamError: {
-    error?: {
-      code?: number;
-      status?: string;
-      message?: string;
-    };
-  } = {};
+      let upstreamError: {
+        error?: {
+          code?: number;
+          status?: string;
+          message?: string;
+        };
+      } = {};
 
-  try {
-    upstreamError = JSON.parse(upstreamBody);
-  } catch {
-    // Keep the diagnostic safe if Gemini returns non-JSON.
-  }
+      try {
+        upstreamError = JSON.parse(upstreamBody);
+      } catch {
+        // Keep the diagnostic safe if Gemini returns non-JSON.
+      }
 
-  console.error(JSON.stringify({
-    event: "gemini_request_failed",
-    requestId,
-    userId,
-    model,
-    upstreamStatus: status,
-    upstreamCode: upstreamError.error?.code ?? null,
-    upstreamErrorStatus: upstreamError.error?.status ?? null,
-    upstreamMessage: upstreamError.error?.message?.slice(0, 500) ?? null,
-    durationMs: Date.now() - startedAt,
-  }));
+      console.error(JSON.stringify({
+        event: "gemini_request_failed",
+        requestId,
+        userId,
+        model,
+        upstreamStatus: status,
+        upstreamCode: upstreamError.error?.code ?? null,
+        upstreamErrorStatus: upstreamError.error?.status ?? null,
+        upstreamMessage: upstreamError.error?.message?.slice(0, 500) ?? null,
+        durationMs: Date.now() - startedAt,
+      }));
 
-  if (status === 429) {
-    return await auditResponse(429, {
-      error: "rate_limited",
-    });
-  }
+      if (status === 429) {
+        return await auditResponse(429, {
+          error: "rate_limited",
+        });
+      }
 
-  return await auditResponse(502, {
-    error: "ai_provider_unavailable",
-  });
-}
+      return await auditResponse(502, {
+        error: "ai_provider_unavailable",
+      });
+    }
 
     // 8. Parse the Gemini response and capture token usage.
 
