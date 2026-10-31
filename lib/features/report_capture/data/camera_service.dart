@@ -8,79 +8,130 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/utils/image_utils.dart';
 
 class CameraService {
+  static List<CameraDescription>? _cachedCameras;
+
   List<CameraDescription> _cameras = [];
   CameraController? _controller;
   int _selectedCameraIndex = 0;
+
   final ImagePicker _imagePicker = ImagePicker();
+
   bool _isTransitioning = false;
+  Future<bool>? _initializationFuture;
 
   CameraController? get controller => _controller;
   bool get isInitialized => _controller?.value.isInitialized ?? false;
   bool get hasMultipleCameras => _cameras.length > 1;
 
-  Future<bool> initialize() async {
-    if (_controller != null && _controller!.value.isInitialized) {
-      return true;
+  /// Initializes the camera once, sharing an in-progress initialization
+  /// between callers instead of starting competing native operations.
+  Future<bool> initialize() {
+    if (isInitialized) {
+      return Future.value(true);
     }
-    if (_isTransitioning) {
-      return false;
+
+    final existingFuture = _initializationFuture;
+    if (existingFuture != null) {
+      return existingFuture;
     }
+
+    final future = _initializeInternal();
+    _initializationFuture = future;
+
+    return future.whenComplete(() {
+      if (identical(_initializationFuture, future)) {
+        _initializationFuture = null;
+      }
+    });
+  }
+
+  Future<bool> _initializeInternal() async {
+    if (_isTransitioning) return false;
+
     _isTransitioning = true;
+
     try {
       return await _tryInitialize();
     } catch (e) {
-      debugPrint(
-        'Camera initialization initial attempt failed: $e. Retrying in 400ms...',
-      );
-      await Future.delayed(const Duration(milliseconds: 400));
-      try {
-        return await _tryInitialize();
-      } catch (e2) {
-        debugPrint('Camera initialization retry failed: $e2');
-        return false;
-      }
+      debugPrint('Camera initialization failed: $e');
+      return false;
     } finally {
       _isTransitioning = false;
     }
   }
 
   Future<bool> _tryInitialize() async {
-    await _stopCameraInternal();
-    _cameras = await availableCameras();
-    if (_cameras.isEmpty) return false;
+    // Clean up any previous controller before creating another.
+    if (_controller != null) {
+      await _stopCameraInternal();
+    }
 
-    // Select rear camera by default
+    // Discover cameras only once per application process.
+    _cachedCameras ??= await availableCameras();
+    _cameras = _cachedCameras!;
+
+    if (_cameras.isEmpty) {
+      debugPrint('No cameras available on this device.');
+      return false;
+    }
+
+    // Prefer the rear camera.
     _selectedCameraIndex = _cameras.indexWhere(
-      (c) => c.lensDirection == CameraLensDirection.back,
+      (camera) => camera.lensDirection == CameraLensDirection.back,
     );
-    if (_selectedCameraIndex < 0) _selectedCameraIndex = 0;
+
+    if (_selectedCameraIndex < 0) {
+      _selectedCameraIndex = 0;
+    }
 
     final camera = _cameras[_selectedCameraIndex];
-    // NOTE: Do not set ImageFormatGroup.jpeg here!
-    // On Android Camera2/CameraX, setting jpeg causes stream configuration failure:
-    // "Unsupported set of inputs/outputs provided".
-    // Omitting it allows CameraX to configure standard Surface preview + ImageCapture.
+
+    // Keep the initial resolution low for faster startup.
+    // Do not force ImageFormatGroup.jpeg on Android.
     final controller = CameraController(
       camera,
-      ResolutionPreset.high,
+      ResolutionPreset.low,
       enableAudio: false,
     );
+
     _controller = controller;
 
-    await controller.initialize().timeout(
-      const Duration(seconds: 5),
-      onTimeout: () => throw TimeoutException('Camera initialization timed out'),
-    );
+    try {
+      // Allow Android enough time to initialize the native camera.
+      // Avoid the old 3-second timeout followed by an immediate retry.
+      await controller.initialize().timeout(
+        const Duration(seconds: 15),
+        onTimeout: () {
+          throw TimeoutException('Camera initialization timed out');
+        },
+      );
 
-    return controller.value.isInitialized;
+      return controller.value.isInitialized;
+    } catch (e) {
+      debugPrint('Camera controller initialization failed: $e');
+
+      if (identical(_controller, controller)) {
+        _controller = null;
+      }
+
+      try {
+        await controller.dispose();
+      } catch (disposeError) {
+        debugPrint('Camera cleanup failed: $disposeError');
+      }
+
+      return false;
+    }
   }
 
   Future<void> pausePreview() async {
     try {
-      if (_controller != null &&
-          _controller!.value.isInitialized &&
-          !_controller!.value.isPreviewPaused) {
-        await _controller!.pausePreview();
+      final controller = _controller;
+
+      if (controller != null &&
+          controller.value.isInitialized &&
+          !controller.value.isPreviewPaused) {
+        await controller.pausePreview();
       }
     } catch (e) {
       debugPrint('pausePreview error: $e');
@@ -89,10 +140,12 @@ class CameraService {
 
   Future<void> resumePreview() async {
     try {
-      if (_controller != null &&
-          _controller!.value.isInitialized &&
-          _controller!.value.isPreviewPaused) {
-        await _controller!.resumePreview();
+      final controller = _controller;
+
+      if (controller != null &&
+          controller.value.isInitialized &&
+          controller.value.isPreviewPaused) {
+        await controller.resumePreview();
       }
     } catch (e) {
       debugPrint('resumePreview error: $e');
@@ -101,22 +154,42 @@ class CameraService {
 
   Future<void> switchCamera() async {
     if (_cameras.length < 2 || _isTransitioning) return;
+
     _isTransitioning = true;
+
     try {
-      _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras.length;
+      final nextIndex = (_selectedCameraIndex + 1) % _cameras.length;
+
       await _stopCameraInternal();
-      final camera = _cameras[_selectedCameraIndex];
+
       final controller = CameraController(
-        camera,
-        ResolutionPreset.high,
+        _cameras[nextIndex],
+        ResolutionPreset.low,
         enableAudio: false,
       );
+
       _controller = controller;
-      await controller.initialize().timeout(
-        const Duration(seconds: 5),
-        onTimeout: () =>
-            throw TimeoutException('Camera switch initialization timed out'),
-      );
+
+      try {
+        await controller.initialize().timeout(
+          const Duration(seconds: 15),
+          onTimeout: () {
+            throw TimeoutException('Camera switch initialization timed out');
+          },
+        );
+
+        if (controller.value.isInitialized) {
+          _selectedCameraIndex = nextIndex;
+        }
+      } catch (e) {
+        debugPrint('Camera switch initialization failed: $e');
+
+        if (identical(_controller, controller)) {
+          _controller = null;
+        }
+
+        await controller.dispose();
+      }
     } catch (e) {
       debugPrint('switchCamera error: $e');
     } finally {
@@ -125,8 +198,14 @@ class CameraService {
   }
 
   Future<File?> takePhoto() async {
-    if (_controller == null || !_controller!.value.isInitialized) return null;
-    final xFile = await _controller!.takePicture();
+    final controller = _controller;
+
+    if (controller == null || !controller.value.isInitialized) {
+      return null;
+    }
+
+    final xFile = await controller.takePicture();
+
     return ImageUtils.persistCapturedImage(File(xFile.path), prefix: 'orig');
   }
 
@@ -137,26 +216,28 @@ class CameraService {
       maxHeight: 1920,
       imageQuality: 85,
     );
+
     if (xFile == null) return null;
+
     return ImageUtils.persistCapturedImage(File(xFile.path), prefix: 'orig');
   }
 
   Future<void> _stopCameraInternal() async {
-    final ctrl = _controller;
+    final controller = _controller;
     _controller = null;
-    if (ctrl != null) {
+
+    if (controller != null) {
       try {
-        if (ctrl.value.isInitialized) {
-          await ctrl.dispose();
-        }
+        await controller.dispose();
       } catch (e) {
-        debugPrint('CameraService.stopCamera dispose error: $e');
+        debugPrint('Camera disposal error: $e');
       }
     }
   }
 
-  /// Stops camera stream and releases native hardware sensor resources.
+  /// Releases native camera hardware.
   Future<void> stopCamera() async {
+    if (_isTransitioning) return;
     await _stopCameraInternal();
   }
 
