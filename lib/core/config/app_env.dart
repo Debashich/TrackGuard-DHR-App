@@ -34,6 +34,19 @@ class AppEnv {
     }
   }
 
+  /// Sets an environment variable for testing or programmatic injection.
+  @visibleForTesting
+  static void setForTesting(String key, String value) {
+    _env[key] = value;
+  }
+
+  /// Clears test/loaded environment configuration.
+  @visibleForTesting
+  static void resetForTesting() {
+    _env.clear();
+    _isLoaded = false;
+  }
+
   /// Retrieves a configuration value by priority:
   /// 1. `--dart-define` flag (compile-time override)
   /// 2. `.env` asset file (runtime Next.js style)
@@ -54,24 +67,11 @@ class AppEnv {
     return defaultValue;
   }
 
-  /// Supabase project URL
-  static String get supabaseUrl => get(
-        'SUPABASE_URL',
-        defaultValue: const String.fromEnvironment(
-          'SUPABASE_URL',
-          defaultValue: 'https://qrojacehqjdhhcyeqdqt.supabase.co',
-        ),
-      );
+  /// Supabase project URL (loaded from .env)
+  static String get supabaseUrl => get('SUPABASE_URL');
 
-  /// Supabase anonymous public publishable key
-  static String get supabaseAnonKey => get(
-        'SUPABASE_ANON_KEY',
-        defaultValue: const String.fromEnvironment(
-          'SUPABASE_ANON_KEY',
-          defaultValue:
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyb2phY2VocWpkaGhjeWVxZHF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjYxMjgsImV4cCI6MjEwODcwMjEyOH0.RwkcJtylhTy_2VYyj5iAf94Q0MbDIAEjhZXMIBu7uo4',
-        ),
-      );
+  /// Supabase anonymous public publishable key (loaded from .env)
+  static String get supabaseAnonKey => get('SUPABASE_ANON_KEY');
 
   /// Checks whether valid Supabase configuration is present.
   static bool get hasValidSupabaseConfiguration {
@@ -83,5 +83,15 @@ class AppEnv {
         uri.host.isNotEmpty &&
         key.isNotEmpty;
   }
-}
 
+  /// OpenRouter API Key for online multimodal AI inference (loaded from .env)
+  static String get openRouterApiKey => get('OPENROUTER_API_KEY');
+
+  /// OpenRouter Model (default: nvidia/nemotron-3.5-super-vl:free)
+  static String get openRouterModel =>
+      get('OPENROUTER_MODEL', defaultValue: 'nvidia/nemotron-3.5-super-vl:free');
+
+  /// Checks whether valid OpenRouter configuration is present.
+  static bool get hasValidOpenRouterConfiguration =>
+      openRouterApiKey.trim().isNotEmpty;
+}

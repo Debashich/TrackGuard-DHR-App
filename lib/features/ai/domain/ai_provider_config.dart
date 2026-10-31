@@ -13,7 +13,12 @@ class AiProviderConfig {
   static const int offlineGemmaEstimatedSizeBytes =
       1500 * 1024 * 1024; // ~1.5 GB
 
-  static const String onlineGeminiModelLabel = 'Gemini (Secure Edge Function)';
+  static const String openRouterApiUrl =
+      'https://openrouter.ai/api/v1/chat/completions';
+  static const String openRouterDefaultModel =
+      'nvidia/nemotron-3.5-super-vl:free';
+  static const String onlineGeminiModelLabel =
+      'Nemotron 3.5 Super VL (OpenRouter)';
   static const String promptVersion = 'phase4-v1';
 
   static String buildHuggingFaceResolveUrl({

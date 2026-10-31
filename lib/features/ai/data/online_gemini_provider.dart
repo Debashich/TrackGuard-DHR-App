@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/config/app_env.dart';
 import '../../../core/connectivity/connectivity_service.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/models/ai_analysis_result.dart';
@@ -12,6 +14,7 @@ import '../../../shared/models/ai_provider.dart';
 import '../../../shared/models/app_language.dart';
 import '../../../shared/models/geo_location.dart';
 import '../domain/ai_provider_config.dart';
+import 'ai_prompt_builder.dart';
 import 'ai_result_validator.dart';
 
 abstract class OnlineAiProvider {
@@ -24,25 +27,45 @@ abstract class OnlineAiProvider {
   });
 }
 
+/// Online AI Provider powered by OpenRouter multimodal vision models
+/// (default: nvidia/nemotron-3.5-super-vl:free).
+///
+/// Aliased as [OnlineGeminiProvider] to preserve backward compatibility with
+/// domain models, Supabase reports schema, and existing unit tests.
 class OnlineGeminiProvider implements OnlineAiProvider {
   final SupabaseClient? supabaseClient;
   final ConnectivityService _connectivityService;
   final AiResultValidator _validator;
+  final AiPromptBuilder _promptBuilder;
+  final http.Client? _httpClient;
+  final String? _apiKey;
+  final String? _model;
+  final String? _apiUrl;
 
   OnlineGeminiProvider({
     this.supabaseClient,
     ConnectivityService? connectivityService,
     AiResultValidator? validator,
-  }) : _connectivityService =
-           connectivityService ?? DefaultConnectivityService(),
-       _validator = validator ?? AiResultValidator();
+    AiPromptBuilder? promptBuilder,
+    http.Client? httpClient,
+    String? apiKey,
+    String? model,
+    String? apiUrl,
+  })  : _connectivityService =
+            connectivityService ?? DefaultConnectivityService(),
+        _validator = validator ?? AiResultValidator(),
+        _promptBuilder = promptBuilder ?? AiPromptBuilder(),
+        _httpClient = httpClient,
+        _apiKey = apiKey,
+        _model = model,
+        _apiUrl = apiUrl;
 
   @override
   Future<bool> isAvailable() async {
     final isOnline = await _connectivityService.isOnline();
     if (!isOnline) return false;
-    // Edge function backend is available if Supabase is initialized
-    return supabaseClient != null;
+    final key = (_apiKey ?? AppEnv.openRouterApiKey).trim();
+    return key.isNotEmpty;
   }
 
   @override
@@ -54,7 +77,14 @@ class OnlineGeminiProvider implements OnlineAiProvider {
     final isOnline = await _connectivityService.isOnline();
     if (!isOnline) {
       throw const GeminiUnavailableException(
-        'Device is offline. Online Gemini requires active connectivity.',
+        'Device is offline. Online AI analysis requires active connectivity.',
+      );
+    }
+
+    final key = (_apiKey ?? AppEnv.openRouterApiKey).trim();
+    if (key.isEmpty) {
+      throw const GeminiUnauthorizedException(
+        'OpenRouter API key is not configured. Please set OPENROUTER_API_KEY in .env.',
       );
     }
 
@@ -74,93 +104,142 @@ class OnlineGeminiProvider implements OnlineAiProvider {
 
     final imageBytes = await image.readAsBytes();
     final base64Image = base64Encode(imageBytes);
-    final imageMimeType = _mimeTypeForPath(image.path);
+    final mimeType = _mimeTypeForPath(image.path);
+    final imageUrl = 'data:$mimeType;base64,$base64Image';
 
-    final requestBody = {
-      'image': base64Image,
-      'mimeType': imageMimeType,
-      'language': language.code,
-      'location': {
-        'sectionId': location.sectionId,
-        'kmMarker': location.kmMarker,
-        'nearestStationName': location.nearestStationName,
-      },
-      'promptVersion': AiProviderConfig.promptVersion,
+    final prompt = _promptBuilder.buildPrompt(
+      language: language,
+      location: location,
+    );
+
+    final modelName = (_model ?? AppEnv.openRouterModel).trim();
+    final endpointUrl = _apiUrl ?? AiProviderConfig.openRouterApiUrl;
+
+    final requestHeaders = {
+      'Authorization': 'Bearer $key',
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://trackguard-dhr.app',
+      'X-Title': 'TrackGuard DHR',
     };
 
-    if (supabaseClient != null) {
+    final requestBody = jsonEncode({
+      'model': modelName,
+      'messages': [
+        {
+          'role': 'user',
+          'content': [
+            {
+              'type': 'text',
+              'text': prompt,
+            },
+            {
+              'type': 'image_url',
+              'image_url': {
+                'url': imageUrl,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    final client = _httpClient ?? http.Client();
+    final shouldCloseClient = _httpClient == null;
+
+    try {
+      final response = await client
+          .post(
+            Uri.parse(endpointUrl),
+            headers: requestHeaders,
+            body: requestBody,
+          )
+          .timeout(
+            const Duration(seconds: 90),
+            onTimeout: () => throw const GeminiTimeoutException(
+              'OpenRouter AI request timed out after 90 seconds.',
+            ),
+          );
+
+      final statusCode = response.statusCode;
+      if (statusCode == 401 || statusCode == 403) {
+        throw const GeminiUnauthorizedException(
+          'Unauthorized OpenRouter API key. Check OPENROUTER_API_KEY in .env.',
+        );
+      }
+      if (statusCode == 429) {
+        throw const GeminiRateLimitedException(
+          'OpenRouter API rate limit reached or quota exceeded.',
+        );
+      }
+      if (statusCode >= 400) {
+        throw GeminiUnavailableException(
+          'OpenRouter API error (status $statusCode): ${response.body}',
+        );
+      }
+
+      final Map<String, dynamic> jsonResponse;
       try {
-        final response = await supabaseClient!.functions
-            .invoke('analyze-hazard', body: requestBody)
-            .timeout(
-              const Duration(seconds: 30),
-              onTimeout: () => throw const GeminiTimeoutException(
-                'Gemini cloud backend request timed out after 30 seconds.',
-              ),
-            );
-
-        final statusCode = response.status;
-        if (statusCode == 401 || statusCode == 403) {
-          throw const GeminiUnauthorizedException(
-            'Unauthorized call to Gemini analysis backend.',
-          );
-        }
-        if (statusCode == 429) {
-          throw const GeminiRateLimitedException(
-            'Gemini API quota exceeded or rate limited.',
-          );
-        }
-        if (statusCode >= 400) {
-          throw GeminiUnavailableException(
-            'Backend function error with status $statusCode',
-          );
-        }
-
-        final dynamic responseData = response.data;
-        Map<String, dynamic> dataMap;
-        if (responseData is Map<String, dynamic>) {
-          dataMap = responseData;
-        } else if (responseData is String) {
-          dataMap = jsonDecode(responseData) as Map<String, dynamic>;
-        } else {
-          throw const GeminiInvalidResponseException(
-            'Unexpected response shape from Gemini backend function.',
-          );
-        }
-
-        return _validator.validate(
-          dataMap,
-          provider: AiProvider.onlineGemini,
-          requestedLanguage: language,
-          modelName:
-              dataMap['modelName'] as String? ??
-              AiProviderConfig.onlineGeminiModelLabel,
-        );
-      } on AppException {
-        rethrow;
-      } on FunctionException catch (fe) {
-        debugPrint('Supabase FunctionException: ${fe.status} ${fe.details}');
-        if (fe.status == 429) {
-          throw const GeminiRateLimitedException();
-        }
-        if (fe.status == 401 || fe.status == 403) {
-          throw const GeminiUnauthorizedException();
-        }
-        throw GeminiUnavailableException('Gemini backend error: ${fe.details}');
-      } on SocketException {
-        throw const GeminiUnavailableException(
-          'Network connection interrupted during Gemini inference.',
-        );
+        jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
       } catch (e) {
-        debugPrint('Gemini backend general error: $e');
-        throw GeminiUnavailableException('Failed to call Gemini backend: $e');
+        throw GeminiInvalidResponseException(
+          'Invalid JSON response from OpenRouter: $e',
+        );
+      }
+
+      final choices = jsonResponse['choices'] as List?;
+      if (choices == null || choices.isEmpty) {
+        throw const GeminiInvalidResponseException(
+          'OpenRouter response contains no choices.',
+        );
+      }
+
+      final firstChoice = choices[0];
+      if (firstChoice is! Map<String, dynamic>) {
+        throw const GeminiInvalidResponseException(
+          'OpenRouter choice format is invalid.',
+        );
+      }
+
+      final message = firstChoice['message'] as Map<String, dynamic>?;
+      final rawContent = message?['content'];
+
+      String textContent = '';
+      if (rawContent is String) {
+        textContent = rawContent;
+      } else if (rawContent is List) {
+        textContent = rawContent
+            .map((part) => part is Map ? part['text'] ?? '' : part.toString())
+            .join('\n');
+      } else if (rawContent != null) {
+        textContent = rawContent.toString();
+      }
+
+      if (textContent.trim().isEmpty) {
+        throw const GeminiInvalidResponseException(
+          'OpenRouter choice message content is empty.',
+        );
+      }
+
+      return _validator.validateString(
+        textContent,
+        provider: AiProvider.onlineGemini,
+        requestedLanguage: language,
+        modelName: modelName,
+      );
+    } on AppException {
+      rethrow;
+    } on SocketException catch (se) {
+      throw GeminiUnavailableException(
+        'Network error during OpenRouter AI inference: ${se.message}',
+      );
+    } catch (e) {
+      debugPrint('OpenRouter general error: $e');
+      throw GeminiUnavailableException('Failed to call OpenRouter AI: $e');
+    } finally {
+      if (shouldCloseClient) {
+        client.close();
       }
     }
-
-    // If backend client is not configured, throw typed exception
-    throw const GeminiUnavailableException(
-      'Gemini backend edge function client is not configured.',
-    );
   }
 
   String _mimeTypeForPath(String path) {
@@ -170,3 +249,6 @@ class OnlineGeminiProvider implements OnlineAiProvider {
     return 'image/jpeg';
   }
 }
+
+/// Explicit alias for OpenRouter AI provider
+typedef OpenRouterAiProvider = OnlineGeminiProvider;
