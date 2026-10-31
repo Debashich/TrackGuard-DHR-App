@@ -13,8 +13,10 @@ import '../../../shared/models/ai_provider.dart';
 import '../../../shared/models/app_language.dart';
 import '../../../shared/models/geo_location.dart';
 import '../domain/ai_provider_config.dart';
+import '../domain/offline_model_manager.dart';
 import 'ai_prompt_builder.dart';
 import 'ai_result_validator.dart';
+import 'cactus_offline_model_manager.dart';
 
 enum CactusGemmaState {
   notInstalled,
@@ -29,6 +31,7 @@ enum CactusGemmaState {
 class CactusGemmaProvider {
   final AiPromptBuilder _promptBuilder;
   final AiResultValidator _validator;
+  final OfflineModelManager? modelManager;
   final String modelName;
   final String modelSlug;
 
@@ -42,6 +45,7 @@ class CactusGemmaProvider {
   CactusGemmaProvider({
     AiPromptBuilder? promptBuilder,
     AiResultValidator? validator,
+    this.modelManager,
     this.modelName = AiProviderConfig.offlineGemmaModelName,
     this.modelSlug = AiProviderConfig.offlineGemmaSlug,
   }) : _promptBuilder = promptBuilder ?? AiPromptBuilder(),
@@ -75,6 +79,20 @@ class CactusGemmaProvider {
   }
 
   Future<bool> isModelInstalled() async {
+    final manager = modelManager;
+    if (manager != null) {
+      final modelState = await manager.getState();
+      final ready = modelState.isReady;
+      if (ready) {
+        _setState(CactusGemmaState.ready);
+      } else if (modelState.isDownloading) {
+        _setState(CactusGemmaState.downloading);
+      } else {
+        _setState(CactusGemmaState.notInstalled);
+      }
+      return ready;
+    }
+
     try {
       final dir = await _getModelDir();
       final exists = await dir.exists();
@@ -177,7 +195,18 @@ class CactusGemmaProvider {
       );
     }
 
-    if (_state != CactusGemmaState.ready || _lm == null) {
+    final manager = modelManager;
+    if (manager != null) {
+      final modelState = await manager.getState();
+      if (!modelState.isReady) {
+        throw const OfflineModelUnavailableException(
+          'Offline Gemma 4 E2B model is not initialized or ready.',
+        );
+      }
+      if (_lm == null && manager is CactusOfflineModelManager) {
+        _lm = manager.cactusLM;
+      }
+    } else if (_state != CactusGemmaState.ready || _lm == null) {
       throw const OfflineModelUnavailableException(
         'Offline Gemma 4 E2B model is not initialized or ready.',
       );

@@ -94,6 +94,38 @@ class OfflineModelOutOfMemoryException extends AppException {
   ]) : super(message, 'OFFLINE_MODEL_OOM');
 }
 
+class OfflineModelDownloadFailedException extends AppException {
+  const OfflineModelDownloadFailedException([
+    String message = 'Failed to download offline Gemma model',
+  ]) : super(message, 'OFFLINE_MODEL_DOWNLOAD_FAILED');
+}
+
+class OfflineModelDownloadCancelledException extends AppException {
+  const OfflineModelDownloadCancelledException([
+    String message = 'Model download was cancelled by the user',
+  ]) : super(message, 'OFFLINE_MODEL_DOWNLOAD_CANCELLED');
+}
+
+class OfflineModelInsufficientStorageException extends AppException {
+  const OfflineModelInsufficientStorageException([
+    String message =
+        'Insufficient storage available on this device to download the model',
+  ]) : super(message, 'OFFLINE_MODEL_INSUFFICIENT_STORAGE');
+}
+
+class OfflineModelNetworkUnavailableException extends AppException {
+  const OfflineModelNetworkUnavailableException([
+    String message =
+        'Network connection required to download the offline AI model',
+  ]) : super(message, 'OFFLINE_MODEL_NETWORK_UNAVAILABLE');
+}
+
+class OfflineModelDeleteFailedException extends AppException {
+  const OfflineModelDeleteFailedException([
+    String message = 'Failed to delete offline Gemma model files',
+  ]) : super(message, 'OFFLINE_MODEL_DELETE_FAILED');
+}
+
 class GeminiUnavailableException extends AppException {
   const GeminiUnavailableException([
     String message =

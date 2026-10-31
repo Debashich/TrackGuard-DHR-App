@@ -773,4 +773,145 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get aiActualProvider => 'সক্রিয় প্রদানকারী';
+
+  @override
+  String get offlineModelDownloadTitle => 'গেমা 4 E2B ডাউনলোড';
+
+  @override
+  String get offlineModelDownload => 'মডেল ডাউনলোড করুন';
+
+  @override
+  String get offlineModelNotDownloaded => 'মডেল ডাউনলোড করা নেই';
+
+  @override
+  String get offlineModelDownloading => 'গেমা 4 E2B ডাউনলোড হচ্ছে';
+
+  @override
+  String get offlineModelDownloaded => 'গেমা 4 E2B ডাউনলোড সম্পন্ন';
+
+  @override
+  String get offlineModelReady => 'গেমা 4 E2B প্রস্তুত';
+
+  @override
+  String get offlineModelInitializing => 'মডেল রানটাইম শুরু হচ্ছে...';
+
+  @override
+  String get offlineModelFailed => 'মডেল ডাউনলোড ব্যর্থ হয়েছে';
+
+  @override
+  String get offlineModelUnsupported =>
+      'ডিভাইস স্থানীয় মডেল সম্পাদন সমর্থন করে না';
+
+  @override
+  String offlineModelApproximateSize(String size) {
+    return 'আনুমানিক ডাউনলোডের আকার: $size';
+  }
+
+  @override
+  String offlineModelStorageRequired(String size) {
+    return 'প্রয়োজনীয় খালি জায়গা: $size';
+  }
+
+  @override
+  String offlineModelStorageAvailable(String size) {
+    return 'উপলব্ধ খালি জায়গা: $size';
+  }
+
+  @override
+  String offlineModelDownloadProgress(
+    String downloaded,
+    String total,
+    int percent,
+  ) {
+    return '$total-এর মধ্যে $downloaded ($percent%)';
+  }
+
+  @override
+  String get offlineModelDownloadComplete => 'ডাউনলোড সফলভাবে সম্পন্ন হয়েছে';
+
+  @override
+  String get offlineModelDownloadFailed =>
+      'মডেল ফাইল ডাউনলোড করতে ব্যর্থ হয়েছে';
+
+  @override
+  String get offlineModelInsufficientStorage =>
+      'অফলাইন মডেল ডাউনলোড করার জন্য পর্যাপ্ত সঞ্চয়স্থান নেই। জায়গা খালি করে আবার চেষ্টা করুন।';
+
+  @override
+  String get offlineModelNetworkRequired =>
+      'মডেল ডাউনলোড করতে নেটওয়ার্ক সংযোগ প্রয়োজন';
+
+  @override
+  String get offlineModelWifiOnly => 'শুধুমাত্র ওয়াই-ফাইতে ডাউনলোড করুন';
+
+  @override
+  String get offlineModelAllowMobileData =>
+      'মোবাইল ডেটায় ডাউনলোডের অনুমতি দিন';
+
+  @override
+  String get offlineModelMobileDataWarning =>
+      'মোবাইল ডেটায় ~১.২ জিবি ডাউনলোডে অতিরিক্ত ডেটা খরচ হতে পারে।';
+
+  @override
+  String get offlineModelCancelDownload => 'ডাউনলোড বাতিল করুন';
+
+  @override
+  String get offlineModelRetryDownload => 'ডাউনলোড পুনরায় চেষ্টা করুন';
+
+  @override
+  String get offlineModelActivate => 'অফলাইন এআই সক্রিয় করুন';
+
+  @override
+  String get offlineModelDelete => 'মডেল মুছুন';
+
+  @override
+  String get offlineModelDeleteTitle => 'গেমা 4 E2B মুছবেন?';
+
+  @override
+  String get offlineModelDeleteConfirmation =>
+      'পুনরায় ডাউনলোড না করা পর্যন্ত অফলাইন এআই উপলব্ধ থাকবে না। সংরক্ষিত রিপোর্ট বা ছবি মোছা হবে না।';
+
+  @override
+  String get offlineModelDeleted => 'ডিভাইস থেকে অফলাইন মডেল মুছে ফেলা হয়েছে';
+
+  @override
+  String get offlineModelPrivacyNotice =>
+      'আপনার ফোনে ১০০% স্থানীয়ভাবে চলে। অফলাইন গেমা ব্যবহারের সময় কোনো ছবি বাইরে যায় না।';
+
+  @override
+  String get offlineModelOfflineNotice =>
+      'ডাউনলোড সম্পন্ন হলে পাহাড়ি জঙ্গল এলাকায় ইন্টারনেট ছাড়াই অফলাইন গেমা কাজ করে।';
+
+  @override
+  String get offlineModelReportsRemainSafe =>
+      'সংরক্ষিত রিপোর্ট, ছবি ও খসড়া মডেল মুছলে মুছে যাবে না।';
+
+  @override
+  String get offlineModelUseManualFallback =>
+      'মডেল অনুপলব্ধ হলে ম্যানুয়াল শ্রেণিবিন্যাস ব্যবহার করুন।';
+
+  @override
+  String get offlineModelDownloadInProgress =>
+      'মডেল ডাউনলোড চলছে। অনুগ্রহ করে অ্যাপ বন্ধ করবেন না।';
+
+  @override
+  String get offlineModelAlreadyDownloading =>
+      'ইতিমধ্যে একটি ডাউনলোড চলমান রয়েছে।';
+
+  @override
+  String get offlineModelCorrupted =>
+      'মডেল ফাইল ক্ষতিগ্রস্ত হতে পারে। অনুগ্রহ করে পুনরায় ডাউনলোড করুন।';
+
+  @override
+  String offlineModelVersion(String version) {
+    return 'সংস্করণ: $version';
+  }
+
+  @override
+  String offlineModelDownloadedAt(String date) {
+    return 'ডাউনলোড হয়েছে: $date';
+  }
+
+  @override
+  String get offlineModelDownloadCancelled => 'মডেল ডাউনলোড বাতিল করা হয়েছে।';
 }

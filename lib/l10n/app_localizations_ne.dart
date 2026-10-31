@@ -769,4 +769,143 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get aiActualProvider => 'सक्रिय प्रदायक';
+
+  @override
+  String get offlineModelDownloadTitle => 'गेम्मा 4 E2B डाउनलोड';
+
+  @override
+  String get offlineModelDownload => 'मोडल डाउनलोड गर्नुहोस्';
+
+  @override
+  String get offlineModelNotDownloaded => 'मोडल डाउनलोड गरिएको छैन';
+
+  @override
+  String get offlineModelDownloading => 'गेम्मा 4 E2B डाउनलोड हुँदैछ';
+
+  @override
+  String get offlineModelDownloaded => 'गेम्मा 4 E2B डाउनलोड सम्पन्न';
+
+  @override
+  String get offlineModelReady => 'गेम्मा 4 E2B तयार छ';
+
+  @override
+  String get offlineModelInitializing => 'मोडल रनटाइम सुरु हुँदैछ...';
+
+  @override
+  String get offlineModelFailed => 'मोडल डाउनलोड असफल भयो';
+
+  @override
+  String get offlineModelUnsupported =>
+      'यन्त्रले स्थानीय मोडल कार्यान्वयनलाई समर्थन गर्दैन';
+
+  @override
+  String offlineModelApproximateSize(String size) {
+    return 'अनुमानित डाउनलोड आकार: $size';
+  }
+
+  @override
+  String offlineModelStorageRequired(String size) {
+    return 'आवश्यक खाली भण्डारण: $size';
+  }
+
+  @override
+  String offlineModelStorageAvailable(String size) {
+    return 'उपलब्ध खाली भण्डारण: $size';
+  }
+
+  @override
+  String offlineModelDownloadProgress(
+    String downloaded,
+    String total,
+    int percent,
+  ) {
+    return '$total मध्ये $downloaded ($percent%)';
+  }
+
+  @override
+  String get offlineModelDownloadComplete => 'डाउनलोड सफलतापूर्वक सम्पन्न भयो';
+
+  @override
+  String get offlineModelDownloadFailed => 'मोडल फाइलहरू डाउनलोड गर्न असफल भयो';
+
+  @override
+  String get offlineModelInsufficientStorage =>
+      'अफलाइन मोडल डाउनलोड गर्न पर्याप्त भण्डारण छैन। थप ठाउँ खाली गर्नुहोस् र पुनः प्रयास गर्नुहोस्।';
+
+  @override
+  String get offlineModelNetworkRequired =>
+      'मोडल डाउनलोड गर्न नेटवर्क जडान आवश्यक छ';
+
+  @override
+  String get offlineModelWifiOnly => 'वाइफाइमा मात्र डाउनलोड गर्नुहोस्';
+
+  @override
+  String get offlineModelAllowMobileData =>
+      'मोबाइल डेटामा डाउनलोड अनुमति दिनुहोस्';
+
+  @override
+  String get offlineModelMobileDataWarning =>
+      'मोबाइल डेटामा ~१.२ जीबी डाउनलोड गर्दा डेटा शुल्क लाग्न सक्छ।';
+
+  @override
+  String get offlineModelCancelDownload => 'डाउनलोड रद्द गर्नुहोस्';
+
+  @override
+  String get offlineModelRetryDownload => 'डाउनलोड पुनः प्रयास गर्नुहोस्';
+
+  @override
+  String get offlineModelActivate => 'अफलाइन एआई सक्रिय गर्नुहोस्';
+
+  @override
+  String get offlineModelDelete => 'मोडल मेटाउनुहोस्';
+
+  @override
+  String get offlineModelDeleteTitle => 'गेम्मा 4 E2B मेटाउने?';
+
+  @override
+  String get offlineModelDeleteConfirmation =>
+      'मोडल पुनः डाउनलोड नगरेसम्म अफलाइन एआई उपलब्ध हुने छैन। सुरक्षित गरिएका रिपोर्ट र तस्बिरहरू मेटिने छैनन्।';
+
+  @override
+  String get offlineModelDeleted => 'अफलाइन मोडल यन्त्रबाट मेटाइयो';
+
+  @override
+  String get offlineModelPrivacyNotice =>
+      'तपाईंको फोनमा १००% स्थानीय रूपमा चल्छ। अफलाइन गेम्मा प्रयोग गर्दा कुनै पनि तस्बिर बाहिर जाँदैन।';
+
+  @override
+  String get offlineModelOfflineNotice =>
+      'डाउनलोड भएपछि, अफलाइन गेम्माले जंगल र सुदूर ट्र्याक क्षेत्रमा शून्य नेटवर्कमा काम गर्दछ।';
+
+  @override
+  String get offlineModelReportsRemainSafe =>
+      'सुरक्षित गरिएका रिपोर्ट, फोटो र ड्राफ्टहरू मोडल मेटाउँदा प्रभावित हुने छैनन्।';
+
+  @override
+  String get offlineModelUseManualFallback =>
+      'मोडल अनुपलब्ध हुँदा म्यानुअल वर्गीकरण प्रयोग गर्नुहोस्।';
+
+  @override
+  String get offlineModelDownloadInProgress =>
+      'मोडल डाउनलोड भइरहेको छ। कृपया एप बन्द नगर्नुहोस्।';
+
+  @override
+  String get offlineModelAlreadyDownloading => 'डाउनलोड पहिले नै जारी छ।';
+
+  @override
+  String get offlineModelCorrupted =>
+      'मोडल फाइलहरू क्षतिग्रस्त देखिन्छन्। कृपया मोडल पुनः डाउनलोड गर्नुहोस्।';
+
+  @override
+  String offlineModelVersion(String version) {
+    return 'संस्करण: $version';
+  }
+
+  @override
+  String offlineModelDownloadedAt(String date) {
+    return 'डाउनलोड गरिएको: $date';
+  }
+
+  @override
+  String get offlineModelDownloadCancelled => 'मोडल डाउनलोड रद्द गरियो।';
 }

@@ -277,6 +277,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                 currentMode: ref.watch(aiSettingsProvider).mode,
                 onRetry: () => controller.runAnalysis(),
                 onSwitchToManual: () => controller.switchToManual(),
+                onDownloadModel: () => context.push('/settings/ai/download'),
               ),
               if (reviewState.aiResult != null && !reviewState.isAnalyzing) ...[
                 const SizedBox(height: 12),

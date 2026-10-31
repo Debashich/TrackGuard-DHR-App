@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/admin_dashboard/presentation/admin_dashboard_screen.dart';
 import '../features/ai/presentation/ai_settings_screen.dart';
+import '../features/ai/presentation/offline_model_download_screen.dart';
 import '../features/auth/domain/auth_state.dart';
 import '../features/auth/presentation/auth_controller.dart';
 import '../features/auth/presentation/logout_screen.dart';
@@ -32,7 +33,9 @@ bool canAccessRoute(AppUser? user, AuthStatus status, String path) {
     return false;
   }
 
-  if (path == '/profile' || path == '/logout' || path == '/settings/ai') {
+  if (path == '/profile' ||
+      path == '/logout' ||
+      path.startsWith('/settings/ai')) {
     return true;
   }
 
@@ -144,6 +147,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/settings/ai',
         builder: (context, state) => const AiSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/settings/ai/download',
+        builder: (context, state) => const OfflineModelDownloadScreen(),
       ),
       GoRoute(
         path: '/logout',

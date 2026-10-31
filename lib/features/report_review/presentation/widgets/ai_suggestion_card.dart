@@ -13,6 +13,7 @@ class AiSuggestionCard extends StatelessWidget {
   final AiMode? currentMode;
   final VoidCallback? onRetry;
   final VoidCallback? onSwitchToManual;
+  final VoidCallback? onDownloadModel;
 
   const AiSuggestionCard({
     super.key,
@@ -21,6 +22,7 @@ class AiSuggestionCard extends StatelessWidget {
     this.currentMode,
     this.onRetry,
     this.onSwitchToManual,
+    this.onDownloadModel,
   });
 
   @override
@@ -142,13 +144,41 @@ class AiSuggestionCard extends StatelessWidget {
 
               // Actions row: Switch to Manual / Retry
               const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              OverflowBar(
+                alignment: MainAxisAlignment.end,
+                overflowAlignment: OverflowBarAlignment.end,
+                spacing: 8,
+                overflowSpacing: 6,
                 children: [
+                  if (onDownloadModel != null &&
+                      aiResult!.requestedProvider == AiProvider.offlineGemma &&
+                      aiResult!.provider != AiProvider.offlineGemma)
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        foregroundColor: AppTheme.primaryAmber,
+                      ),
+                      onPressed: onDownloadModel,
+                      icon: const Icon(Icons.download_rounded, size: 16),
+                      label: Text(
+                        l10n.offlineModelDownload,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
                   if (onRetry != null)
                     TextButton.icon(
                       style: TextButton.styleFrom(
                         visualDensity: VisualDensity.compact,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         foregroundColor: AppTheme.primaryAmber,
                       ),
                       onPressed: onRetry,
@@ -159,11 +189,15 @@ class AiSuggestionCard extends StatelessWidget {
                       ),
                     ),
                   if (onSwitchToManual != null &&
-                      aiResult!.provider != AiProvider.manual) ...[
-                    const SizedBox(width: 8),
+                      aiResult!.provider != AiProvider.manual)
                     TextButton.icon(
                       style: TextButton.styleFrom(
                         visualDensity: VisualDensity.compact,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         foregroundColor: Colors.white60,
                       ),
                       onPressed: onSwitchToManual,
@@ -173,7 +207,6 @@ class AiSuggestionCard extends StatelessWidget {
                         style: const TextStyle(fontSize: 12),
                       ),
                     ),
-                  ],
                 ],
               ),
             ],

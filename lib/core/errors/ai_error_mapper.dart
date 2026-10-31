@@ -5,6 +5,21 @@ import 'app_exception.dart';
 
 class AiErrorMapper {
   static String getLocalizedMessage(dynamic error, AppLocalizations l10n) {
+    if (error is OfflineModelInsufficientStorageException) {
+      return l10n.offlineModelInsufficientStorage;
+    }
+    if (error is OfflineModelNetworkUnavailableException) {
+      return l10n.offlineModelNetworkRequired;
+    }
+    if (error is OfflineModelDownloadCancelledException) {
+      return l10n.offlineModelDownloadCancelled;
+    }
+    if (error is OfflineModelDownloadFailedException) {
+      return l10n.offlineModelDownloadFailed;
+    }
+    if (error is OfflineModelDeleteFailedException) {
+      return l10n.offlineModelFailed;
+    }
     if (error is OfflineModelUnavailableException) {
       return l10n.aiGemmaUnavailable;
     }

@@ -774,4 +774,143 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiActualProvider => 'Active Provider';
+
+  @override
+  String get offlineModelDownloadTitle => 'Gemma 4 E2B Download';
+
+  @override
+  String get offlineModelDownload => 'Download Model';
+
+  @override
+  String get offlineModelNotDownloaded => 'Model is not downloaded';
+
+  @override
+  String get offlineModelDownloading => 'Downloading Gemma 4 E2B';
+
+  @override
+  String get offlineModelDownloaded => 'Gemma 4 E2B downloaded';
+
+  @override
+  String get offlineModelReady => 'Gemma 4 E2B Ready';
+
+  @override
+  String get offlineModelInitializing => 'Initializing model runtime...';
+
+  @override
+  String get offlineModelFailed => 'Model download failed';
+
+  @override
+  String get offlineModelUnsupported =>
+      'Device does not support local model execution';
+
+  @override
+  String offlineModelApproximateSize(String size) {
+    return 'Approximate download size: $size';
+  }
+
+  @override
+  String offlineModelStorageRequired(String size) {
+    return 'Required free storage: $size';
+  }
+
+  @override
+  String offlineModelStorageAvailable(String size) {
+    return 'Available storage: $size';
+  }
+
+  @override
+  String offlineModelDownloadProgress(
+    String downloaded,
+    String total,
+    int percent,
+  ) {
+    return '$downloaded of $total ($percent%)';
+  }
+
+  @override
+  String get offlineModelDownloadComplete => 'Download completed successfully';
+
+  @override
+  String get offlineModelDownloadFailed => 'Failed to download model files';
+
+  @override
+  String get offlineModelInsufficientStorage =>
+      'Not enough storage to download the offline model. Free additional space and try again.';
+
+  @override
+  String get offlineModelNetworkRequired =>
+      'Network connection required to download the model';
+
+  @override
+  String get offlineModelWifiOnly => 'Download over Wi-Fi only';
+
+  @override
+  String get offlineModelAllowMobileData => 'Allow cellular data download';
+
+  @override
+  String get offlineModelMobileDataWarning =>
+      'Downloading ~1.2 GB over mobile data may incur carrier charges or consume data limits.';
+
+  @override
+  String get offlineModelCancelDownload => 'Cancel Download';
+
+  @override
+  String get offlineModelRetryDownload => 'Retry Download';
+
+  @override
+  String get offlineModelActivate => 'Activate Offline AI';
+
+  @override
+  String get offlineModelDelete => 'Delete Model';
+
+  @override
+  String get offlineModelDeleteTitle => 'Delete Gemma 4 E2B?';
+
+  @override
+  String get offlineModelDeleteConfirmation =>
+      'Offline AI will no longer be available until the model is downloaded again. Reports and saved photos will not be deleted.';
+
+  @override
+  String get offlineModelDeleted => 'Offline model deleted from storage';
+
+  @override
+  String get offlineModelPrivacyNotice =>
+      'Runs 100% locally on your phone. No track photos or inspection notes leave your device when using offline Gemma.';
+
+  @override
+  String get offlineModelOfflineNotice =>
+      'Once downloaded, offline Gemma functions with zero mobile connectivity along deep forest track sections.';
+
+  @override
+  String get offlineModelReportsRemainSafe =>
+      'Saved reports, photos, and drafts will not be affected by model deletion.';
+
+  @override
+  String get offlineModelUseManualFallback =>
+      'Use manual classification if model is unavailable.';
+
+  @override
+  String get offlineModelDownloadInProgress =>
+      'Model download is currently in progress. Please do not close the app.';
+
+  @override
+  String get offlineModelAlreadyDownloading =>
+      'A download is already in progress.';
+
+  @override
+  String get offlineModelCorrupted =>
+      'Model files appear damaged. Please re-download the model.';
+
+  @override
+  String offlineModelVersion(String version) {
+    return 'Version: $version';
+  }
+
+  @override
+  String offlineModelDownloadedAt(String date) {
+    return 'Downloaded: $date';
+  }
+
+  @override
+  String get offlineModelDownloadCancelled => 'Model download was cancelled.';
 }

@@ -1451,6 +1451,232 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Active Provider'**
   String get aiActualProvider;
+
+  /// No description provided for @offlineModelDownloadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemma 4 E2B Download'**
+  String get offlineModelDownloadTitle;
+
+  /// No description provided for @offlineModelDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Model'**
+  String get offlineModelDownload;
+
+  /// No description provided for @offlineModelNotDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Model is not downloaded'**
+  String get offlineModelNotDownloaded;
+
+  /// No description provided for @offlineModelDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading Gemma 4 E2B'**
+  String get offlineModelDownloading;
+
+  /// No description provided for @offlineModelDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemma 4 E2B downloaded'**
+  String get offlineModelDownloaded;
+
+  /// No description provided for @offlineModelReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemma 4 E2B Ready'**
+  String get offlineModelReady;
+
+  /// No description provided for @offlineModelInitializing.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing model runtime...'**
+  String get offlineModelInitializing;
+
+  /// No description provided for @offlineModelFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Model download failed'**
+  String get offlineModelFailed;
+
+  /// No description provided for @offlineModelUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Device does not support local model execution'**
+  String get offlineModelUnsupported;
+
+  /// No description provided for @offlineModelApproximateSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate download size: {size}'**
+  String offlineModelApproximateSize(String size);
+
+  /// No description provided for @offlineModelStorageRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required free storage: {size}'**
+  String offlineModelStorageRequired(String size);
+
+  /// No description provided for @offlineModelStorageAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available storage: {size}'**
+  String offlineModelStorageAvailable(String size);
+
+  /// No description provided for @offlineModelDownloadProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{downloaded} of {total} ({percent}%)'**
+  String offlineModelDownloadProgress(
+    String downloaded,
+    String total,
+    int percent,
+  );
+
+  /// No description provided for @offlineModelDownloadComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Download completed successfully'**
+  String get offlineModelDownloadComplete;
+
+  /// No description provided for @offlineModelDownloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to download model files'**
+  String get offlineModelDownloadFailed;
+
+  /// No description provided for @offlineModelInsufficientStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough storage to download the offline model. Free additional space and try again.'**
+  String get offlineModelInsufficientStorage;
+
+  /// No description provided for @offlineModelNetworkRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Network connection required to download the model'**
+  String get offlineModelNetworkRequired;
+
+  /// No description provided for @offlineModelWifiOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Download over Wi-Fi only'**
+  String get offlineModelWifiOnly;
+
+  /// No description provided for @offlineModelAllowMobileData.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow cellular data download'**
+  String get offlineModelAllowMobileData;
+
+  /// No description provided for @offlineModelMobileDataWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading ~1.2 GB over mobile data may incur carrier charges or consume data limits.'**
+  String get offlineModelMobileDataWarning;
+
+  /// No description provided for @offlineModelCancelDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Download'**
+  String get offlineModelCancelDownload;
+
+  /// No description provided for @offlineModelRetryDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry Download'**
+  String get offlineModelRetryDownload;
+
+  /// No description provided for @offlineModelActivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate Offline AI'**
+  String get offlineModelActivate;
+
+  /// No description provided for @offlineModelDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Model'**
+  String get offlineModelDelete;
+
+  /// No description provided for @offlineModelDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Gemma 4 E2B?'**
+  String get offlineModelDeleteTitle;
+
+  /// No description provided for @offlineModelDeleteConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline AI will no longer be available until the model is downloaded again. Reports and saved photos will not be deleted.'**
+  String get offlineModelDeleteConfirmation;
+
+  /// No description provided for @offlineModelDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline model deleted from storage'**
+  String get offlineModelDeleted;
+
+  /// No description provided for @offlineModelPrivacyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs 100% locally on your phone. No track photos or inspection notes leave your device when using offline Gemma.'**
+  String get offlineModelPrivacyNotice;
+
+  /// No description provided for @offlineModelOfflineNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Once downloaded, offline Gemma functions with zero mobile connectivity along deep forest track sections.'**
+  String get offlineModelOfflineNotice;
+
+  /// No description provided for @offlineModelReportsRemainSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved reports, photos, and drafts will not be affected by model deletion.'**
+  String get offlineModelReportsRemainSafe;
+
+  /// No description provided for @offlineModelUseManualFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Use manual classification if model is unavailable.'**
+  String get offlineModelUseManualFallback;
+
+  /// No description provided for @offlineModelDownloadInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Model download is currently in progress. Please do not close the app.'**
+  String get offlineModelDownloadInProgress;
+
+  /// No description provided for @offlineModelAlreadyDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'A download is already in progress.'**
+  String get offlineModelAlreadyDownloading;
+
+  /// No description provided for @offlineModelCorrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'Model files appear damaged. Please re-download the model.'**
+  String get offlineModelCorrupted;
+
+  /// No description provided for @offlineModelVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version: {version}'**
+  String offlineModelVersion(String version);
+
+  /// No description provided for @offlineModelDownloadedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded: {date}'**
+  String offlineModelDownloadedAt(String date);
+
+  /// No description provided for @offlineModelDownloadCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Model download was cancelled.'**
+  String get offlineModelDownloadCancelled;
 }
 
 class _AppLocalizationsDelegate

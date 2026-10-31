@@ -1,4 +1,3 @@
-/// <reference lib="deno.ns" />
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "@supabase/supabase-js";
 
@@ -253,7 +252,7 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const model = Deno.env.get("GEMINI_MODEL") || "gemini-2.5-flash";
+    const model = Deno.env.get("GEMINI_MODEL") || "gemini-1.5-flash";
 
     // 3. Set up persistent audit logging for this authorized request.
 

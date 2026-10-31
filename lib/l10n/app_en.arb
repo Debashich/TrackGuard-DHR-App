@@ -327,5 +327,75 @@
   "aiOfflineFirstNotice": "Uses private on-device Gemma when available, cloud Gemini when connected, or heuristic rules.",
   "aiRetryAnalysis": "Retry AI Analysis",
   "aiUseManualClassification": "Switch to Manual",
-  "aiActualProvider": "Active Provider"
+  "aiActualProvider": "Active Provider",
+
+  "offlineModelDownloadTitle": "Gemma 4 E2B Download",
+  "offlineModelDownload": "Download Model",
+  "offlineModelNotDownloaded": "Model is not downloaded",
+  "offlineModelDownloading": "Downloading Gemma 4 E2B",
+  "offlineModelDownloaded": "Gemma 4 E2B downloaded",
+  "offlineModelReady": "Gemma 4 E2B Ready",
+  "offlineModelInitializing": "Initializing model runtime...",
+  "offlineModelFailed": "Model download failed",
+  "offlineModelUnsupported": "Device does not support local model execution",
+  "offlineModelApproximateSize": "Approximate download size: {size}",
+  "@offlineModelApproximateSize": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "offlineModelStorageRequired": "Required free storage: {size}",
+  "@offlineModelStorageRequired": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "offlineModelStorageAvailable": "Available storage: {size}",
+  "@offlineModelStorageAvailable": {
+    "placeholders": {
+      "size": { "type": "String" }
+    }
+  },
+  "offlineModelDownloadProgress": "{downloaded} of {total} ({percent}%)",
+  "@offlineModelDownloadProgress": {
+    "placeholders": {
+      "downloaded": { "type": "String" },
+      "total": { "type": "String" },
+      "percent": { "type": "int" }
+    }
+  },
+  "offlineModelDownloadComplete": "Download completed successfully",
+  "offlineModelDownloadFailed": "Failed to download model files",
+  "offlineModelInsufficientStorage": "Not enough storage to download the offline model. Free additional space and try again.",
+  "offlineModelNetworkRequired": "Network connection required to download the model",
+  "offlineModelWifiOnly": "Download over Wi-Fi only",
+  "offlineModelAllowMobileData": "Allow cellular data download",
+  "offlineModelMobileDataWarning": "Downloading ~1.2 GB over mobile data may incur carrier charges or consume data limits.",
+  "offlineModelCancelDownload": "Cancel Download",
+  "offlineModelRetryDownload": "Retry Download",
+  "offlineModelActivate": "Activate Offline AI",
+  "offlineModelDelete": "Delete Model",
+  "offlineModelDeleteTitle": "Delete Gemma 4 E2B?",
+  "offlineModelDeleteConfirmation": "Offline AI will no longer be available until the model is downloaded again. Reports and saved photos will not be deleted.",
+  "offlineModelDeleted": "Offline model deleted from storage",
+  "offlineModelPrivacyNotice": "Runs 100% locally on your phone. No track photos or inspection notes leave your device when using offline Gemma.",
+  "offlineModelOfflineNotice": "Once downloaded, offline Gemma functions with zero mobile connectivity along deep forest track sections.",
+  "offlineModelReportsRemainSafe": "Saved reports, photos, and drafts will not be affected by model deletion.",
+  "offlineModelUseManualFallback": "Use manual classification if model is unavailable.",
+  "offlineModelDownloadInProgress": "Model download is currently in progress. Please do not close the app.",
+  "offlineModelAlreadyDownloading": "A download is already in progress.",
+  "offlineModelCorrupted": "Model files appear damaged. Please re-download the model.",
+  "offlineModelVersion": "Version: {version}",
+  "@offlineModelVersion": {
+    "placeholders": {
+      "version": { "type": "String" }
+    }
+  },
+  "offlineModelDownloadedAt": "Downloaded: {date}",
+  "@offlineModelDownloadedAt": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "offlineModelDownloadCancelled": "Model download was cancelled."
 }
