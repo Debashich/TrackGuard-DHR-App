@@ -73,17 +73,22 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
   }
 
   Future<void> _init() async {
-    // Acquire location in parallel
     acquireLocation();
+    await initializeCamera();
+  }
 
-    // Initialize camera
+  Future<void> initializeCamera() async {
+    state = state.copyWith(
+      isCameraInitializing: true,
+      errorMessage: null,
+    );
     final ready = await _cameraService.initialize();
     state = state.copyWith(
       isCameraInitializing: false,
       isCameraReady: ready,
       errorMessage: ready
           ? null
-          : 'Camera unavailable. Please use gallery fallback.',
+          : 'Camera unavailable. Please check permissions or use gallery fallback.',
     );
   }
 
@@ -102,7 +107,11 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
     state = state.copyWith(isCapturing: true);
     try {
       final file = await _cameraService.takePhoto();
-      state = state.copyWith(isCapturing: false, capturedFile: file);
+      await _cameraService.pausePreview();
+      state = state.copyWith(
+        isCapturing: false,
+        capturedFile: file,
+      );
     } catch (e) {
       state = state.copyWith(
         isCapturing: false,
@@ -115,7 +124,13 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
     state = state.copyWith(isCapturing: true);
     try {
       final file = await _cameraService.pickFromGallery();
-      state = state.copyWith(isCapturing: false, capturedFile: file);
+      if (file != null) {
+        await _cameraService.pausePreview();
+      }
+      state = state.copyWith(
+        isCapturing: false,
+        capturedFile: file ?? state.capturedFile,
+      );
     } catch (e) {
       state = state.copyWith(
         isCapturing: false,
@@ -124,8 +139,32 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
     }
   }
 
-  void retakePhoto() {
+  Future<void> retakePhoto() async {
     state = state.copyWith(clearCapturedFile: true);
+    if (_cameraService.isInitialized) {
+      await _cameraService.resumePreview();
+      state = state.copyWith(isCameraReady: true);
+    } else {
+      await initializeCamera();
+    }
+  }
+
+  /// Stops camera stream and releases native sensor hardware
+  Future<void> stopCamera() async {
+    await _cameraService.stopCamera();
+    state = state.copyWith(isCameraReady: false);
+  }
+
+  /// Resumes camera preview or reinitializes if screen is active without captured photo
+  Future<void> resumeCameraIfNeeded() async {
+    if (state.capturedFile == null) {
+      if (_cameraService.isInitialized) {
+        await _cameraService.resumePreview();
+        state = state.copyWith(isCameraReady: true);
+      } else {
+        await initializeCamera();
+      }
+    }
   }
 
   void setManualWaypoint(DhrWaypoint wp, double? customKm) {
@@ -148,6 +187,10 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
 
   Future<bool> confirmDraftAndProceed() async {
     if (state.capturedFile == null) return false;
+
+    // Shut down camera hardware before proceeding to review/dashboard
+    await _cameraService.stopCamera();
+    state = state.copyWith(isCameraReady: false);
 
     try {
       final location =
@@ -182,6 +225,6 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
 }
 
 final reportCaptureControllerProvider =
-    NotifierProvider<ReportCaptureController, ReportCaptureState>(() {
-      return ReportCaptureController();
-    });
+    NotifierProvider<ReportCaptureController, ReportCaptureState>(
+      ReportCaptureController.new,
+    );

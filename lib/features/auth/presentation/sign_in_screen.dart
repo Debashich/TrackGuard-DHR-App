@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/app_language.dart';
-import '../../../shared/models/user_role.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../domain/auth_state.dart';
 import 'auth_controller.dart';
@@ -139,52 +137,6 @@ class SignInScreen extends ConsumerWidget {
                             .read(authControllerProvider.notifier)
                             .signInWithGoogle(),
                 ),
-
-                if (kDebugMode) ...[
-                  const SizedBox(height: 24),
-                  const Row(
-                    children: [
-                      Expanded(child: Divider()),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(
-                          'DEVELOPMENT ACCESS',
-                          style: TextStyle(
-                            color: Colors.white38,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      Expanded(child: Divider()),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Development Gangman Sign In
-                  OutlinedButton.icon(
-                    onPressed: isAuthenticating
-                        ? null
-                        : () => ref
-                              .read(authControllerProvider.notifier)
-                              .signInDevelopment(role: UserRole.gangman),
-                    icon: const Icon(Icons.engineering_outlined),
-                    label: Text(l10n.devSignInGangman),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Development Admin Sign In
-                  OutlinedButton.icon(
-                    onPressed: isAuthenticating
-                        ? null
-                        : () => ref
-                              .read(authControllerProvider.notifier)
-                              .signInDevelopment(role: UserRole.admin),
-                    icon: const Icon(Icons.admin_panel_settings_outlined),
-                    label: Text(l10n.devSignInAdmin),
-                  ),
-                ],
 
                 const SizedBox(height: 32),
                 // Offline Notice

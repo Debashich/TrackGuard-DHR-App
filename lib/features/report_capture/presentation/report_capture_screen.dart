@@ -12,12 +12,50 @@ import '../../../shared/widgets/primary_button.dart';
 import 'report_capture_controller.dart';
 import 'widgets/waypoint_picker.dart';
 
-class ReportCaptureScreen extends ConsumerWidget {
+class ReportCaptureScreen extends ConsumerStatefulWidget {
   const ReportCaptureScreen({super.key});
+
+  @override
+  ConsumerState<ReportCaptureScreen> createState() =>
+      _ReportCaptureScreenState();
+}
+
+class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
+    with WidgetsBindingObserver {
+  ReportCaptureController? _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _controller = ref.read(reportCaptureControllerProvider.notifier);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    // Explicitly release camera hardware using the stored reference, not ref.read
+    _controller?.stopCamera();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycleState) {
+    super.didChangeAppLifecycleState(lifecycleState);
+    if (lifecycleState == AppLifecycleState.paused) {
+      _controller?.stopCamera();
+    } else if (lifecycleState == AppLifecycleState.resumed) {
+      _controller?.resumeCameraIfNeeded();
+    }
+  }
 
   void _showWaypointPicker(
     BuildContext context,
-    WidgetRef ref,
     ReportCaptureState captureState,
   ) {
     showModalBottomSheet(
@@ -39,7 +77,7 @@ class ReportCaptureScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final captureState = ref.watch(reportCaptureControllerProvider);
     final controllerNotifier = ref.read(
@@ -53,93 +91,109 @@ class ReportCaptureScreen extends ConsumerWidget {
         ? '${loc.nearestStationName ?? "DHR"} • Km ${(loc.kmMarker ?? 51.0).toStringAsFixed(1)}'
         : l10n.gpsAcquiring;
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          _controller?.stopCamera();
+        }
+      },
+      child: Scaffold(
         backgroundColor: Colors.black,
-        title: Text(l10n.captureTitle),
-        actions: [
-          // GPS Pill / Waypoint button
-          TextButton.icon(
-            style: TextButton.styleFrom(
-              backgroundColor: isGps
-                  ? AppTheme.statusGreen.withValues(alpha: 0.2)
-                  : AppTheme.statusAmber.withValues(alpha: 0.2),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            ),
-            onPressed: () => _showWaypointPicker(context, ref, captureState),
-            icon: Icon(
-              isGps ? Icons.gps_fixed : Icons.edit_location_alt,
-              size: 16,
-              color: isGps ? AppTheme.statusGreen : AppTheme.primaryAmber,
-            ),
-            label: Text(
-              locText,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () async {
+              await controllerNotifier.stopCamera();
+              if (context.mounted) {
+                context.pop();
+              }
+            },
+          ),
+          title: Text(l10n.captureTitle),
+          actions: [
+            // GPS Pill / Waypoint button
+            TextButton.icon(
+              style: TextButton.styleFrom(
+                backgroundColor: isGps
+                    ? AppTheme.statusGreen.withValues(alpha: 0.2)
+                    : AppTheme.statusAmber.withValues(alpha: 0.2),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              ),
+              onPressed: () => _showWaypointPicker(context, captureState),
+              icon: Icon(
+                isGps ? Icons.gps_fixed : Icons.edit_location_alt,
+                size: 16,
                 color: isGps ? AppTheme.statusGreen : AppTheme.primaryAmber,
               ),
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Location Warning Banner if Fallback/Manual
-            if (loc != null && loc.source != LocationSource.gps) ...[
-              Container(
-                color: AppTheme.primaryAmberDark.withValues(alpha: 0.85),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 8,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info, color: Colors.white, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        l10n.manualLocationNotice,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () =>
-                          _showWaypointPicker(context, ref, captureState),
-                      child: Text(
-                        l10n.editKm,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                  ],
+              label: Text(
+                locText,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: isGps ? AppTheme.statusGreen : AppTheme.primaryAmber,
                 ),
               ),
-            ],
-
-            // Main Preview Area
-            Expanded(
-              child: captureState.capturedFile != null
-                  ? _buildPhotoReview(context, ref, captureState)
-                  : _buildCameraPreview(
-                      context,
-                      ref,
-                      captureState,
-                      cameraController,
-                    ),
             ),
+            const SizedBox(width: 8),
           ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Location Warning Banner if Fallback/Manual
+              if (loc != null && loc.source != LocationSource.gps) ...[
+                Container(
+                  color: AppTheme.primaryAmberDark.withValues(alpha: 0.85),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info, color: Colors.white, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          l10n.manualLocationNotice,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            _showWaypointPicker(context, captureState),
+                        child: Text(
+                          l10n.editKm,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
+              // Main Preview Area
+              Expanded(
+                child: captureState.capturedFile != null
+                    ? _buildPhotoReview(context, captureState)
+                    : _buildCameraPreview(
+                        context,
+                        captureState,
+                        cameraController,
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -147,9 +201,12 @@ class ReportCaptureScreen extends ConsumerWidget {
 
   Widget _buildPhotoReview(
     BuildContext context,
-    WidgetRef ref,
     ReportCaptureState state,
   ) {
+    if (state.capturedFile == null) {
+      return const SizedBox.shrink();
+    }
+
     final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(reportCaptureControllerProvider.notifier);
 
@@ -215,7 +272,11 @@ class ReportCaptureScreen extends ConsumerWidget {
                   onPressed: () async {
                     final success = await controller.confirmDraftAndProceed();
                     if (success && context.mounted) {
-                      context.push('/gangman/report/review');
+                      context.push('/gangman/report/review').then((_) {
+                        if (mounted) {
+                          _controller?.resumeCameraIfNeeded();
+                        }
+                      });
                     }
                   },
                 ),
@@ -229,7 +290,6 @@ class ReportCaptureScreen extends ConsumerWidget {
 
   Widget _buildCameraPreview(
     BuildContext context,
-    WidgetRef ref,
     ReportCaptureState state,
     CameraController? cameraController,
   ) {
@@ -237,10 +297,12 @@ class ReportCaptureScreen extends ConsumerWidget {
     final controller = ref.read(reportCaptureControllerProvider.notifier);
 
     if (state.isCameraInitializing) {
-      return LoadingView(message: l10n.processingImage);
+      return const LoadingView(message: 'Starting camera...');
     }
 
-    if (!state.isCameraReady || cameraController == null) {
+    if (!state.isCameraReady ||
+        cameraController == null ||
+        !cameraController.value.isInitialized) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -250,14 +312,20 @@ class ReportCaptureScreen extends ConsumerWidget {
               const Icon(Icons.no_photography, size: 64, color: Colors.white38),
               const SizedBox(height: 16),
               Text(
-                l10n.cameraUnavailable,
+                state.errorMessage ?? l10n.cameraUnavailable,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white70, fontSize: 15),
               ),
               const SizedBox(height: 24),
               PrimaryButton(
-                text: l10n.galleryFallback,
-                icon: Icons.photo_library,
+                text: 'Retry Camera',
+                icon: Icons.refresh,
+                onPressed: () => controller.initializeCamera(),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.photo_library),
+                label: Text(l10n.galleryFallback),
                 onPressed: () => controller.pickFromGallery(),
               ),
             ],
