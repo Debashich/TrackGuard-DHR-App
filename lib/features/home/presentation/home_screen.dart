@@ -117,6 +117,14 @@ class HomeScreen extends ConsumerWidget {
                                         color: AppTheme.textPrimary,
                                       ),
                                     ),
+                                    if (user?.email != null)
+                                      Text(
+                                        user!.email,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.textSecondary,
+                                        ),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -175,19 +183,127 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
-                Card(color: AppTheme.primaryBlue, child: InkWell(borderRadius: BorderRadius.circular(12), onTap: () => context.push('/gangman/report/capture'), child: const SizedBox(height: 230, child: Padding(padding: EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.camera_alt_outlined, size: 58, color: Colors.white), SizedBox(height: 16), Text('Report a Track Hazard', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w800, color: Colors.white)), SizedBox(height: 8), Text('Take a photo of a slip, rockfall, drain, or track issue', style: TextStyle(fontSize: 15, color: Colors.white, height: 1.3))]))))),
+                Card(
+                  color: AppTheme.primaryBlue,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => context.push('/gangman/report/capture'),
+                    child: SizedBox(
+                      height: 230,
+                      child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.camera_alt_outlined,
+                              size: 58,
+                              color: Colors.white,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              l10n.newReport.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 23,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Take a photo of a slip, rockfall, drain, or track issue',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 12),
 
-                Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(children: [Icon(syncSummary.pendingCount > 0 ? Icons.schedule : Icons.check_circle, color: syncSummary.pendingCount > 0 ? AppTheme.statusAmber : AppTheme.statusGreen), const SizedBox(width: 10), Expanded(child: Text(syncSummary.pendingCount > 0 ? '${syncSummary.pendingCount} reports saved on phone' : 'All reports sent to supervisor', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)))]),
-                  const SizedBox(height: 6),
-                  Text(syncSummary.pendingCount > 0 ? 'Will send automatically at next station signal' : 'Your latest reports have reached the supervisor.', style: const TextStyle(color: AppTheme.textSecondary)),
-                  const SizedBox(height: 10),
-                  Row(children: [if (syncSummary.pendingCount > 0 && isOnline && !syncSummary.isSyncing) Expanded(child: OutlinedButton(onPressed: () async { final service = ref.read(reportSyncServiceProvider); if (service != null) { try { await service.syncPendingReports(); ref.invalidate(pendingReportsCountProvider); } catch (_) {} } }, child: const Text('Send Now'))), if (syncSummary.pendingCount > 0 && isOnline && !syncSummary.isSyncing) const SizedBox(width: 8), Expanded(child: TextButton(onPressed: () => context.push('/gangman/reports'), child: const Text('View My Reports')))]),
-                ]))),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              syncSummary.pendingCount > 0
+                                  ? Icons.schedule
+                                  : Icons.check_circle,
+                              color: syncSummary.pendingCount > 0
+                                  ? AppTheme.statusAmber
+                                  : AppTheme.statusGreen,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                l10n.pendingQueue,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          syncSummary.pendingCount > 0
+                              ? 'Will send automatically at next station signal'
+                              : 'Your latest reports have reached the supervisor.',
+                          style: const TextStyle(color: AppTheme.textSecondary),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            if (syncSummary.pendingCount > 0 &&
+                                isOnline &&
+                                !syncSummary.isSyncing)
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () async {
+                                    final service = ref.read(
+                                      reportSyncServiceProvider,
+                                    );
+                                    if (service != null) {
+                                      try {
+                                        await service.syncPendingReports();
+                                        ref.invalidate(
+                                          pendingReportsCountProvider,
+                                        );
+                                      } catch (_) {}
+                                    }
+                                  },
+                                  child: const Text('Send Now'),
+                                ),
+                              ),
+                            if (syncSummary.pendingCount > 0 &&
+                                isOnline &&
+                                !syncSummary.isSyncing)
+                              const SizedBox(width: 8),
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () =>
+                                    context.push('/gangman/reports'),
+                                child: const Text('View My Reports'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 12),
-
-
               ],
             ),
           ),
@@ -196,4 +312,3 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 }
-

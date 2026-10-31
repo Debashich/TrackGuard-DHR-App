@@ -283,5 +283,14 @@
   "offlineModelCorrupted": "মডেল ফাইল ক্ষতিগ্রস্ত হতে পারে। অনুগ্রহ করে পুনরায় ডাউনলোড করুন।",
   "offlineModelVersion": "সংস্করণ: {version}",
   "offlineModelDownloadedAt": "ডাউনলোড হয়েছে: {date}",
-  "offlineModelDownloadCancelled": "মডেল ডাউনলোড বাতিল করা হয়েছে।"
+  "offlineModelDownloadCancelled": "মডেল ডাউনলোড বাতিল করা হয়েছে।",
+  "locationAccuracyPromptTitle": "Improve Location Accuracy",
+  "locationAccuracyPromptMessage": "TrackGuard works best when your device provides precise location information.",
+  "locationAccuracyPromptSettingsHeading": "Check your location settings:",
+  "locationAccuracyPromptDeviceLocation": "1. Turn on Device Location.",
+  "locationAccuracyPromptLocationAccuracy": "2. Enable Google Location Accuracy, if available.",
+  "locationAccuracyPromptExplanation": "This helps TrackGuard capture more accurate locations when reporting hazards.",
+  "locationAccuracyPromptManageSettingsOr": "You can manage these settings in your device's Location settings.",
+  "locationAccuracyPromptNoThanks": "Not now",
+  "locationAccuracyPromptTurnOn": "Continue"
 }
