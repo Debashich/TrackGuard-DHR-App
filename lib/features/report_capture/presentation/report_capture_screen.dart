@@ -102,6 +102,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () async {
@@ -113,35 +114,14 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
           ),
           title: Text(l10n.captureTitle),
           actions: [
-            // GPS Pill / Waypoint button
-            TextButton.icon(
-              style: TextButton.styleFrom(
-                backgroundColor: isGps
-                    ? AppTheme.statusGreen.withValues(alpha: 0.2)
-                    : AppTheme.statusAmber.withValues(alpha: 0.2),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              ),
-              onPressed: () => _showWaypointPicker(context, captureState),
-              icon: Icon(
-                isGps ? Icons.gps_fixed : Icons.edit_location_alt,
-                size: 16,
-                color: isGps ? AppTheme.statusGreen : AppTheme.primaryAmber,
-              ),
-              label: Text(
-                locText,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: isGps ? AppTheme.statusGreen : AppTheme.primaryAmber,
-                ),
-              ),
-            ),
             const SizedBox(width: 8),
           ],
         ),
         body: SafeArea(
           child: Column(
             children: [
+              if (loc != null || !captureState.isCameraInitializing)
+                Padding(padding: const EdgeInsets.fromLTRB(12, 10, 12, 0), child: Material(color: Colors.white, borderRadius: BorderRadius.circular(28), child: InkWell(borderRadius: BorderRadius.circular(28), onTap: () => _showWaypointPicker(context, captureState), child: Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13), child: Row(children: [Icon(isGps ? Icons.gps_fixed : Icons.edit_location_alt, color: isGps ? AppTheme.statusGreen : AppTheme.statusAmber), const SizedBox(width: 10), Expanded(child: Text(isGps ? 'Near $locText' : 'GPS weak — tap to pick station ($locText)', style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w700))), const Text('Change', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.w700))]))))),
               // Location Warning Banner if Fallback/Manual
               if (loc != null && loc.source != LocationSource.gps) ...[
                 Container(
@@ -224,7 +204,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.75),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: AppTheme.borderDark),
                   ),
@@ -240,7 +220,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
                         child: Text(
                           '${state.location?.nearestStationName ?? "DHR Alignment"} • Km ${(state.location?.kmMarker ?? 51.0).toStringAsFixed(1)} (${DhrWaypoints.getSectionName(state.location?.sectionId ?? "kurseong-ghum")})',
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppTheme.textPrimary,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -260,6 +240,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
             children: [
               Expanded(
                 child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 56), foregroundColor: Colors.white, side: const BorderSide(color: Colors.white, width: 1.5)),
                   onPressed: () => controller.retakePhoto(),
                   child: Text(l10n.retake),
                 ),
@@ -269,6 +250,8 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
                 child: PrimaryButton(
                   text: l10n.confirmPhoto,
                   icon: Icons.check,
+                  backgroundColor: AppTheme.statusGreen,
+                  foregroundColor: Colors.white,
                   onPressed: () async {
                     final success = await controller.confirmDraftAndProceed();
                     if (success && context.mounted) {
@@ -410,3 +393,5 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
     );
   }
 }
+
+

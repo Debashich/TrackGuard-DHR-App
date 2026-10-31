@@ -126,11 +126,11 @@ class RoleNavigationDrawer extends ConsumerWidget {
     return ListTile(
       selected: isSelected,
       selectedTileColor: activeColor.withValues(alpha: 0.12),
-      leading: Icon(icon, color: isSelected ? activeColor : Colors.white70),
+      leading: Icon(icon, color: isSelected ? activeColor : AppTheme.textSecondary),
       title: Text(
         label,
         style: TextStyle(
-          color: isSelected ? activeColor : Colors.white,
+          color: isSelected ? activeColor : AppTheme.textPrimary,
           fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
         ),
       ),

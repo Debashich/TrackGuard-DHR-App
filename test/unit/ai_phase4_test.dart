@@ -9,7 +9,6 @@ import 'package:trackguard_dhr/features/ai/data/ai_analysis_service_impl.dart';
 import 'package:trackguard_dhr/features/ai/data/ai_prompt_builder.dart';
 import 'package:trackguard_dhr/features/ai/data/ai_result_validator.dart';
 import 'package:trackguard_dhr/features/ai/data/cactus_gemma_provider.dart';
-import 'package:trackguard_dhr/features/ai/data/heuristic_ai_provider.dart';
 import 'package:trackguard_dhr/features/ai/data/online_gemini_provider.dart';
 import 'package:trackguard_dhr/features/ai/domain/ai_provider_config.dart';
 import 'package:trackguard_dhr/features/ai/domain/ai_settings.dart';

@@ -57,7 +57,7 @@ class AiSuggestionCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                 ),
@@ -105,7 +105,7 @@ class AiSuggestionCard extends StatelessWidget {
               Center(
                 child: Text(
                   analyzingText,
-                  style: const TextStyle(fontSize: 12, color: Colors.white70),
+                  style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                 ),
               ),
             ] else if (aiResult != null) ...[
@@ -137,7 +137,7 @@ class AiSuggestionCard extends StatelessWidget {
                     aiResult!.note!,
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Colors.white70,
+                      color: AppTheme.textSecondary,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -163,7 +163,7 @@ class AiSuggestionCard extends StatelessWidget {
                           horizontal: 8,
                           vertical: 4,
                         ),
-                        foregroundColor: AppTheme.primaryAmber,
+                        foregroundColor: AppTheme.primaryBlue,
                       ),
                       onPressed: onDownloadModel,
                       icon: const Icon(Icons.download_rounded, size: 16),
@@ -181,7 +181,7 @@ class AiSuggestionCard extends StatelessWidget {
                           horizontal: 8,
                           vertical: 4,
                         ),
-                        foregroundColor: AppTheme.primaryAmber,
+                        foregroundColor: AppTheme.primaryBlue,
                       ),
                       onPressed: onRetry,
                       icon: const Icon(Icons.refresh, size: 16),
@@ -200,7 +200,7 @@ class AiSuggestionCard extends StatelessWidget {
                           horizontal: 8,
                           vertical: 4,
                         ),
-                        foregroundColor: Colors.white60,
+                        foregroundColor: AppTheme.textSecondary,
                       ),
                       onPressed: onSwitchToManual,
                       icon: const Icon(Icons.edit_note, size: 16),
@@ -246,7 +246,7 @@ class AiSuggestionCard extends StatelessWidget {
                           Text(
                             errorMessage!,
                             style: const TextStyle(
-                              color: Colors.white70,
+                              color: AppTheme.textSecondary,
                               fontSize: 12,
                             ),
                           ),
@@ -265,7 +265,7 @@ class AiSuggestionCard extends StatelessWidget {
                     TextButton.icon(
                       style: TextButton.styleFrom(
                         visualDensity: VisualDensity.compact,
-                        foregroundColor: AppTheme.primaryAmber,
+                        foregroundColor: AppTheme.primaryBlue,
                       ),
                       onPressed: onRetry,
                       icon: const Icon(Icons.refresh, size: 16),
@@ -278,7 +278,7 @@ class AiSuggestionCard extends StatelessWidget {
                     TextButton.icon(
                       style: TextButton.styleFrom(
                         visualDensity: VisualDensity.compact,
-                        foregroundColor: Colors.white60,
+                        foregroundColor: AppTheme.textSecondary,
                       ),
                       onPressed: onSwitchToManual,
                       icon: const Icon(Icons.edit_note, size: 16),
@@ -306,7 +306,7 @@ class AiSuggestionCard extends StatelessWidget {
                     l10n.aiDisclaimer,
                     style: TextStyle(
                       fontSize: 11,
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: AppTheme.textSecondary,
                       height: 1.3,
                     ),
                   ),

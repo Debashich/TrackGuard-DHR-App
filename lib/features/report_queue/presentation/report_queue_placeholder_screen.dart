@@ -10,11 +10,9 @@ import '../../../core/constants/dhr_waypoints.dart';
 import '../../../core/sync/sync_error_message_mapper.dart';
 import '../../../core/utils/date_format_utils.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../shared/models/ai_provider.dart';
 import '../../../shared/models/hazard_report.dart';
 import '../../../shared/models/sync_status.dart';
 import '../../../shared/widgets/hazard_icon.dart';
-import '../../../shared/widgets/logout_confirmation.dart';
 import '../../../shared/widgets/severity_badge.dart';
 import '../../../shared/widgets/sync_error_banner.dart';
 import '../../../shared/widgets/sync_status_badge.dart';
@@ -42,7 +40,7 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.pendingQueue),
+        title: const Text('My Reports'),
         actions: [
           IconButton(
             icon: const Icon(Icons.sync_rounded),
@@ -101,16 +99,7 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
                   }
                 : null,
           ),
-          IconButton(
-            icon: const Icon(Icons.person_outline_rounded),
-            tooltip: l10n.navigationProfile,
-            onPressed: () => context.push('/profile'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout_rounded),
-            tooltip: l10n.signOut,
-            onPressed: () => showLogoutConfirmationDialog(context, ref),
-          ),
+          IconButton(icon: const Icon(Icons.person_outline_rounded), tooltip: l10n.navigationProfile, onPressed: () => context.push('/profile')),
         ],
       ),
       body: RefreshIndicator(
@@ -142,7 +131,7 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
                   Text(
                     SyncErrorMessageMapper.getLocalizedMessage(error, l10n),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white70),
+                    style: const TextStyle(color: AppTheme.textSecondary),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
@@ -253,12 +242,12 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
-      selectedColor: AppTheme.primaryAmber,
-      backgroundColor: AppTheme.surfaceDark,
+      selectedColor: AppTheme.primaryBlue,
+      backgroundColor: AppTheme.surfaceDarkElevated,
       labelStyle: TextStyle(
         fontSize: 12,
         fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
-        color: isSelected ? Colors.black : Colors.white70,
+        color: isSelected ? Colors.white : AppTheme.textPrimary,
       ),
       side: BorderSide(
         color: isSelected ? AppTheme.primaryAmber : AppTheme.borderDark,
@@ -297,7 +286,7 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.inbox_outlined, size: 56, color: Colors.white24),
+          const Icon(Icons.inbox_outlined, size: 56, color: AppTheme.borderDark),
           const SizedBox(height: 16),
           Text(
             noReportsAtAll
@@ -305,7 +294,7 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
                 : l10n.noReportsMatchFilter,
             style: const TextStyle(
               fontSize: 15,
-              color: Colors.white70,
+              color: AppTheme.textSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -313,7 +302,7 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
           Text(
             l10n.offlineExplanation,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12, color: Colors.white38),
+            style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
           ),
         ],
       ),
@@ -328,15 +317,6 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
     final sectionName = DhrWaypoints.getSectionName(report.sectionId);
     final stationName = report.nearestStationName ?? sectionName;
     final createdText = DateFormatUtils.formatDateTime(report.createdAt, l10n);
-
-    // AI Provider/Model description
-    final aiText = report.aiProvider == AiProvider.offlineGemma
-        ? (report.aiModel ?? 'Gemma 4 E2B')
-        : report.aiProvider == AiProvider.heuristic
-        ? l10n.aiProviderHeuristic
-        : report.aiProvider == AiProvider.onlineGemini
-        ? 'Gemini Cloud'
-        : l10n.aiProviderManual;
 
     final hasThumbnail =
         report.thumbnailPhotoPath != null &&
@@ -362,8 +342,8 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: SizedBox(
-                      width: 52,
-                      height: 52,
+                      width: 72,
+                      height: 72,
                       child: hasThumbnail
                           ? Image.file(
                               File(report.thumbnailPhotoPath!),
@@ -398,7 +378,7 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: AppTheme.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -406,7 +386,7 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
                           '$kmText • $stationName',
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.white70,
+                            color: AppTheme.textSecondary,
                           ),
                         ),
                       ],
@@ -417,52 +397,8 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
               ),
               const SizedBox(height: 10),
 
-              // AI metadata & timestamp chips
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.surfaceDarkElevated,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: AppTheme.borderDark),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.psychology_outlined,
-                          size: 12,
-                          color: AppTheme.primaryAmber,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          aiText,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.primaryAmber,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    createdText,
-                    style: const TextStyle(fontSize: 11, color: Colors.white38),
-                  ),
-                  const Spacer(),
-                  SyncStatusBadge(status: report.syncStatus, compact: true),
-                ],
-              ),
-
-              // Sync error banner if sync failed
-              if (report.syncStatus == SyncStatus.failed &&
-                  report.lastSyncError != null) ...[
+              Row(children: [Text(createdText, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)), const Spacer(), SyncStatusBadge(status: report.syncStatus, compact: true)]),
+              if (report.syncStatus == SyncStatus.failed && report.lastSyncError != null) ...[
                 const SizedBox(height: 10),
                 SyncErrorBanner(
                   error: report.lastSyncError,

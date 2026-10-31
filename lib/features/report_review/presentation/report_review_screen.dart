@@ -12,7 +12,6 @@ import '../../../shared/models/hazard_type.dart';
 import '../../../shared/models/location_source.dart';
 import '../../../shared/models/severity.dart';
 import '../../../shared/models/sync_status.dart';
-import '../../../shared/widgets/ai_metadata_card.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/primary_button.dart';
@@ -55,7 +54,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
@@ -84,7 +83,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
               l10n.savedSuccessMessage(reportId.substring(0, 8)),
               style: const TextStyle(
                 fontSize: 13,
-                color: Colors.white70,
+                color: AppTheme.textSecondary,
                 height: 1.4,
               ),
             ),
@@ -107,7 +106,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                     l10n.syncWaitingForSignal,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Colors.white70,
+                      color: AppTheme.textSecondary,
                       height: 1.3,
                     ),
                   ),
@@ -126,8 +125,8 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryAmber,
-              foregroundColor: Colors.black,
+              backgroundColor: AppTheme.primaryBlue,
+              foregroundColor: Colors.white,
             ),
             onPressed: () {
               Navigator.of(ctx).pop();
@@ -180,6 +179,41 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.reviewTitle)),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Saves safely on your phone first.',
+                style: TextStyle(color: AppTheme.textSecondary),
+              ),
+              const SizedBox(height: 6),
+              PrimaryButton(
+                text: l10n.saveAndQueue,
+                icon: Icons.save,
+                isLoading: reviewState.isSaving,
+                onPressed: reviewState.isSaving
+                    ? null
+                    : () async {
+                        final success = await controller.confirmAndSaveReport(
+                          userId,
+                        );
+                        if (!context.mounted) return;
+                        final savedId = ref
+                            .read(reportReviewControllerProvider)
+                            .savedReportId;
+                        if (success && savedId != null) {
+                          _showSuccessDialog(context, savedId);
+                        }
+                      },
+              ),
+            ],
+          ),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -236,7 +270,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                     children: [
                       const Icon(
                         Icons.place,
-                        color: AppTheme.primaryAmber,
+                        color: AppTheme.primaryBlue,
                         size: 24,
                       ),
                       const SizedBox(width: 12),
@@ -250,7 +284,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                                color: AppTheme.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -258,7 +292,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                               'Km ${reviewState.kmMarker.toStringAsFixed(1)} • ${DhrWaypoints.getSectionName(DhrWaypoints.estimateSection(reviewState.kmMarker))}',
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Colors.white70,
+                                color: AppTheme.textSecondary,
                               ),
                             ),
                           ],
@@ -280,10 +314,6 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                 onSwitchToManual: () => controller.switchToManual(),
                 onDownloadModel: () => context.push('/settings/ai/download'),
               ),
-              if (reviewState.aiResult != null && !reviewState.isAnalyzing) ...[
-                const SizedBox(height: 12),
-                AiMetadataCard(result: reviewState.aiResult),
-              ],
               const SizedBox(height: 20),
 
               // Human Confirmation Section Header
@@ -292,7 +322,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  color: AppTheme.primaryAmber,
+                  color: AppTheme.primaryBlue,
                   letterSpacing: 0.8,
                 ),
               ),
@@ -310,7 +340,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -337,7 +367,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -368,7 +398,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                           labelText: l10n.editKm,
                           prefixIcon: const Icon(
                             Icons.linear_scale,
-                            color: AppTheme.primaryAmber,
+                            color: AppTheme.primaryBlue,
                           ),
                           suffixText: 'km',
                         ),
@@ -400,7 +430,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.surfaceDark,
+                  color: AppTheme.surfaceDarkElevated,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppTheme.borderDark),
                 ),
@@ -421,7 +451,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                             : l10n.syncOfflineSafe,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.white70,
+                          color: AppTheme.textSecondary,
                           height: 1.3,
                         ),
                       ),
@@ -453,7 +483,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                           reviewState.errorMessage!,
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.white,
+                            color: AppTheme.textPrimary,
                           ),
                         ),
                       ),
@@ -462,28 +492,6 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                 ),
                 const SizedBox(height: 12),
               ],
-
-              // Confirm and Save Button
-              PrimaryButton(
-                text: l10n.saveAndQueue.toUpperCase(),
-                icon: Icons.save,
-                isLoading: reviewState.isSaving,
-                onPressed: reviewState.isSaving
-                    ? null
-                    : () async {
-                        final success = await controller.confirmAndSaveReport(
-                          userId,
-                        );
-                        if (!context.mounted) return;
-                        final savedId = ref
-                            .read(reportReviewControllerProvider)
-                            .savedReportId;
-                        if (success && savedId != null) {
-                          _showSuccessDialog(context, savedId);
-                        }
-                      },
-              ),
-              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -491,3 +499,5 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
     );
   }
 }
+
+

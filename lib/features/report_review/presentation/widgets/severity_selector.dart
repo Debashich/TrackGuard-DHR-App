@@ -13,87 +13,88 @@ class SeveritySelector extends StatelessWidget {
     required this.onSelected,
   });
 
-  Color _severityColor(Severity s) {
-    switch (s) {
-      case Severity.low:
-        return AppTheme.statusGreen;
-      case Severity.medium:
-        return AppTheme.statusAmber;
-      case Severity.high:
-        return AppTheme.statusOrange;
-      case Severity.critical:
-        return AppTheme.statusRed;
-    }
-  }
+  Color _severityColor(Severity severity) => switch (severity) {
+    Severity.low => AppTheme.statusGreen,
+    Severity.medium => AppTheme.statusAmber,
+    Severity.high => AppTheme.statusOrange,
+    Severity.critical => AppTheme.statusRed,
+  };
 
-  String _severityLabel(BuildContext context, Severity s) {
+  String _severityLabel(BuildContext context, Severity severity) {
     final l10n = AppLocalizations.of(context);
-    switch (s) {
-      case Severity.low:
-        return l10n?.severityLow ?? 'Low';
-      case Severity.medium:
-        return l10n?.severityMedium ?? 'Medium';
-      case Severity.high:
-        return l10n?.severityHigh ?? 'High';
-      case Severity.critical:
-        return l10n?.severityCritical ?? 'Critical';
-    }
+    return switch (severity) {
+      Severity.low => l10n?.severityLow ?? 'Low',
+      Severity.medium => l10n?.severityMedium ?? 'Medium',
+      Severity.high => l10n?.severityHigh ?? 'High',
+      Severity.critical => l10n?.severityCritical ?? 'Critical',
+    };
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: Severity.values.map((s) {
-        final isSelected = s == selectedSeverity;
-        final color = _severityColor(s);
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 6.0),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: () => onSelected(s),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? color.withValues(alpha: 0.2)
-                    : AppTheme.surfaceDarkElevated,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = (constraints.maxWidth - 10) / 2;
+        return Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: Severity.values.map((severity) {
+            final selected = severity == selectedSeverity;
+            final color = _severityColor(severity);
+            return SizedBox(
+              width: width,
+              height: 76,
+              child: InkWell(
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isSelected ? color : AppTheme.borderDark,
-                  width: isSelected ? 2.0 : 1.0,
+                onTap: () => onSelected(severity),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? color.withValues(alpha: 0.10)
+                        : AppTheme.surfaceDark,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: selected ? color : AppTheme.borderDark,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _severityLabel(context, severity),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: selected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ),
+                      if (selected)
+                        Icon(Icons.check, size: 18, color: color),
+                    ],
+                  ),
                 ),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 14,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      _severityLabel(context, s),
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: isSelected
-                            ? FontWeight.w700
-                            : FontWeight.w500,
-                        color: isSelected ? Colors.white : Colors.white70,
-                      ),
-                    ),
-                  ),
-                  if (isSelected) Icon(Icons.check, size: 18, color: color),
-                ],
-              ),
-            ),
-          ),
+            );
+          }).toList(),
         );
-      }).toList(),
+      },
     );
   }
 }

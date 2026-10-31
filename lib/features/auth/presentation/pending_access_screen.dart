@@ -48,7 +48,7 @@ class PendingAccessScreen extends ConsumerWidget {
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: AppTheme.textPrimary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -59,7 +59,7 @@ class PendingAccessScreen extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Colors.white70,
+                  color: AppTheme.textSecondary,
                   height: 1.4,
                 ),
               ),
@@ -68,7 +68,7 @@ class PendingAccessScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceDark,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: AppTheme.borderDark),
                   ),
@@ -79,7 +79,7 @@ class PendingAccessScreen extends ConsumerWidget {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -87,7 +87,7 @@ class PendingAccessScreen extends ConsumerWidget {
                         user.email,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: Colors.white54,
+                          color: AppTheme.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -117,3 +117,4 @@ class PendingAccessScreen extends ConsumerWidget {
     );
   }
 }
+

@@ -137,7 +137,7 @@ class AiMetadataCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white70,
+                      color: AppTheme.textSecondary,
                     ),
                   ),
                 ),
@@ -222,7 +222,7 @@ class AiMetadataCard extends StatelessWidget {
                       l10n.aiAdvisoryNotice,
                       style: const TextStyle(
                         fontSize: 11,
-                        color: Colors.white70,
+                        color: AppTheme.textSecondary,
                         height: 1.3,
                         fontStyle: FontStyle.italic,
                       ),
@@ -245,7 +245,7 @@ class AiMetadataCard extends StatelessWidget {
           label.toUpperCase(),
           style: const TextStyle(
             fontSize: 10,
-            color: Colors.white38,
+            color: AppTheme.textSecondary,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.3,
           ),
@@ -255,7 +255,7 @@ class AiMetadataCard extends StatelessWidget {
           value,
           style: const TextStyle(
             fontSize: 13,
-            color: Colors.white,
+            color: AppTheme.textPrimary,
             fontWeight: FontWeight.w600,
           ),
         ),

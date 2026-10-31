@@ -39,7 +39,7 @@ class SignInScreen extends ConsumerWidget {
                       const Icon(
                         Icons.check,
                         size: 18,
-                        color: AppTheme.primaryAmber,
+                        color: AppTheme.primaryBlue,
                       )
                     else
                       const SizedBox(width: 18),
@@ -70,17 +70,17 @@ class SignInScreen extends ConsumerWidget {
                     width: 88,
                     height: 88,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryAmber.withValues(alpha: 0.15),
+                      color: AppTheme.primaryBlue.withValues(alpha: 0.10),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppTheme.primaryAmber.withValues(alpha: 0.6),
+                        color: AppTheme.primaryBlue.withValues(alpha: 0.5),
                         width: 2,
                       ),
                     ),
                     child: const Icon(
                       Icons.train_rounded,
                       size: 48,
-                      color: AppTheme.primaryAmber,
+                      color: AppTheme.primaryBlue,
                     ),
                   ),
                 ),
@@ -92,7 +92,7 @@ class SignInScreen extends ConsumerWidget {
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.2,
-                    color: Colors.white,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -101,7 +101,7 @@ class SignInScreen extends ConsumerWidget {
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Colors.white70,
+                    color: AppTheme.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -120,7 +120,7 @@ class SignInScreen extends ConsumerWidget {
                     ),
                     child: Text(
                       authState.errorMessage!,
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                      style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -143,7 +143,7 @@ class SignInScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceDark,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: AppTheme.borderDark),
                   ),
@@ -151,7 +151,7 @@ class SignInScreen extends ConsumerWidget {
                     children: [
                       const Icon(
                         Icons.cloud_off,
-                        color: AppTheme.primaryAmber,
+                        color: AppTheme.primaryBlue,
                         size: 20,
                       ),
                       const SizedBox(width: 12),
@@ -160,7 +160,7 @@ class SignInScreen extends ConsumerWidget {
                           l10n.offlineExplanation,
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.white70,
+                            color: AppTheme.textSecondary,
                             height: 1.3,
                           ),
                         ),

@@ -15,32 +15,38 @@ class HazardSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: HazardType.values.map((type) {
-        final isSelected = type == selectedHazard;
-
-        return ChoiceChip(
-          selected: isSelected,
-          onSelected: (_) => onSelected(type),
-          selectedColor: AppTheme.primaryAmber,
-          backgroundColor: AppTheme.surfaceDarkElevated,
-          side: BorderSide(
-            color: isSelected ? AppTheme.primaryAmber : AppTheme.borderDark,
-            width: isSelected ? 1.5 : 1.0,
-          ),
-          avatar: HazardIcon(hazardType: type, size: 16),
-          label: Text(
-            HazardIcon.getLocalizedLabel(context, type),
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? Colors.black : Colors.white,
+    return LayoutBuilder(builder: (context, constraints) {
+      final width = (constraints.maxWidth - 10) / 2;
+      return Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: HazardType.values.map((type) {
+          final isSelected = type == selectedHazard;
+          return SizedBox(
+            width: width,
+            height: 72,
+            child: Material(
+              color: isSelected ? AppTheme.primaryBlue : AppTheme.surfaceDarkElevated,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: BorderSide(color: isSelected ? AppTheme.primaryBlue : AppTheme.borderDark, width: 1.5),
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () => onSelected(type),
+                child: Stack(children: [
+                  Center(child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    HazardIcon(hazardType: type, size: 23),
+                    const SizedBox(width: 8),
+                    Flexible(child: Text(HazardIcon.getLocalizedLabel(context, type), maxLines: 2, textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : AppTheme.textPrimary))),
+                  ])),
+                  if (isSelected) const Positioned(right: 5, top: 5, child: Icon(Icons.check_circle, color: Colors.white, size: 16)),
+                ]),
+              ),
             ),
-          ),
-        );
-      }).toList(),
-    );
+          );
+        }).toList(),
+      );
+    });
   }
 }

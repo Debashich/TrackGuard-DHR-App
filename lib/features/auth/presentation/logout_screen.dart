@@ -87,7 +87,7 @@ class _LogoutScreenState extends ConsumerState<LogoutScreen> {
                     const Center(
                       child: CircleAvatar(
                         radius: 36,
-                        backgroundColor: AppTheme.surfaceDarkElevated,
+                        backgroundColor: Colors.white,
                         child: Icon(
                           Icons.logout,
                           color: AppTheme.statusRed,
@@ -102,7 +102,7 @@ class _LogoutScreenState extends ConsumerState<LogoutScreen> {
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -111,7 +111,7 @@ class _LogoutScreenState extends ConsumerState<LogoutScreen> {
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 14,
-                        color: Colors.white70,
+                        color: AppTheme.textSecondary,
                         height: 1.4,
                       ),
                     ),
@@ -156,7 +156,7 @@ class _LogoutScreenState extends ConsumerState<LogoutScreen> {
                               l10n.logoutReportsRemainOnDevice,
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Colors.white70,
+                                color: AppTheme.textSecondary,
                                 height: 1.35,
                               ),
                             ),
@@ -175,7 +175,7 @@ class _LogoutScreenState extends ConsumerState<LogoutScreen> {
                     const SizedBox(height: 12),
                     OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white70,
+                        foregroundColor: AppTheme.textPrimary,
                         side: const BorderSide(color: AppTheme.borderDark),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),

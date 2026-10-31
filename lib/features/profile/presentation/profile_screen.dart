@@ -178,7 +178,7 @@ class ProfileScreen extends ConsumerWidget {
                               fontWeight: isSelected
                                   ? FontWeight.w700
                                   : FontWeight.normal,
-                              color: isSelected ? Colors.black : Colors.white70,
+                              color: isSelected ? Colors.white : AppTheme.textPrimary,
                             ),
                             side: BorderSide(
                               color: isSelected
@@ -211,16 +211,16 @@ class ProfileScreen extends ConsumerWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                   subtitle: Text(
-                    '${ref.watch(aiSettingsProvider).mode.name.toUpperCase()} • Gemma 4 E2B / Gemini',
-                    style: const TextStyle(fontSize: 11, color: Colors.white54),
+                    'Smart Photo Helper • ${ref.watch(aiSettingsProvider).mode.name == 'manual' ? 'Manual' : 'Automatic'}',
+                    style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
                   ),
                   trailing: const Icon(
                     Icons.chevron_right,
-                    color: Colors.white38,
+                    color: AppTheme.textSecondary,
                   ),
                   onTap: () => context.push('/settings/ai'),
                 ),
@@ -236,7 +236,7 @@ class ProfileScreen extends ConsumerWidget {
                       const Icon(
                         Icons.info_outline,
                         size: 20,
-                        color: Colors.white54,
+                        color: AppTheme.textSecondary,
                       ),
                       const SizedBox(width: 12),
                       const Expanded(
@@ -248,7 +248,7 @@ class ProfileScreen extends ConsumerWidget {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                color: AppTheme.textPrimary,
                               ),
                             ),
                             SizedBox(height: 2),
@@ -256,7 +256,7 @@ class ProfileScreen extends ConsumerWidget {
                               'Version 1.0.0 • Field Operations Edition',
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.white54,
+                                color: AppTheme.textSecondary,
                               ),
                             ),
                           ],
@@ -306,7 +306,7 @@ class ProfileScreen extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: Colors.white54),
+        Icon(icon, size: 18, color: AppTheme.textSecondary),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -314,7 +314,7 @@ class ProfileScreen extends ConsumerWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 11, color: Colors.white54),
+                style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 2),
               Text(
@@ -322,7 +322,7 @@ class ProfileScreen extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: valueColor ?? Colors.white,
+                  color: valueColor ?? AppTheme.textPrimary,
                   fontFamily: isMonospace ? 'monospace' : null,
                 ),
               ),

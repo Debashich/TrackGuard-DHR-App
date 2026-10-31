@@ -28,7 +28,7 @@ class SyncStatusBadge extends StatelessWidget {
       case SyncStatus.conflict:
         return AppTheme.statusOrange;
       case SyncStatus.draft:
-        return Colors.white54;
+        return AppTheme.textSecondary;
     }
   }
 
@@ -80,9 +80,16 @@ class SyncStatusBadge extends StatelessWidget {
           vertical: isCompact ? 2 : 5,
         ),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.15),
+          color: switch (status) {
+            SyncStatus.synced => const Color(0xFFDCFCE7),
+            SyncStatus.pending => const Color(0xFFFEF3C7),
+            SyncStatus.syncing => const Color(0xFFE0F2FE),
+            SyncStatus.failed => const Color(0xFFFEE2E2),
+            SyncStatus.conflict => const Color(0xFFFFEDD5),
+            SyncStatus.draft => const Color(0xFFEEF2F6),
+          },
           borderRadius: BorderRadius.circular(isCompact ? 4 : 6),
-          border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
+          border: Border.all(color: color, width: 1.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -101,7 +108,7 @@ class SyncStatusBadge extends StatelessWidget {
               Icon(_icon, size: isCompact ? 12 : 15, color: color),
             SizedBox(width: isCompact ? 4 : 6),
             Text(
-              text.toUpperCase(),
+              text,
               style: TextStyle(
                 color: color,
                 fontSize: isCompact ? 10 : 11,

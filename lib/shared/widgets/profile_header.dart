@@ -48,7 +48,7 @@ class ProfileHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: compact ? 15 : 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: AppTheme.textPrimary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -76,7 +76,7 @@ class ProfileHeader extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           user?.email ?? '',
-          style: TextStyle(fontSize: compact ? 12 : 13, color: Colors.white70),
+          style: TextStyle(fontSize: compact ? 12 : 13, color: AppTheme.textSecondary),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -95,7 +95,7 @@ class ProfileHeader extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white60,
+                  color: AppTheme.textSecondary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

@@ -48,7 +48,7 @@ class HazardIcon extends StatelessWidget {
       case HazardType.vegetation:
         return AppTheme.statusGreen;
       case HazardType.other:
-        return Colors.white70;
+        return AppTheme.textSecondary;
     }
   }
 

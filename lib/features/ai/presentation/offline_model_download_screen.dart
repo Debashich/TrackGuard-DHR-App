@@ -50,7 +50,7 @@ class _OfflineModelDownloadScreenState
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: Text(l10n.offlineModelDownloadTitle)),
+        appBar: AppBar(title: const Text('Offline Photo Helper Pack')),
         body: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
@@ -87,7 +87,7 @@ class _OfflineModelDownloadScreenState
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                  color: AppTheme.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -97,7 +97,7 @@ class _OfflineModelDownloadScreenState
                                 ),
                                 style: const TextStyle(
                                   fontSize: 12,
-                                  color: Colors.white60,
+                                  color: AppTheme.textSecondary,
                                 ),
                               ),
                             ],
@@ -111,7 +111,7 @@ class _OfflineModelDownloadScreenState
                       l10n.offlineModelOfflineNotice,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: Colors.white70,
+                        color: AppTheme.textSecondary,
                         height: 1.4,
                       ),
                     ),
@@ -121,56 +121,16 @@ class _OfflineModelDownloadScreenState
             ),
             const SizedBox(height: 16),
 
-            // Specifications & Storage Card
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'SPECIFICATIONS & REQUIREMENTS',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.primaryAmber,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildSpecRow(
-                      icon: Icons.hub_outlined,
-                      label: 'Source: Hugging Face',
-                      sublabel:
-                          '${AiProviderConfig.offlineGemmaRepository}\n• ${AiProviderConfig.offlineGemmaFile}\n• ${AiProviderConfig.offlineGemmaProjectorFile}',
-                    ),
-                    const Divider(height: 16),
-                    _buildSpecRow(
-                      icon: Icons.cloud_download_outlined,
-                      label: l10n.offlineModelApproximateSize('~1.5 GB'),
-                      sublabel:
-                          'llama.cpp GGUF 4-bit Quantization + Vision Projector',
-                    ),
-                    const Divider(height: 16),
-                    _buildSpecRow(
-                      icon: Icons.storage_outlined,
-                      label: l10n.offlineModelStorageRequired('~2.2 GB'),
-                      sublabel: 'Required for extraction and runtime buffer',
-                    ),
-                    const Divider(height: 16),
-                    _buildSpecRow(
-                      icon: Icons.battery_alert_outlined,
-                      label: 'Battery Advisory',
-                      sublabel: 'Connect device to charger or maintain at least 20% battery during download.',
-                    ),
-                    const Divider(height: 16),
-                    _buildSpecRow(
-                      icon: Icons.verified_user_outlined,
-                      label: '100% On-Device Privacy',
-                      sublabel: l10n.offlineModelPrivacyNotice,
-                    ),
-                  ],
-                ),
+                padding: const EdgeInsets.all(18),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Text('Offline Photo Helper Pack (~500 MB)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 8),
+                  const Text('Download once on Wi-Fi so the app can suggest hazards from your photos when there is no mobile signal.'),
+                  const SizedBox(height: 14),
+                  if (state.isDownloading) LinearProgressIndicator(value: state.progressPercent / 100),
+                ]),
               ),
             ),
             const SizedBox(height: 16),
@@ -198,12 +158,12 @@ class _OfflineModelDownloadScreenState
                         l10n.offlineModelWifiOnly,
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Colors.white,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
                       subtitle: const Text(
                         'Prevents cellular data usage',
-                        style: TextStyle(fontSize: 12, color: Colors.white60),
+                        style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                       ),
                       value: downloadSettings.wifiOnly,
                       activeThumbColor: AppTheme.primaryAmber,
@@ -285,7 +245,7 @@ class _OfflineModelDownloadScreenState
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: AppTheme.textPrimary,
                             ),
                           ),
                           Text(
@@ -303,7 +263,7 @@ class _OfflineModelDownloadScreenState
                         borderRadius: BorderRadius.circular(6),
                         child: LinearProgressIndicator(
                           value: state.progress > 0 ? state.progress : null,
-                          backgroundColor: Colors.white12,
+                          backgroundColor: AppTheme.surfaceDarkElevated,
                           valueColor: const AlwaysStoppedAnimation<Color>(
                             AppTheme.primaryAmber,
                           ),
@@ -319,7 +279,7 @@ class _OfflineModelDownloadScreenState
                         ),
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.white60,
+                          color: AppTheme.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -356,7 +316,7 @@ class _OfflineModelDownloadScreenState
                                 'Initializing Gemma 4 E2B runtime context...',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Colors.white70,
+                                  color: AppTheme.textSecondary,
                                 ),
                               ),
                             ],
@@ -400,7 +360,7 @@ class _OfflineModelDownloadScreenState
                                       ),
                                       style: const TextStyle(
                                         fontSize: 12,
-                                        color: Colors.white60,
+                                        color: AppTheme.textSecondary,
                                       ),
                                     ),
                                 ],
@@ -430,7 +390,7 @@ class _OfflineModelDownloadScreenState
                         l10n.offlineModelDownloaded,
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Colors.white70,
+                          color: AppTheme.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -440,7 +400,7 @@ class _OfflineModelDownloadScreenState
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primaryAmber,
-                            foregroundColor: AppTheme.surfaceDark,
+                            foregroundColor: Colors.white,
                           ),
                           onPressed: _isLoading
                               ? null
@@ -511,7 +471,7 @@ class _OfflineModelDownloadScreenState
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primaryAmber,
-                            foregroundColor: AppTheme.surfaceDark,
+                            foregroundColor: Colors.white,
                           ),
                           onPressed: _isLoading
                               ? null
@@ -549,11 +509,7 @@ class _OfflineModelDownloadScreenState
                                   }
                                 },
                           icon: const Icon(Icons.download_rounded, size: 20),
-                          label: Text(
-                            state.status == OfflineModelStatus.failed
-                                ? l10n.offlineModelRetryDownload
-                                : l10n.offlineModelDownload,
-                          ),
+                          label: const Text('Download on Wi-Fi'),
                         ),
                       ),
                     ],
@@ -593,7 +549,7 @@ class _OfflineModelDownloadScreenState
         label = l10n.offlineModelFailed;
         break;
       case OfflineModelStatus.checking:
-        color = Colors.white54;
+        color = AppTheme.textSecondary;
         label = 'Checking...';
         break;
       case OfflineModelStatus.unsupported:
@@ -605,7 +561,7 @@ class _OfflineModelDownloadScreenState
         label = 'Corrupted';
         break;
       case OfflineModelStatus.notDownloaded:
-        color = Colors.white38;
+        color = AppTheme.textSecondary;
         label = l10n.offlineModelNotDownloaded;
         break;
     }
@@ -628,44 +584,6 @@ class _OfflineModelDownloadScreenState
     );
   }
 
-  Widget _buildSpecRow({
-    required IconData icon,
-    required String label,
-    required String sublabel,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: AppTheme.primaryAmber),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                sublabel,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white60,
-                  height: 1.3,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Future<bool> _showExitConfirmationDialog(
     BuildContext context,
     AppLocalizations l10n,
@@ -673,11 +591,11 @@ class _OfflineModelDownloadScreenState
     return await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            backgroundColor: AppTheme.surfaceDarkElevated,
+            backgroundColor: Colors.white,
             title: Text(l10n.offlineModelDownloadInProgress),
             content: const Text(
               'Leaving this page will cancel the current model download. Are you sure you want to cancel and leave?',
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(color: AppTheme.textSecondary),
             ),
             actions: [
               TextButton(
@@ -706,7 +624,7 @@ class _OfflineModelDownloadScreenState
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDarkElevated,
+        backgroundColor: Colors.white,
         title: Text(l10n.offlineModelDeleteTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -714,7 +632,7 @@ class _OfflineModelDownloadScreenState
           children: [
             Text(
               l10n.offlineModelDeleteConfirmation,
-              style: const TextStyle(color: Colors.white70, height: 1.4),
+              style: const TextStyle(color: AppTheme.textSecondary, height: 1.4),
             ),
             const SizedBox(height: 12),
             Container(
@@ -774,3 +692,4 @@ class _OfflineModelDownloadScreenState
     }
   }
 }
+

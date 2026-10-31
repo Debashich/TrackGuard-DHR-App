@@ -57,7 +57,7 @@ class SyncErrorBanner extends StatelessWidget {
                     Text(
                       l10n.syncFailed,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppTheme.textPrimary,
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                       ),
@@ -66,7 +66,7 @@ class SyncErrorBanner extends StatelessWidget {
                     Text(
                       friendlyMessage,
                       style: const TextStyle(
-                        color: Colors.white70,
+                        color: AppTheme.textPrimary,
                         fontSize: 12,
                         height: 1.3,
                       ),
@@ -76,7 +76,7 @@ class SyncErrorBanner extends StatelessWidget {
                       Text(
                         'Ref: $technicalCode',
                         style: const TextStyle(
-                          color: Colors.white38,
+                          color: AppTheme.textSecondary,
                           fontSize: 10,
                           fontFamily: 'monospace',
                         ),
@@ -90,7 +90,7 @@ class SyncErrorBanner extends StatelessWidget {
                   icon: const Icon(
                     Icons.close,
                     size: 16,
-                    color: Colors.white60,
+                    color: AppTheme.textSecondary,
                   ),
                   onPressed: onDismiss,
                   tooltip: l10n.close,

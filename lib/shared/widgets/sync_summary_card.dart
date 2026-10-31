@@ -58,11 +58,11 @@ class SyncSummaryCard extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: (isOnline ? AppTheme.statusGreen : Colors.white24)
+                    color: (isOnline ? AppTheme.statusGreen : AppTheme.borderDark)
                         .withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(
-                      color: (isOnline ? AppTheme.statusGreen : Colors.white30)
+                      color: (isOnline ? AppTheme.statusGreen : AppTheme.borderDark)
                           .withValues(alpha: 0.4),
                     ),
                   ),
@@ -76,7 +76,7 @@ class SyncSummaryCard extends StatelessWidget {
                           shape: BoxShape.circle,
                           color: isOnline
                               ? AppTheme.statusGreen
-                              : Colors.white60,
+                              : AppTheme.textSecondary,
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -93,7 +93,7 @@ class SyncSummaryCard extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           color: isOnline
                               ? AppTheme.statusGreen
-                              : Colors.white70,
+                              : AppTheme.textSecondary,
                         ),
                       ),
                     ],
@@ -122,7 +122,7 @@ class SyncSummaryCard extends StatelessWidget {
                     icon: Icons.error_outline_rounded,
                     color: summary.failedCount > 0
                         ? AppTheme.statusRed
-                        : Colors.white38,
+                        : AppTheme.textSecondary,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -164,7 +164,7 @@ class SyncSummaryCard extends StatelessWidget {
                         l10n.syncReportsSyncing,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.white,
+                          color: AppTheme.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -177,7 +177,7 @@ class SyncSummaryCard extends StatelessWidget {
                 l10n.syncOfflineSafe,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Colors.white70,
+                  color: AppTheme.textSecondary,
                   height: 1.3,
                 ),
               ),
@@ -212,7 +212,7 @@ class SyncSummaryCard extends StatelessWidget {
             ] else ...[
               Text(
                 l10n.syncPendingReports(summary.pendingCount),
-                style: const TextStyle(fontSize: 12, color: Colors.white70),
+                style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
               ),
             ],
 
@@ -226,7 +226,7 @@ class SyncSummaryCard extends StatelessWidget {
                     l10n,
                   ),
                 ),
-                style: const TextStyle(fontSize: 11, color: Colors.white38),
+                style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
               ),
             ],
 
@@ -242,7 +242,7 @@ class SyncSummaryCard extends StatelessWidget {
                       child: Text(
                         l10n.viewQueue,
                         style: const TextStyle(
-                          color: Colors.white70,
+                          color: AppTheme.textSecondary,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -258,7 +258,7 @@ class SyncSummaryCard extends StatelessWidget {
                       label: Text(l10n.syncNow),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryAmber,
-                        foregroundColor: Colors.black,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 6,
@@ -312,7 +312,7 @@ class SyncSummaryCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: AppTheme.textPrimary,
             ),
           ),
         ],

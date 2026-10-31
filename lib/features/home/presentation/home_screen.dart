@@ -9,11 +9,6 @@ import '../../../core/localization/l10n.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/app_language.dart';
 import '../../../shared/widgets/connectivity_indicator.dart';
-import '../../../shared/widgets/logout_confirmation.dart';
-import '../../../shared/widgets/primary_button.dart';
-import '../../../shared/widgets/role_navigation_drawer.dart';
-import '../../../shared/widgets/sync_summary_card.dart';
-import '../../ai/domain/ai_service_provider.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../reports/domain/report_repository_provider.dart';
 
@@ -28,8 +23,6 @@ class HomeScreen extends ConsumerWidget {
     final isOnlineAsync = ref.watch(isOnlineProvider);
     final isOnline = isOnlineAsync.value ?? false;
     final syncSummary = ref.watch(syncSummaryProvider);
-    final isAiReadyAsync = ref.watch(isAiModelReadyProvider);
-    final isAiReady = isAiReadyAsync.value ?? false;
     final currentLang = ref.watch(appLanguageProvider);
 
     final sectionName = user?.assignedSection != null
@@ -37,7 +30,6 @@ class HomeScreen extends ConsumerWidget {
         : l10n.unassignedSection;
 
     return Scaffold(
-      drawer: const RoleNavigationDrawer(currentRoute: '/gangman/home'),
       appBar: AppBar(
         title: Text(l10n.appTitle),
         actions: [
@@ -74,11 +66,6 @@ class HomeScreen extends ConsumerWidget {
             tooltip: l10n.navigationProfile,
             onPressed: () => context.push('/profile'),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: l10n.signOut,
-            onPressed: () => showLogoutConfirmationDialog(context, ref),
-          ),
         ],
       ),
       body: SafeArea(
@@ -92,45 +79,8 @@ class HomeScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Connectivity & AI status row
-                Row(
-                  children: [
-                    Expanded(child: ConnectivityIndicator(isOnline: isOnline)),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.surfaceDark,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppTheme.borderDark),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isAiReady ? Icons.psychology : Icons.bolt,
-                            size: 14,
-                            color: isAiReady
-                                ? AppTheme.statusGreen
-                                : AppTheme.primaryAmber,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            isAiReady ? 'AI: Gemma' : 'AI: Heuristic',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
+                ConnectivityIndicator(isOnline: isOnline),
+                const SizedBox(height: 12),
 
                 // Gangman profile & Section card
                 Card(
@@ -164,14 +114,7 @@ class HomeScreen extends ConsumerWidget {
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Text(
-                                      user?.email ?? '',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white60,
+                                        color: AppTheme.textPrimary,
                                       ),
                                     ),
                                   ],
@@ -214,14 +157,14 @@ class HomeScreen extends ConsumerWidget {
                                   style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.white,
+                                    color: AppTheme.textPrimary,
                                   ),
                                 ),
                               ),
                               const Icon(
                                 Icons.chevron_right,
                                 size: 18,
-                                color: Colors.white38,
+                                color: AppTheme.textSecondary,
                               ),
                             ],
                           ),
@@ -232,163 +175,19 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Primary Action: NEW REPORT
-                PrimaryButton(
-                  text: l10n.newReport.toUpperCase(),
-                  icon: Icons.camera_alt,
-                  onPressed: () => context.push('/gangman/report/capture'),
-                ),
-                const SizedBox(height: 16),
+                Card(color: AppTheme.primaryBlue, child: InkWell(borderRadius: BorderRadius.circular(12), onTap: () => context.push('/gangman/report/capture'), child: const SizedBox(height: 230, child: Padding(padding: EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.camera_alt_outlined, size: 58, color: Colors.white), SizedBox(height: 16), Text('Report a Track Hazard', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w800, color: Colors.white)), SizedBox(height: 8), Text('Take a photo of a slip, rockfall, drain, or track issue', style: TextStyle(fontSize: 15, color: Colors.white, height: 1.3))]))))),
+                const SizedBox(height: 12),
 
-                // Synchronization Summary Card
-                SyncSummaryCard(
-                  summary: syncSummary,
-                  onSyncNow:
-                      (isOnline &&
-                          (syncSummary.pendingCount > 0 ||
-                              syncSummary.failedCount > 0) &&
-                          !syncSummary.isSyncing)
-                      ? () async {
-                          final syncService = ref.read(
-                            reportSyncServiceProvider,
-                          );
-                          if (syncService != null) {
-                            try {
-                              await syncService.syncPendingReports();
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.syncAllReportsSynced),
-                                    backgroundColor: AppTheme.statusGreen,
-                                  ),
-                                );
-                              }
-                            } catch (_) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.syncFailedButSafe),
-                                    backgroundColor: AppTheme.statusRed,
-                                  ),
-                                );
-                              }
-                            }
-                          }
-                        }
-                      : null,
-                  onViewQueue: () => context.push('/gangman/reports'),
-                ),
-                const SizedBox(height: 16),
+                Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(children: [Icon(syncSummary.pendingCount > 0 ? Icons.schedule : Icons.check_circle, color: syncSummary.pendingCount > 0 ? AppTheme.statusAmber : AppTheme.statusGreen), const SizedBox(width: 10), Expanded(child: Text(syncSummary.pendingCount > 0 ? '${syncSummary.pendingCount} reports saved on phone' : 'All reports sent to supervisor', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)))]),
+                  const SizedBox(height: 6),
+                  Text(syncSummary.pendingCount > 0 ? 'Will send automatically at next station signal' : 'Your latest reports have reached the supervisor.', style: const TextStyle(color: AppTheme.textSecondary)),
+                  const SizedBox(height: 10),
+                  Row(children: [if (syncSummary.pendingCount > 0 && isOnline && !syncSummary.isSyncing) Expanded(child: OutlinedButton(onPressed: () async { final service = ref.read(reportSyncServiceProvider); if (service != null) { try { await service.syncPendingReports(); ref.invalidate(pendingReportsCountProvider); } catch (_) {} } }, child: const Text('Send Now'))), if (syncSummary.pendingCount > 0 && isOnline && !syncSummary.isSyncing) const SizedBox(width: 8), Expanded(child: TextButton(onPressed: () => context.push('/gangman/reports'), child: const Text('View My Reports')))]),
+                ]))),
+                const SizedBox(height: 12),
 
-                // Pending reports queue card
-                Card(
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () => context.push('/gangman/reports'),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryAmber.withValues(
-                                alpha: 0.15,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(
-                              Icons.schedule,
-                              color: AppTheme.primaryAmber,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.pendingQueue,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  l10n.pendingReportsCount(
-                                    syncSummary.pendingCount,
-                                  ),
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: syncSummary.pendingCount > 0
-                                        ? AppTheme.primaryAmber
-                                        : Colors.white60,
-                                    fontWeight: syncSummary.pendingCount > 0
-                                        ? FontWeight.w600
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(
-                            Icons.chevron_right,
-                            color: Colors.white38,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
 
-                // Offline Notice
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.surfaceDark,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppTheme.borderDark),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.info_outline,
-                            size: 18,
-                            color: AppTheme.primaryAmber,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'FIELD OPERATIONS NOTICE',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.primaryAmber.withValues(
-                                alpha: 0.9,
-                              ),
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.offlineExplanation,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.white70,
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
@@ -397,3 +196,4 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 }
+

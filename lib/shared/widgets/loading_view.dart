@@ -21,7 +21,7 @@ class LoadingView extends StatelessWidget {
             Text(
               message!,
               style: const TextStyle(
-                color: Colors.white70,
+                color: AppTheme.textSecondary,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),

@@ -36,10 +36,8 @@ class AiSettingsScreen extends ConsumerWidget {
           modelId: AiProviderConfig.offlineGemmaSlug,
         );
 
-    final isOfflineReady = modelState.isReady;
-
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.aiSettingsTitle)),
+      appBar: AppBar(title: const Text('Smart Photo Helper')),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -73,8 +71,8 @@ class AiSettingsScreen extends ConsumerWidget {
 
                   _buildModeOption(
                     context,
-                    title: l10n.aiModeAutomatic,
-                    subtitle: l10n.aiOfflineFirstNotice,
+                    title: 'Automatic Photo Helper (Recommended)',
+                    subtitle: 'Suggests a hazard type and note from your photo, online or offline.',
                     mode: AiMode.automatic,
                     currentMode: settings.mode,
                     onSelected: (mode) => settingsNotifier.setMode(mode),
@@ -82,30 +80,8 @@ class AiSettingsScreen extends ConsumerWidget {
                   const Divider(height: 16),
                   _buildModeOption(
                     context,
-                    title: l10n.aiModeOfflineGemma,
-                    subtitle: isOfflineReady
-                        ? l10n.aiGemmaReady
-                        : l10n.aiGemmaUnavailable,
-                    mode: AiMode.offlineGemma,
-                    currentMode: settings.mode,
-                    onSelected: (mode) => settingsNotifier.setMode(mode),
-                  ),
-                  const Divider(height: 16),
-                  _buildModeOption(
-                    context,
-                    title: l10n.aiModeOnlineGemini,
-                    subtitle: isOnline
-                        ? l10n.aiGemini
-                        : l10n.aiGeminiRequiresNetwork,
-                    mode: AiMode.onlineGemini,
-                    currentMode: settings.mode,
-                    onSelected: (mode) => settingsNotifier.setMode(mode),
-                  ),
-                  const Divider(height: 16),
-                  _buildModeOption(
-                    context,
-                    title: l10n.aiModeManual,
-                    subtitle: l10n.aiManualClassification,
+                    title: 'Manual Only',
+                    subtitle: 'Turn off photo suggestions; I will choose the hazard myself.',
                     mode: AiMode.manual,
                     currentMode: settings.mode,
                     onSelected: (mode) => settingsNotifier.setMode(mode),
@@ -178,7 +154,7 @@ class AiSettingsScreen extends ConsumerWidget {
                     l10n.aiGeminiRequiresNetwork,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Colors.white60,
+                      color: AppTheme.textSecondary,
                       height: 1.4,
                     ),
                   ),
@@ -211,7 +187,7 @@ class AiSettingsScreen extends ConsumerWidget {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: AppTheme.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -219,7 +195,7 @@ class AiSettingsScreen extends ConsumerWidget {
                           l10n.aiAdvisoryNotice,
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.white70,
+                            color: AppTheme.textSecondary,
                             height: 1.4,
                           ),
                         ),
@@ -269,7 +245,7 @@ class AiSettingsScreen extends ConsumerWidget {
         badgeLabel = l10n.offlineModelFailed;
         break;
       case OfflineModelStatus.checking:
-        badgeColor = Colors.white54;
+        badgeColor = AppTheme.textSecondary;
         badgeLabel = 'Checking...';
         break;
       case OfflineModelStatus.unsupported:
@@ -281,7 +257,7 @@ class AiSettingsScreen extends ConsumerWidget {
         badgeLabel = 'Corrupted';
         break;
       case OfflineModelStatus.notDownloaded:
-        badgeColor = Colors.white38;
+        badgeColor = AppTheme.textSecondary;
         badgeLabel = l10n.offlineModelNotDownloaded;
         break;
     }
@@ -359,7 +335,7 @@ class AiSettingsScreen extends ConsumerWidget {
               const SizedBox(height: 10),
               Text(
                 l10n.offlineModelDownloaded,
-                style: const TextStyle(fontSize: 12, color: Colors.white70),
+                style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 12),
               SizedBox(
@@ -367,7 +343,7 @@ class AiSettingsScreen extends ConsumerWidget {
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryAmber,
-                    foregroundColor: AppTheme.surfaceDark,
+                    foregroundColor: Colors.white,
                   ),
                   onPressed: () async {
                     try {
@@ -391,7 +367,7 @@ class AiSettingsScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               LinearProgressIndicator(
                 value: modelState.progress > 0 ? modelState.progress : null,
-                backgroundColor: Colors.white12,
+                backgroundColor: AppTheme.surfaceDarkElevated,
                 valueColor: const AlwaysStoppedAnimation<Color>(
                   AppTheme.primaryAmber,
                 ),
@@ -403,7 +379,7 @@ class AiSettingsScreen extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       '${modelState.formattedDownloadedSize} / ${modelState.formattedTotalSize}',
-                      style: const TextStyle(fontSize: 12, color: Colors.white60),
+                      style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -442,7 +418,7 @@ class AiSettingsScreen extends ConsumerWidget {
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryAmber,
-                    foregroundColor: AppTheme.surfaceDark,
+                    foregroundColor: Colors.white,
                   ),
                   onPressed: () => context.push('/settings/ai/download'),
                   icon: const Icon(Icons.refresh, size: 18),
@@ -454,7 +430,7 @@ class AiSettingsScreen extends ConsumerWidget {
               const SizedBox(height: 10),
               Text(
                 '${l10n.offlineModelNotDownloaded}. ${l10n.offlineModelApproximateSize('~1.2 GB')}.',
-                style: const TextStyle(fontSize: 12, color: Colors.white70),
+                style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 12),
               SizedBox(
@@ -462,7 +438,7 @@ class AiSettingsScreen extends ConsumerWidget {
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryAmber,
-                    foregroundColor: AppTheme.surfaceDark,
+                    foregroundColor: Colors.white,
                   ),
                   onPressed: () => context.push('/settings/ai/download'),
                   icon: const Icon(Icons.download_rounded, size: 18),
@@ -484,11 +460,11 @@ class AiSettingsScreen extends ConsumerWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDarkElevated,
+        backgroundColor: Colors.white,
         title: Text(l10n.offlineModelDeleteTitle),
         content: Text(
           l10n.offlineModelDeleteConfirmation,
-          style: const TextStyle(color: Colors.white70),
+          style: const TextStyle(color: AppTheme.textSecondary),
         ),
         actions: [
           TextButton(
@@ -542,7 +518,7 @@ class AiSettingsScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? AppTheme.primaryAmber : Colors.white38,
+                  color: isSelected ? AppTheme.primaryBlue : AppTheme.borderDark,
                   width: 2,
                 ),
               ),
@@ -571,13 +547,13 @@ class AiSettingsScreen extends ConsumerWidget {
                       fontWeight: isSelected
                           ? FontWeight.w700
                           : FontWeight.w600,
-                      color: isSelected ? Colors.white : Colors.white70,
+                      color: isSelected ? AppTheme.textPrimary : AppTheme.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(fontSize: 11, color: Colors.white38),
+                    style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
                   ),
                 ],
               ),
@@ -594,7 +570,7 @@ class AiSettingsScreen extends ConsumerWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: Colors.white60),
+          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -604,7 +580,7 @@ class AiSettingsScreen extends ConsumerWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: AppTheme.textPrimary,
             ),
           ),
         ),
@@ -631,3 +607,4 @@ class AiSettingsScreen extends ConsumerWidget {
     );
   }
 }
+

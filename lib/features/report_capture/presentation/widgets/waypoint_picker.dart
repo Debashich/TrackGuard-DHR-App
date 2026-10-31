@@ -54,7 +54,7 @@ class _WaypointPickerSheetState extends State<WaypointPickerSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
       decoration: const BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTheme.textPrimary,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -69,11 +69,11 @@ class _WaypointPickerSheetState extends State<WaypointPickerSheet> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: AppTheme.textPrimary,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close, color: Colors.white70),
+                icon: const Icon(Icons.close, color: AppTheme.textSecondary),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -87,7 +87,7 @@ class _WaypointPickerSheetState extends State<WaypointPickerSheet> {
               labelText: l10n.editKm,
               prefixIcon: const Icon(
                 Icons.linear_scale,
-                color: AppTheme.primaryAmber,
+                color: AppTheme.primaryBlue,
               ),
               suffixText: 'km',
             ),
@@ -116,7 +116,7 @@ class _WaypointPickerSheetState extends State<WaypointPickerSheet> {
                   ),
                   leading: Icon(
                     Icons.train,
-                    color: isSelected ? AppTheme.primaryAmber : Colors.white54,
+                    color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
                   ),
                   title: Text(
                     wp.name,
@@ -124,17 +124,17 @@ class _WaypointPickerSheetState extends State<WaypointPickerSheet> {
                       fontWeight: isSelected
                           ? FontWeight.w700
                           : FontWeight.normal,
-                      color: isSelected ? AppTheme.primaryAmber : Colors.white,
+                      color: isSelected ? AppTheme.primaryBlue : AppTheme.textPrimary,
                     ),
                   ),
                   subtitle: Text(
                     'Km ${wp.km.toStringAsFixed(1)} • ${DhrWaypoints.getSectionName(wp.sectionId)}',
-                    style: const TextStyle(fontSize: 12, color: Colors.white54),
+                    style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                   ),
                   trailing: isSelected
                       ? const Icon(
                           Icons.check_circle,
-                          color: AppTheme.primaryAmber,
+                          color: AppTheme.primaryBlue,
                         )
                       : null,
                   onTap: () {
@@ -155,3 +155,4 @@ class _WaypointPickerSheetState extends State<WaypointPickerSheet> {
     );
   }
 }
+

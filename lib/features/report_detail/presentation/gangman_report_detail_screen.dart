@@ -9,6 +9,7 @@ import '../../../core/constants/dhr_waypoints.dart';
 import '../../../core/utils/date_format_utils.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/hazard_report.dart';
+import '../../../shared/models/inspection_status.dart';
 import '../../../shared/models/sync_status.dart';
 import '../../../shared/widgets/ai_metadata_card.dart';
 import '../../../shared/widgets/hazard_icon.dart';
@@ -26,6 +27,8 @@ class GangmanReportDetailScreen extends ConsumerStatefulWidget {
   ConsumerState<GangmanReportDetailScreen> createState() =>
       _GangmanReportDetailScreenState();
 }
+
+Widget _statusStep(String label, bool complete) => Column(mainAxisSize: MainAxisSize.min, children: [Icon(complete ? Icons.check_circle : Icons.radio_button_unchecked, color: complete ? AppTheme.statusGreen : AppTheme.borderDark), const SizedBox(height: 4), SizedBox(width: 82, child: Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)))]);
 
 class _GangmanReportDetailScreenState
     extends ConsumerState<GangmanReportDetailScreen> {
@@ -85,7 +88,7 @@ class _GangmanReportDetailScreenState
                   child: Icon(
                     Icons.broken_image,
                     size: 64,
-                    color: Colors.white38,
+                    color: AppTheme.textSecondary,
                   ),
                 ),
               ),
@@ -94,7 +97,7 @@ class _GangmanReportDetailScreenState
               top: 40,
               right: 16,
               child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                icon: const Icon(Icons.close, color: AppTheme.textPrimary, size: 30),
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
             ),
@@ -110,9 +113,7 @@ class _GangmanReportDetailScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '${l10n.reportDetailTitle} ${widget.reportId.length >= 8 ? widget.reportId.substring(0, 8) : widget.reportId}',
-        ),
+        title: Text(l10n.reportDetailTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.person_outline),
@@ -144,12 +145,12 @@ class _GangmanReportDetailScreenState
                     const Icon(
                       Icons.search_off,
                       size: 48,
-                      color: Colors.white38,
+                      color: AppTheme.textSecondary,
                     ),
                     const SizedBox(height: 12),
                     Text(
                       l10n.reportDetailUnavailable,
-                      style: const TextStyle(color: Colors.white70),
+                      style: const TextStyle(color: AppTheme.textSecondary),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -200,7 +201,7 @@ class _GangmanReportDetailScreenState
                                   const Icon(
                                     Icons.broken_image_outlined,
                                     size: 48,
-                                    color: Colors.white38,
+                                    color: AppTheme.textSecondary,
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -209,7 +210,7 @@ class _GangmanReportDetailScreenState
                                         : 'Photo not found on device',
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: Colors.white38,
+                                      color: AppTheme.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -242,7 +243,7 @@ class _GangmanReportDetailScreenState
                                       style: const TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.white,
+                                        color: AppTheme.textPrimary,
                                       ),
                                     ),
                                   ],
@@ -256,6 +257,14 @@ class _GangmanReportDetailScreenState
                 ),
                 const SizedBox(height: 12),
 
+                Text('${HazardIcon.getLocalizedLabel(context, report.confirmedHazardType)} Report', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 8),
+                Card(child: Padding(padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12), child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+                  _statusStep('Sent', report.syncStatus == SyncStatus.synced), const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
+                  _statusStep('Seen by Supervisor', report.inspectionStatus != InspectionStatus.open), const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
+                  _statusStep('Resolved', report.inspectionStatus == InspectionStatus.resolved),
+                ]))),
+                const SizedBox(height: 12),
                 // Full Sync Status Card
                 SyncStatusCard(
                   report: report,
@@ -305,7 +314,7 @@ class _GangmanReportDetailScreenState
                             l10n.gangmanNote,
                             style: const TextStyle(
                               fontSize: 12,
-                              color: Colors.white60,
+                              color: AppTheme.textSecondary,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -313,7 +322,7 @@ class _GangmanReportDetailScreenState
                             report.userNote,
                             style: const TextStyle(
                               fontSize: 14,
-                              color: Colors.white,
+                              color: AppTheme.textPrimary,
                             ),
                           ),
                         ],
@@ -354,7 +363,7 @@ class _GangmanReportDetailScreenState
                           ),
                           style: const TextStyle(
                             fontSize: 13,
-                            color: Colors.white70,
+                            color: AppTheme.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -362,7 +371,7 @@ class _GangmanReportDetailScreenState
                           'Source: ${report.locationSource.name.toUpperCase()} ${report.gpsAccuracyMeters != null ? "(±${report.gpsAccuracyMeters!.toStringAsFixed(1)}m)" : ""}',
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.white54,
+                            color: AppTheme.textSecondary,
                           ),
                         ),
                       ],
@@ -371,8 +380,7 @@ class _GangmanReportDetailScreenState
                 ),
                 const SizedBox(height: 16),
 
-                // AI Suggestion and Audit Card
-                AiMetadataCard.fromReport(report),
+                Card(child: ExpansionTile(title: const Text('Technical & AI Audit Details'), leading: const Icon(Icons.fact_check_outlined), children: [Padding(padding: const EdgeInsets.all(12), child: AiMetadataCard.fromReport(report))])),
                 const SizedBox(height: 16),
 
                 // Audit Timestamps Card
@@ -397,14 +405,14 @@ class _GangmanReportDetailScreenState
                             const Icon(
                               Icons.history,
                               size: 16,
-                              color: Colors.white54,
+                              color: AppTheme.textSecondary,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               l10n.reportDetailCreated(createdAtText),
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Colors.white70,
+                                color: AppTheme.textSecondary,
                               ),
                             ),
                           ],
@@ -415,14 +423,14 @@ class _GangmanReportDetailScreenState
                             const Icon(
                               Icons.update,
                               size: 16,
-                              color: Colors.white54,
+                              color: AppTheme.textSecondary,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               l10n.reportDetailUpdated(updatedAtText),
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Colors.white70,
+                                color: AppTheme.textSecondary,
                               ),
                             ),
                           ],
@@ -433,14 +441,14 @@ class _GangmanReportDetailScreenState
                             const Icon(
                               Icons.badge_outlined,
                               size: 16,
-                              color: Colors.white54,
+                              color: AppTheme.textSecondary,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               'Report ID: ${report.id}',
                               style: const TextStyle(
                                 fontSize: 11,
-                                color: Colors.white38,
+                                color: AppTheme.textSecondary,
                               ),
                             ),
                           ],

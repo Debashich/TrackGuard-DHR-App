@@ -13,15 +13,15 @@ class ConnectivityIndicator extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final color = isOnline ? AppTheme.statusGreen : AppTheme.statusAmber;
     final text = isOnline
-        ? (l10n?.onlineStatus ?? 'Online - Cloud Sync Ready')
-        : (l10n?.offlineStatus ?? 'Offline - Local Queue Active');
+        ? (l10n?.onlineStatus ?? 'Online')
+        : (l10n?.offlineStatus ?? 'Offline mode — ready');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: isOnline ? const Color(0xFFDCFCE7) : const Color(0xFFEEF2F6),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
+        border: Border.all(color: color, width: 1.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -36,7 +36,7 @@ class ConnectivityIndicator extends StatelessWidget {
             child: Text(
               text,
               style: TextStyle(
-                color: color,
+                color: isOnline ? const Color(0xFF14532D) : AppTheme.textSecondary,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),

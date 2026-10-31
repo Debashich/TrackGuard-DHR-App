@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/constants/dhr_waypoints.dart';
 import '../../../shared/models/app_user.dart';
 import '../../../shared/models/hazard_report.dart';
 import '../../../shared/models/inspection_status.dart';
@@ -79,7 +80,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             ),
             title: Text(user?.fullName ?? 'Supervisor'),
             subtitle: Text(user?.assignedSection ?? 'All assigned sections'),
-            trailing: const Icon(Icons.chevron_right, color: Colors.white38),
+            trailing: const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
             onTap: () => context.push('/profile'),
           ),
           Padding(
@@ -346,7 +347,7 @@ class _UserCardState extends State<_UserCard> {
                       widget.user.email,
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Colors.white60,
+                        color: AppTheme.textSecondary,
                       ),
                     ),
                   ],
@@ -374,13 +375,11 @@ class _UserCardState extends State<_UserCard> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: TextField(
-                  controller: section,
-                  decoration: const InputDecoration(
-                    labelText: 'Section ID',
-                    isDense: true,
-                  ),
-                  onSubmitted: saving ? null : (v) => _save(nextSection: v),
+                child: DropdownButtonFormField<String>(
+                  initialValue: section.text.isEmpty ? null : section.text,
+                  decoration: const InputDecoration(labelText: 'Assigned section', isDense: true),
+                  items: DhrWaypoints.sections.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name))).toList(),
+                  onChanged: saving ? null : (v) { if (v != null) { section.text = v; _save(nextSection: v); } },
                 ),
               ),
             ],
@@ -500,7 +499,7 @@ class _AdminReportDetailScreenState
                       'Report ID: ${r.id}',
                       style: const TextStyle(
                         fontSize: 11,
-                        color: Colors.white54,
+                        color: AppTheme.textSecondary,
                       ),
                     ),
                     if (r.userNote.isNotEmpty) ...[
@@ -516,7 +515,7 @@ class _AdminReportDetailScreenState
                         'Provider: ${r.aiProvider.name} • Model: ${r.aiModel ?? 'n/a'}',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.white54,
+                          color: AppTheme.textSecondary,
                         ),
                       ),
                     ],
@@ -659,7 +658,7 @@ class _Metric extends StatelessWidget {
                 ),
                 Text(
                   label,
-                  style: const TextStyle(fontSize: 11, color: Colors.white60),
+                  style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
                 ),
               ],
             ),

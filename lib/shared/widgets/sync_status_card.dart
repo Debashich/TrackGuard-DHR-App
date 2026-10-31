@@ -71,7 +71,7 @@ class SyncStatusCard extends StatelessWidget {
               explanation,
               style: const TextStyle(
                 fontSize: 13,
-                color: Colors.white70,
+                color: AppTheme.textSecondary,
                 height: 1.35,
               ),
             ),
@@ -109,7 +109,7 @@ class SyncStatusCard extends StatelessWidget {
                   'Retry attempts: ${report.retryCount}',
                   style: const TextStyle(
                     fontSize: 11,
-                    color: Colors.white38,
+                    color: AppTheme.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

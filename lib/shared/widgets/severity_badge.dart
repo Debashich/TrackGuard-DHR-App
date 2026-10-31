@@ -27,6 +27,15 @@ class SeverityBadge extends StatelessWidget {
     }
   }
 
+  Color get _ink {
+    switch (severity) {
+      case Severity.low: return const Color(0xFF14532D);
+      case Severity.medium: return const Color(0xFF78350F);
+      case Severity.high: return const Color(0xFF7C2D12);
+      case Severity.critical: return const Color(0xFF7F1D1D);
+    }
+  }
+
   String _label(AppLocalizations l10n) {
     switch (severity) {
       case Severity.low:
@@ -52,14 +61,19 @@ class SeverityBadge extends StatelessWidget {
         vertical: isLarge ? 6 : 4,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.18),
+        color: switch (severity) {
+          Severity.low => const Color(0xFFDCFCE7),
+          Severity.medium => const Color(0xFFFEF3C7),
+          Severity.high => const Color(0xFFFFEDD5),
+          Severity.critical => const Color(0xFFFEE2E2),
+        },
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withValues(alpha: 0.6), width: 1),
+        border: Border.all(color: color, width: 1.5),
       ),
       child: Text(
         text,
         style: TextStyle(
-          color: color,
+          color: _ink,
           fontSize: isLarge ? 14 : 12,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.3,

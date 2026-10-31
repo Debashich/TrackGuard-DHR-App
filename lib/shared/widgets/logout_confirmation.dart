@@ -65,7 +65,7 @@ class _LogoutConfirmationDialogState
     final hasPendingReports = pendingCount > 0;
 
     return AlertDialog(
-      backgroundColor: AppTheme.surfaceDark,
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
@@ -77,7 +77,7 @@ class _LogoutConfirmationDialogState
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: AppTheme.textPrimary,
               ),
             ),
           ),
@@ -92,7 +92,7 @@ class _LogoutConfirmationDialogState
               l10n.logoutConfirmation,
               style: const TextStyle(
                 fontSize: 14,
-                color: Colors.white70,
+                color: AppTheme.textSecondary,
                 height: 1.4,
               ),
             ),
@@ -135,7 +135,7 @@ class _LogoutConfirmationDialogState
                       l10n.logoutReportsRemainOnDevice,
                       style: const TextStyle(
                         fontSize: 11,
-                        color: Colors.white70,
+                        color: AppTheme.textSecondary,
                         height: 1.3,
                       ),
                     ),
@@ -153,7 +153,7 @@ class _LogoutConfirmationDialogState
               : () => Navigator.of(context).pop(false),
           child: Text(
             l10n.logoutCancel,
-            style: const TextStyle(color: Colors.white60),
+            style: const TextStyle(color: AppTheme.textSecondary),
           ),
         ),
         ElevatedButton(
