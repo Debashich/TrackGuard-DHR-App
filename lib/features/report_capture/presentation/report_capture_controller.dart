@@ -68,33 +68,44 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
       _cameraService.dispose();
     });
 
-    _init();
+    // Schedule initialization after the provider has returned
+    // its initial state.
+    Future.microtask(_init);
+
     return const ReportCaptureState();
   }
 
   Future<void> _init() async {
-    acquireLocation();
+    // Camera first, GPS afterward.
     await initializeCamera();
+
+    // Do not update state if the provider has been disposed.
+    if (!ref.mounted) return;
+
+    await acquireLocation();
   }
 
   Future<void> initializeCamera() async {
-    state = state.copyWith(
-      isCameraInitializing: true,
-      errorMessage: null,
-    );
+    state = state.copyWith(isCameraInitializing: true, errorMessage: null);
+
     final ready = await _cameraService.initialize();
+
+    if (!ref.mounted) return;
+
     state = state.copyWith(
       isCameraInitializing: false,
       isCameraReady: ready,
-      errorMessage: ready
-          ? null
-          : 'Camera unavailable. Please check permissions or use gallery fallback.',
+      errorMessage: ready ? null : 'Camera unavailable. Please check permissions or use gallery fallback.',
     );
   }
 
   Future<void> acquireLocation() async {
     state = state.copyWith(isLocationAcquiring: true);
+
     final loc = await _locationService.getCurrentLocation();
+
+    if (!ref.mounted) return;
+
     state = state.copyWith(location: loc, isLocationAcquiring: false);
   }
 
@@ -108,10 +119,7 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
     try {
       final file = await _cameraService.takePhoto();
       await _cameraService.pausePreview();
-      state = state.copyWith(
-        isCapturing: false,
-        capturedFile: file,
-      );
+      state = state.copyWith(isCapturing: false, capturedFile: file);
     } catch (e) {
       state = state.copyWith(
         isCapturing: false,
