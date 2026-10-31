@@ -80,7 +80,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             ),
             title: Text(user?.fullName ?? 'Supervisor'),
             subtitle: Text(user?.assignedSection ?? 'All assigned sections'),
-            trailing: const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
+            trailing: const Icon(
+              Icons.chevron_right,
+              color: AppTheme.textSecondary,
+            ),
             onTap: () => context.push('/profile'),
           ),
           Padding(
@@ -377,9 +380,24 @@ class _UserCardState extends State<_UserCard> {
               Expanded(
                 child: DropdownButtonFormField<String>(
                   initialValue: section.text.isEmpty ? null : section.text,
-                  decoration: const InputDecoration(labelText: 'Assigned section', isDense: true),
-                  items: DhrWaypoints.sections.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name))).toList(),
-                  onChanged: saving ? null : (v) { if (v != null) { section.text = v; _save(nextSection: v); } },
+                  decoration: const InputDecoration(
+                    labelText: 'Assigned section',
+                    isDense: true,
+                  ),
+                  items: DhrWaypoints.sections
+                      .map(
+                        (s) =>
+                            DropdownMenuItem(value: s.id, child: Text(s.name)),
+                      )
+                      .toList(),
+                  onChanged: saving
+                      ? null
+                      : (v) {
+                          if (v != null) {
+                            section.text = v;
+                            _save(nextSection: v);
+                          }
+                        },
                 ),
               ),
             ],
@@ -658,7 +676,10 @@ class _Metric extends StatelessWidget {
                 ),
                 Text(
                   label,
-                  style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
               ],
             ),

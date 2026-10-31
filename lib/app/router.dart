@@ -18,6 +18,7 @@ import '../features/report_queue/presentation/report_queue_placeholder_screen.da
 import '../features/report_review/presentation/report_review_screen.dart';
 import '../shared/models/app_user.dart';
 import '../shared/models/user_role.dart';
+import '../shared/widgets/location_accuracy_prompt.dart';
 
 bool isGangman(AppUser? user) => user?.role == UserRole.gangman;
 bool isAdmin(AppUser? user) => user?.role == UserRole.admin;
@@ -160,7 +161,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Gangman Routes
       GoRoute(
         path: '/gangman/home',
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) =>
+            const LocationAccuracyPrompt(child: HomeScreen()),
       ),
       GoRoute(
         path: '/gangman/report/capture',
@@ -185,7 +187,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Admin Routes
       GoRoute(
         path: '/admin/dashboard',
-        builder: (context, state) => const AdminDashboardScreen(),
+        builder: (context, state) =>
+            const LocationAccuracyPrompt(child: AdminDashboardScreen()),
       ),
     ],
   );

@@ -397,5 +397,14 @@
       "date": { "type": "String" }
     }
   },
-  "offlineModelDownloadCancelled": "Model download was cancelled."
+  "offlineModelDownloadCancelled": "Model download was cancelled.",
+  "locationAccuracyPromptTitle": "Improve Location Accuracy",
+  "locationAccuracyPromptMessage": "TrackGuard works best when your device provides precise location information.",
+  "locationAccuracyPromptSettingsHeading": "Check your location settings:",
+  "locationAccuracyPromptDeviceLocation": "1. Turn on Device Location.",
+  "locationAccuracyPromptLocationAccuracy": "2. Enable Google Location Accuracy, if available.",
+  "locationAccuracyPromptExplanation": "This helps TrackGuard capture more accurate locations when reporting hazards.",
+  "locationAccuracyPromptManageSettingsOr": "You can manage these settings in your device's Location settings.",
+  "locationAccuracyPromptNoThanks": "Not now",
+  "locationAccuracyPromptTurnOn": "Continue"
 }

@@ -909,4 +909,37 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get offlineModelDownloadCancelled => 'मॉडल डाउनलोड रद्द कर दिया गया।';
+
+  @override
+  String get locationAccuracyPromptTitle => 'Improve Location Accuracy';
+
+  @override
+  String get locationAccuracyPromptMessage =>
+      'TrackGuard works best when your device provides precise location information.';
+
+  @override
+  String get locationAccuracyPromptSettingsHeading =>
+      'Check your location settings:';
+
+  @override
+  String get locationAccuracyPromptDeviceLocation =>
+      '1. Turn on Device Location.';
+
+  @override
+  String get locationAccuracyPromptLocationAccuracy =>
+      '2. Enable Google Location Accuracy, if available.';
+
+  @override
+  String get locationAccuracyPromptExplanation =>
+      'This helps TrackGuard capture more accurate locations when reporting hazards.';
+
+  @override
+  String get locationAccuracyPromptManageSettingsOr =>
+      'You can manage these settings in your device\'s Location settings.';
+
+  @override
+  String get locationAccuracyPromptNoThanks => 'Not now';
+
+  @override
+  String get locationAccuracyPromptTurnOn => 'Continue';
 }

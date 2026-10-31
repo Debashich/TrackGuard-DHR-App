@@ -1677,6 +1677,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Model download was cancelled.'**
   String get offlineModelDownloadCancelled;
+
+  /// No description provided for @locationAccuracyPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Improve Location Accuracy'**
+  String get locationAccuracyPromptTitle;
+
+  /// No description provided for @locationAccuracyPromptMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'TrackGuard works best when your device provides precise location information.'**
+  String get locationAccuracyPromptMessage;
+
+  /// No description provided for @locationAccuracyPromptSettingsHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your location settings:'**
+  String get locationAccuracyPromptSettingsHeading;
+
+  /// No description provided for @locationAccuracyPromptDeviceLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Turn on Device Location.'**
+  String get locationAccuracyPromptDeviceLocation;
+
+  /// No description provided for @locationAccuracyPromptLocationAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Enable Google Location Accuracy, if available.'**
+  String get locationAccuracyPromptLocationAccuracy;
+
+  /// No description provided for @locationAccuracyPromptExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'This helps TrackGuard capture more accurate locations when reporting hazards.'**
+  String get locationAccuracyPromptExplanation;
+
+  /// No description provided for @locationAccuracyPromptManageSettingsOr.
+  ///
+  /// In en, this message translates to:
+  /// **'You can manage these settings in your device\'s Location settings.'**
+  String get locationAccuracyPromptManageSettingsOr;
+
+  /// No description provided for @locationAccuracyPromptNoThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get locationAccuracyPromptNoThanks;
+
+  /// No description provided for @locationAccuracyPromptTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get locationAccuracyPromptTurnOn;
 }
 
 class _AppLocalizationsDelegate

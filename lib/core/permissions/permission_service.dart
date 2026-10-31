@@ -3,6 +3,8 @@ import 'package:geolocator/geolocator.dart';
 abstract class PermissionService {
   Future<bool> checkLocationPermission();
   Future<bool> requestLocationPermission();
+  Future<bool> isLocationServiceEnabled();
+  Future<bool> openLocationSettings();
 }
 
 class DefaultPermissionService implements PermissionService {
@@ -21,5 +23,15 @@ class DefaultPermissionService implements PermissionService {
     }
     return permission == LocationPermission.always ||
         permission == LocationPermission.whileInUse;
+  }
+
+  @override
+  Future<bool> isLocationServiceEnabled() {
+    return Geolocator.isLocationServiceEnabled();
+  }
+
+  @override
+  Future<bool> openLocationSettings() {
+    return Geolocator.openLocationSettings();
   }
 }
