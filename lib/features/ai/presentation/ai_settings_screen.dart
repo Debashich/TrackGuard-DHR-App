@@ -276,6 +276,10 @@ class AiSettingsScreen extends ConsumerWidget {
         badgeColor = AppTheme.statusRed;
         badgeLabel = l10n.offlineModelUnsupported;
         break;
+      case OfflineModelStatus.corrupted:
+        badgeColor = AppTheme.statusRed;
+        badgeLabel = 'Corrupted';
+        break;
       case OfflineModelStatus.notDownloaded:
         badgeColor = Colors.white38;
         badgeLabel = l10n.offlineModelNotDownloaded;
@@ -321,6 +325,11 @@ class AiSettingsScreen extends ConsumerWidget {
             _buildInfoRow(
               label: l10n.aiPromptLanguage,
               value: currentLang.displayName,
+            ),
+            const SizedBox(height: 8),
+            _buildInfoRow(
+              label: 'Source',
+              value: 'Hugging Face (${AiProviderConfig.offlineGemmaRepository})',
             ),
 
             // State specific contents

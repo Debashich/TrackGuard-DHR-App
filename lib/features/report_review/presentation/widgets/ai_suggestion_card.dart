@@ -9,6 +9,7 @@ import 'package:trackguard_dhr/shared/widgets/severity_badge.dart';
 
 class AiSuggestionCard extends StatelessWidget {
   final AiAnalysisResult? aiResult;
+  final String? errorMessage;
   final bool isAnalyzing;
   final AiMode? currentMode;
   final VoidCallback? onRetry;
@@ -18,6 +19,7 @@ class AiSuggestionCard extends StatelessWidget {
   const AiSuggestionCard({
     super.key,
     required this.aiResult,
+    this.errorMessage,
     required this.isAnalyzing,
     this.currentMode,
     this.onRetry,
@@ -198,6 +200,84 @@ class AiSuggestionCard extends StatelessWidget {
                           horizontal: 8,
                           vertical: 4,
                         ),
+                        foregroundColor: Colors.white60,
+                      ),
+                      onPressed: onSwitchToManual,
+                      icon: const Icon(Icons.edit_note, size: 16),
+                      label: Text(
+                        l10n.aiUseManualClassification,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                ],
+              ),
+            ] else if (errorMessage != null) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.statusRed.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppTheme.statusRed.withValues(alpha: 0.4),
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: AppTheme.statusRed,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'AI Inference Error',
+                            style: TextStyle(
+                              color: AppTheme.statusRed,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            errorMessage!,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              OverflowBar(
+                alignment: MainAxisAlignment.end,
+                spacing: 8,
+                children: [
+                  if (onRetry != null)
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: AppTheme.primaryAmber,
+                      ),
+                      onPressed: onRetry,
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: Text(
+                        l10n.aiRetryAnalysis,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  if (onSwitchToManual != null)
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
                         foregroundColor: Colors.white60,
                       ),
                       onPressed: onSwitchToManual,

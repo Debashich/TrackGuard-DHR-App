@@ -273,6 +273,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
               // AI Suggestion Card
               AiSuggestionCard(
                 aiResult: reviewState.aiResult,
+                errorMessage: reviewState.aiErrorMessage,
                 isAnalyzing: reviewState.isAnalyzing,
                 currentMode: ref.watch(aiSettingsProvider).mode,
                 onRetry: () => controller.runAnalysis(),

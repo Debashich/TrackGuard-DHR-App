@@ -139,14 +139,22 @@ class _OfflineModelDownloadScreenState
                     ),
                     const SizedBox(height: 12),
                     _buildSpecRow(
+                      icon: Icons.hub_outlined,
+                      label: 'Source: Hugging Face',
+                      sublabel:
+                          '${AiProviderConfig.offlineGemmaRepository}\n• ${AiProviderConfig.offlineGemmaFile}\n• ${AiProviderConfig.offlineGemmaProjectorFile}',
+                    ),
+                    const Divider(height: 16),
+                    _buildSpecRow(
                       icon: Icons.cloud_download_outlined,
-                      label: l10n.offlineModelApproximateSize('~1.2 GB'),
-                      sublabel: 'Compressed model weights package',
+                      label: l10n.offlineModelApproximateSize('~1.5 GB'),
+                      sublabel:
+                          'llama.cpp GGUF 4-bit Quantization + Vision Projector',
                     ),
                     const Divider(height: 16),
                     _buildSpecRow(
                       icon: Icons.storage_outlined,
-                      label: l10n.offlineModelStorageRequired('~1.8 GB'),
+                      label: l10n.offlineModelStorageRequired('~2.2 GB'),
                       sublabel: 'Required for extraction and runtime buffer',
                     ),
                     const Divider(height: 16),
@@ -591,6 +599,10 @@ class _OfflineModelDownloadScreenState
       case OfflineModelStatus.unsupported:
         color = AppTheme.statusRed;
         label = l10n.offlineModelUnsupported;
+        break;
+      case OfflineModelStatus.corrupted:
+        color = AppTheme.statusRed;
+        label = 'Corrupted';
         break;
       case OfflineModelStatus.notDownloaded:
         color = Colors.white38;

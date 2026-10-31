@@ -7,6 +7,7 @@ enum OfflineModelStatus {
   ready,
   failed,
   unsupported,
+  corrupted,
 }
 
 class OfflineModelState {
@@ -14,24 +15,36 @@ class OfflineModelState {
   final String modelId;
   final String modelName;
   final String? version;
+  final String? repository;
+  final String? filename;
+  final String? projectorFilename;
+  final String? sha256;
   final int? totalBytes;
   final int downloadedBytes;
   final double progress;
   final String? errorMessage;
   final DateTime? downloadedAt;
+  final DateTime? lastInitializedAt;
+  final String? lastInitializationError;
   final bool canCancel;
   final bool canDelete;
 
   const OfflineModelState({
     this.status = OfflineModelStatus.notDownloaded,
-    this.modelId = 'gemma-4-e2b-it',
+    this.modelId = 'gemma-4-e2b',
     this.modelName = 'Gemma 4 E2B',
-    this.version = '1.0.0',
+    this.version = 'phase4-gemma4-e2b-v1',
+    this.repository = 'lmstudio-community/gemma-4-E2B-it-GGUF',
+    this.filename = 'gemma-4-E2B-it-Q4_K_M.gguf',
+    this.projectorFilename = 'mmproj-gemma-4-E2B-it-BF16.gguf',
+    this.sha256,
     this.totalBytes,
     this.downloadedBytes = 0,
     this.progress = 0.0,
     this.errorMessage,
     this.downloadedAt,
+    this.lastInitializedAt,
+    this.lastInitializationError,
     this.canCancel = false,
     this.canDelete = false,
   });
@@ -44,7 +57,8 @@ class OfflineModelState {
       status == OfflineModelStatus.ready;
   bool get needsDownload =>
       status == OfflineModelStatus.notDownloaded ||
-      status == OfflineModelStatus.failed;
+      status == OfflineModelStatus.failed ||
+      status == OfflineModelStatus.corrupted;
   bool get isInitializing => status == OfflineModelStatus.initializing;
 
   String get formattedDownloadedSize {
@@ -55,7 +69,7 @@ class OfflineModelState {
   }
 
   String get formattedTotalSize {
-    if (totalBytes == null || totalBytes! <= 0) return '~1.2 GB';
+    if (totalBytes == null || totalBytes! <= 0) return '~1.25 GB';
     final mb = totalBytes! / (1024 * 1024);
     if (mb < 1000) return '${mb.toStringAsFixed(1)} MB';
     return '${(mb / 1024).toStringAsFixed(2)} GB';
@@ -68,11 +82,17 @@ class OfflineModelState {
     String? modelId,
     String? modelName,
     String? version,
+    String? repository,
+    String? filename,
+    String? projectorFilename,
+    String? sha256,
     int? totalBytes,
     int? downloadedBytes,
     double? progress,
     String? errorMessage,
     DateTime? downloadedAt,
+    DateTime? lastInitializedAt,
+    String? lastInitializationError,
     bool? canCancel,
     bool? canDelete,
   }) {
@@ -81,11 +101,18 @@ class OfflineModelState {
       modelId: modelId ?? this.modelId,
       modelName: modelName ?? this.modelName,
       version: version ?? this.version,
+      repository: repository ?? this.repository,
+      filename: filename ?? this.filename,
+      projectorFilename: projectorFilename ?? this.projectorFilename,
+      sha256: sha256 ?? this.sha256,
       totalBytes: totalBytes ?? this.totalBytes,
       downloadedBytes: downloadedBytes ?? this.downloadedBytes,
       progress: progress ?? this.progress,
       errorMessage: errorMessage ?? this.errorMessage,
       downloadedAt: downloadedAt ?? this.downloadedAt,
+      lastInitializedAt: lastInitializedAt ?? this.lastInitializedAt,
+      lastInitializationError:
+          lastInitializationError ?? this.lastInitializationError,
       canCancel: canCancel ?? this.canCancel,
       canDelete: canDelete ?? this.canDelete,
     );
@@ -96,9 +123,15 @@ class OfflineModelState {
     'modelId': modelId,
     'modelName': modelName,
     'version': version,
+    'repository': repository,
+    'filename': filename,
+    'projectorFilename': projectorFilename,
+    'sha256': sha256,
     'totalBytes': totalBytes,
     'downloadedBytes': downloadedBytes,
     'downloadedAt': downloadedAt?.toIso8601String(),
+    'lastInitializedAt': lastInitializedAt?.toIso8601String(),
+    'lastInitializationError': lastInitializationError,
   };
 
   factory OfflineModelState.fromJson(Map<String, dynamic> json) {
@@ -109,14 +142,27 @@ class OfflineModelState {
 
     return OfflineModelState(
       status: status,
-      modelId: json['modelId'] as String? ?? 'gemma-4-e2b-it',
+      modelId: json['modelId'] as String? ?? 'gemma-4-e2b',
       modelName: json['modelName'] as String? ?? 'Gemma 4 E2B',
-      version: json['version'] as String? ?? '1.0.0',
+      version: json['version'] as String? ?? 'phase4-gemma4-e2b-v1',
+      repository:
+          json['repository'] as String? ??
+          'lmstudio-community/gemma-4-E2B-it-GGUF',
+      filename:
+          json['filename'] as String? ?? 'gemma-4-E2B-it-Q4_K_M.gguf',
+      projectorFilename:
+          json['projectorFilename'] as String? ??
+          'mmproj-gemma-4-E2B-it-BF16.gguf',
+      sha256: json['sha256'] as String?,
       totalBytes: json['totalBytes'] as int?,
       downloadedBytes: json['downloadedBytes'] as int? ?? 0,
       downloadedAt: json['downloadedAt'] != null
           ? DateTime.tryParse(json['downloadedAt'] as String)
           : null,
+      lastInitializedAt: json['lastInitializedAt'] != null
+          ? DateTime.tryParse(json['lastInitializedAt'] as String)
+          : null,
+      lastInitializationError: json['lastInitializationError'] as String?,
       canDelete:
           status == OfflineModelStatus.ready ||
           status == OfflineModelStatus.downloaded,
@@ -127,32 +173,38 @@ class OfflineModelState {
 class OfflineModelDownloadSettings {
   final bool wifiOnly;
   final bool allowCellularDownload;
+  final String? huggingFaceToken;
 
   const OfflineModelDownloadSettings({
     this.wifiOnly = true,
     this.allowCellularDownload = false,
+    this.huggingFaceToken,
   });
 
   OfflineModelDownloadSettings copyWith({
     bool? wifiOnly,
     bool? allowCellularDownload,
+    String? huggingFaceToken,
   }) {
     return OfflineModelDownloadSettings(
       wifiOnly: wifiOnly ?? this.wifiOnly,
       allowCellularDownload:
           allowCellularDownload ?? this.allowCellularDownload,
+      huggingFaceToken: huggingFaceToken ?? this.huggingFaceToken,
     );
   }
 
   Map<String, dynamic> toJson() => {
     'wifiOnly': wifiOnly,
     'allowCellularDownload': allowCellularDownload,
+    if (huggingFaceToken != null) 'huggingFaceToken': huggingFaceToken,
   };
 
   factory OfflineModelDownloadSettings.fromJson(Map<String, dynamic> json) {
     return OfflineModelDownloadSettings(
       wifiOnly: json['wifiOnly'] as bool? ?? true,
       allowCellularDownload: json['allowCellularDownload'] as bool? ?? false,
+      huggingFaceToken: json['huggingFaceToken'] as String?,
     );
   }
 }

@@ -252,7 +252,7 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const model = Deno.env.get("GEMINI_MODEL") || "gemini-1.5-flash";
+    const model = "gemma-4-31b-it";
 
     // 3. Set up persistent audit logging for this authorized request.
 

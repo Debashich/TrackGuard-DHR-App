@@ -316,25 +316,20 @@ void main() {
     });
 
     test(
-      'Offline Gemma mode falls back to Heuristic when Gemma is not ready',
+      'Offline Gemma mode throws when Gemma is not ready',
       () async {
         final service = AiAnalysisServiceImpl(
           cactusGemma: _MockCactusGemmaProvider(ready: false),
-          heuristicAi: HeuristicAiProvider(),
         );
 
-        final result = await service.analyze(
-          image: dummyFile,
-          location: testLocation,
-          language: AppLanguage.en,
-          requestedMode: AiMode.offlineGemma,
-        );
-
-        expect(result.provider, AiProvider.heuristic);
-        expect(result.requestedProvider, AiProvider.offlineGemma);
-        expect(
-          result.fallbackReason,
-          contains('Offline Gemma model is not ready'),
+        await expectLater(
+          () => service.analyze(
+            image: dummyFile,
+            location: testLocation,
+            language: AppLanguage.en,
+            requestedMode: AiMode.offlineGemma,
+          ),
+          throwsA(isA<OfflineModelUnavailableException>()),
         );
       },
     );

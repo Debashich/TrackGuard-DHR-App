@@ -74,6 +74,11 @@ class _FakeOfflineModelManager implements OfflineModelManager {
   ) async {
     settings = newSettings;
   }
+
+  @override
+  void dispose() {
+    _controller.close();
+  }
 }
 
 void main() {

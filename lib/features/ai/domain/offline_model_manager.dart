@@ -18,4 +18,6 @@ abstract class OfflineModelManager {
   OfflineModelDownloadSettings getDownloadSettings();
 
   Future<void> setDownloadSettings(OfflineModelDownloadSettings settings);
+
+  void dispose();
 }

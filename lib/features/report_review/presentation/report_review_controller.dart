@@ -31,6 +31,7 @@ class ReportReviewState {
   final bool isSaving;
   final String? savedReportId;
   final String? errorMessage;
+  final String? aiErrorMessage;
 
   const ReportReviewState({
     this.draft,
@@ -44,6 +45,7 @@ class ReportReviewState {
     this.isSaving = false,
     this.savedReportId,
     this.errorMessage,
+    this.aiErrorMessage,
   });
 
   ReportReviewState copyWith({
@@ -58,6 +60,8 @@ class ReportReviewState {
     bool? isSaving,
     String? savedReportId,
     String? errorMessage,
+    String? aiErrorMessage,
+    bool clearAiError = false,
   }) {
     return ReportReviewState(
       draft: draft ?? this.draft,
@@ -71,6 +75,7 @@ class ReportReviewState {
       isSaving: isSaving ?? this.isSaving,
       savedReportId: savedReportId ?? this.savedReportId,
       errorMessage: errorMessage,
+      aiErrorMessage: clearAiError ? null : (aiErrorMessage ?? this.aiErrorMessage),
     );
   }
 }
@@ -111,7 +116,7 @@ class ReportReviewController extends Notifier<ReportReviewState> {
     final draft = state.draft;
     if (draft == null) return;
 
-    state = state.copyWith(isAnalyzing: true);
+    state = state.copyWith(isAnalyzing: true, clearAiError: true);
     final aiService = ref.read(aiAnalysisServiceProvider);
     final language = ref.read(appLanguageProvider);
     final mode = requestedMode ?? ref.read(aiSettingsProvider).mode;
@@ -127,11 +132,17 @@ class ReportReviewController extends Notifier<ReportReviewState> {
       state = state.copyWith(
         isAnalyzing: false,
         aiResult: result,
+        clearAiError: true,
         confirmedHazard: result.hazardType ?? state.confirmedHazard,
         confirmedSeverity: result.severity ?? state.confirmedSeverity,
       );
-    } catch (_) {
-      state = state.copyWith(isAnalyzing: false);
+    } catch (e) {
+      debugPrint('AI Analysis Failed: $e');
+      state = state.copyWith(
+        isAnalyzing: false,
+        aiResult: null,
+        aiErrorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
     }
   }
 
