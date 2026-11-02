@@ -198,50 +198,18 @@ class LitertGemmaProvider {
         debugPrint('Failed to set visualTokenBudget: $flagError');
       }
 
-      Engine engine;
-      try {
-        // Preferred: Full GPU for text + vision (matches Edge Gallery "Model on GPU")
-        engine = Engine(
-          engineConfig: EngineConfig(
-            modelPath: modelPath,
-            backend: const Backend.gpu(),
-            visionBackend: const Backend.gpu(),
-            maxNumTokens: 4096,
-            maxNumImages: 1,
-          ),
-        );
-        await engine.initialize();
-      } catch (gpuError) {
-        debugPrint(
-          'LiteRT-LM full GPU init failed ($gpuError), trying GPU text + CPU vision...',
-        );
-        try {
-          engine = Engine(
-            engineConfig: EngineConfig(
-              modelPath: modelPath,
-              backend: const Backend.gpu(),
-              visionBackend: const Backend.cpu(),
-              maxNumTokens: 4096,
-              maxNumImages: 1,
-            ),
-          );
-          await engine.initialize();
-        } catch (gpuError) {
-          debugPrint(
-            'LiteRT-LM GPU init failed ($gpuError), falling back to full CPU...',
-          );
-          engine = Engine(
-            engineConfig: EngineConfig(
-              modelPath: modelPath,
-              backend: const Backend.cpu(),
-              visionBackend: const Backend.cpu(),
-              maxNumTokens: 4096,
-              maxNumImages: 1,
-            ),
-          );
-          await engine.initialize();
-        }
-      }
+      // Use CPU backend for both text decoder and vision encoder on devices like Mali-G57
+      // to avoid native WebGPU driver crashes (abort/SIGSEGV) during vision patch embedding.
+      final engine = Engine(
+        engineConfig: EngineConfig(
+          modelPath: modelPath,
+          backend: const Backend.cpu(),
+          visionBackend: const Backend.cpu(),
+          maxNumTokens: 4096,
+          maxNumImages: 1,
+        ),
+      );
+      await engine.initialize();
 
       _engine = engine;
       _setState(LitertGemmaState.ready);
@@ -352,11 +320,11 @@ class LitertGemmaProvider {
       // 3. Create LiteRT-LM conversation
       conversation = await _engine!.createConversation();
 
-      // 4. Multimodal Message with optimized image file path
+      // 4. Multimodal Message with image first, then text prompt (required for proper autoregressive sequencing in Gemma 4)
       final message = Message.userContents(
         Contents([
-          Content.text(promptText),
           Content.imageFile(visionImageFile.path),
+          Content.text(promptText),
         ]),
       );
 
