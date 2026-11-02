@@ -190,21 +190,30 @@ class LitertGemmaProvider {
       final modelPath = p.join(dir.path, AiProviderConfig.offlineGemmaFile);
 
       await _engine?.dispose();
+
+      // Cap Gemma 4 visual token budget to 280 tokens (matches model signatures: vision_70, vision_140, vision_280)
+      try {
+        ExperimentalFlags.visualTokenBudget = 280;
+      } catch (flagError) {
+        debugPrint('Failed to set visualTokenBudget: $flagError');
+      }
+
       Engine engine;
       try {
+        // Preferred: Full GPU for text + vision (matches Edge Gallery "Model on GPU")
         engine = Engine(
           engineConfig: EngineConfig(
             modelPath: modelPath,
             backend: const Backend.gpu(),
             visionBackend: const Backend.gpu(),
-            maxNumTokens: 2048,
+            maxNumTokens: 4096,
             maxNumImages: 1,
           ),
         );
         await engine.initialize();
-      } catch (gpuVisionError) {
+      } catch (gpuError) {
         debugPrint(
-          'LiteRT-LM GPU vision init failed ($gpuVisionError), trying GPU text + CPU vision...',
+          'LiteRT-LM full GPU init failed ($gpuError), trying GPU text + CPU vision...',
         );
         try {
           engine = Engine(
@@ -212,7 +221,7 @@ class LitertGemmaProvider {
               modelPath: modelPath,
               backend: const Backend.gpu(),
               visionBackend: const Backend.cpu(),
-              maxNumTokens: 2048,
+              maxNumTokens: 4096,
               maxNumImages: 1,
             ),
           );
@@ -226,7 +235,7 @@ class LitertGemmaProvider {
               modelPath: modelPath,
               backend: const Backend.cpu(),
               visionBackend: const Backend.cpu(),
-              maxNumTokens: 2048,
+              maxNumTokens: 4096,
               maxNumImages: 1,
             ),
           );
@@ -332,6 +341,11 @@ class LitertGemmaProvider {
     Conversation? conversation;
     File? visionImageFile;
     try {
+      // Ensure visual token budget is set to 280 (max signature in gemma-4-E2B-it.litertlm)
+      try {
+        ExperimentalFlags.visualTokenBudget = 280;
+      } catch (_) {}
+
       // 2. Prepare optimized vision image (scaled down to avoid Mali GPU/CPU VRAM OOM)
       visionImageFile = await ImageUtils.prepareOptimizedVisionImage(image);
 
@@ -346,9 +360,20 @@ class LitertGemmaProvider {
         ]),
       );
 
-      // 5. Send message and await response
-      final response = await conversation.sendMessage(message);
-      final rawResponse = response.text;
+      // 5. Stream message asynchronously to keep the UI thread responsive (prevents Android ANR Signal 3)
+      final responseBuffer = StringBuffer();
+      String accumulated = '';
+      await for (final chunk in conversation.sendMessageStream(message)) {
+        final text = chunk.text;
+        if (text.isEmpty) continue;
+        if (text.startsWith(accumulated) && text.length > accumulated.length) {
+          accumulated = text;
+        } else {
+          responseBuffer.write(text);
+          accumulated = responseBuffer.toString();
+        }
+      }
+      final rawResponse = accumulated;
 
       if (rawResponse.trim().isEmpty) {
         throw const OfflineModelInferenceFailedException(

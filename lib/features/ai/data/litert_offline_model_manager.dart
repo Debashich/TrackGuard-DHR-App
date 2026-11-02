@@ -442,22 +442,30 @@ class LitertOfflineModelManager implements OfflineModelManager {
       await _engine?.dispose();
       _engine = null;
 
-      // Initialize native LiteRT-LM Engine with explicit vision executor backend
+      // Cap Gemma 4 visual token budget to 280 tokens (matches model signatures: vision_70, vision_140, vision_280)
+      try {
+        ExperimentalFlags.visualTokenBudget = 280;
+      } catch (flagError) {
+        debugPrint('Failed to set visualTokenBudget: $flagError');
+      }
+
+      // Initialize native LiteRT-LM Engine with explicit vision executor backend and 4096 token context
       Engine engine;
       try {
+        // Preferred: Full GPU for text + vision (matches Edge Gallery "Model on GPU")
         engine = Engine(
           engineConfig: EngineConfig(
             modelPath: modelPath,
             backend: const Backend.gpu(),
             visionBackend: const Backend.gpu(),
-            maxNumTokens: 2048,
+            maxNumTokens: 4096,
             maxNumImages: 1,
           ),
         );
         await engine.initialize();
-      } catch (gpuVisionError) {
+      } catch (gpuError) {
         debugPrint(
-          'LiteRT-LM GPU vision init failed ($gpuVisionError), trying GPU text + CPU vision...',
+          'LiteRT-LM full GPU init failed ($gpuError), trying GPU text + CPU vision...',
         );
         try {
           engine = Engine(
@@ -465,7 +473,7 @@ class LitertOfflineModelManager implements OfflineModelManager {
               modelPath: modelPath,
               backend: const Backend.gpu(),
               visionBackend: const Backend.cpu(),
-              maxNumTokens: 2048,
+              maxNumTokens: 4096,
               maxNumImages: 1,
             ),
           );
@@ -479,7 +487,7 @@ class LitertOfflineModelManager implements OfflineModelManager {
               modelPath: modelPath,
               backend: const Backend.cpu(),
               visionBackend: const Backend.cpu(),
-              maxNumTokens: 2048,
+              maxNumTokens: 4096,
               maxNumImages: 1,
             ),
           );

@@ -24,11 +24,13 @@ class ImageUtils {
     return persistCapturedImage(sourceFile, prefix: 'thumb');
   }
 
-  /// Prepares an optimized, downscaled image specifically for on-device VLM (LiteRT-LM) inference.
-  /// Standardizes resolution to [maxDimension] (e.g. 1024) to prevent GPU/CPU VRAM OOM crashes.
+  /// Prepares an optimized, 1:1 square downscaled image specifically for on-device VLM (LiteRT-LM) inference.
+  /// A square aspect ratio (448x448) ensures LiteRT-LM's internal preprocessor maps directly
+  /// to the model's compiled `vision_280` (or `vision_140`) signature instead of attempting
+  /// dynamic multi-tile upscaling for portrait/landscape ratios that exceeds the model's 280-token budget.
   static Future<File> prepareOptimizedVisionImage(
     File sourceFile, {
-    int maxDimension = 1024,
+    int targetDimension = 448,
   }) async {
     try {
       final bytes = await sourceFile.readAsBytes();
@@ -39,32 +41,10 @@ class ImageUtils {
       final originalWidth = descriptor.width;
       final originalHeight = descriptor.height;
 
-      int targetWidth;
-      int targetHeight;
-
-      if (originalWidth > originalHeight) {
-        if (originalWidth > maxDimension) {
-          targetWidth = maxDimension;
-          targetHeight =
-              (originalHeight * (maxDimension / originalWidth)).round();
-        } else {
-          targetWidth = originalWidth;
-          targetHeight = originalHeight;
-        }
-      } else {
-        if (originalHeight > maxDimension) {
-          targetHeight = maxDimension;
-          targetWidth =
-              (originalWidth * (maxDimension / originalHeight)).round();
-        } else {
-          targetWidth = originalWidth;
-          targetHeight = originalHeight;
-        }
-      }
-
+      // Decode directly as 1:1 square to ensure preprocessor produces <= 280 tokens
       final codec = await descriptor.instantiateCodec(
-        targetWidth: targetWidth,
-        targetHeight: targetHeight,
+        targetWidth: targetDimension,
+        targetHeight: targetDimension,
       );
       final frame = await codec.getNextFrame();
       final image = frame.image;
@@ -80,7 +60,7 @@ class ImageUtils {
       await targetFile.writeAsBytes(byteData.buffer.asUint8List());
 
       debugPrint(
-        'Optimized vision image: ${originalWidth}x$originalHeight -> ${targetWidth}x$targetHeight (${targetFile.lengthSync()} bytes)',
+        'Optimized square vision image: ${originalWidth}x$originalHeight -> ${targetDimension}x$targetDimension (${targetFile.lengthSync()} bytes)',
       );
       return targetFile;
     } catch (e) {
