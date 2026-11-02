@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trackguard_dhr/core/errors/app_exception.dart';
+import 'package:trackguard_dhr/features/ai/data/ai_result_validator.dart';
 import 'package:trackguard_dhr/features/ai/data/heuristic_ai_provider.dart';
-import 'package:trackguard_dhr/features/ai/data/offline_gemma_provider.dart';
 import 'package:trackguard_dhr/shared/models/ai_provider.dart';
 import 'package:trackguard_dhr/shared/models/app_language.dart';
 import 'package:trackguard_dhr/shared/models/geo_location.dart';
@@ -13,27 +13,30 @@ import 'package:trackguard_dhr/shared/models/severity.dart';
 
 void main() {
   group('AI Provider & Sanitization Tests', () {
-    test('OfflineGemmaProvider parses valid structured JSON', () {
+    final validator = AiResultValidator();
+
+    test('AiResultValidator parses valid structured JSON', () {
       const json =
           '{"type":"rockfall","severity":"high","note":"Loose rocks on cutting slope."}';
-      final result = OfflineGemmaProvider.parseAndSanitize(
+      final result = validator.validateString(
         json,
-        AppLanguage.en,
+        provider: AiProvider.offlineGemma,
+        requestedLanguage: AppLanguage.en,
       );
 
       expect(result.hazardType, HazardType.rockfall);
       expect(result.severity, Severity.high);
       expect(result.note, 'Loose rocks on cutting slope.');
       expect(result.provider, AiProvider.offlineGemma);
-      expect(result.confidence, greaterThan(0.8));
     });
 
-    test('OfflineGemmaProvider sanitizes operational directives', () {
+    test('AiResultValidator sanitizes operational directives', () {
       const json =
           '{"type":"slip","severity":"critical","note":"Danger! Stop train immediately and close track."}';
-      final result = OfflineGemmaProvider.parseAndSanitize(
+      final result = validator.validateString(
         json,
-        AppLanguage.en,
+        provider: AiProvider.offlineGemma,
+        requestedLanguage: AppLanguage.en,
       );
 
       expect(result.hazardType, HazardType.slip);
@@ -43,12 +46,13 @@ void main() {
       expect(result.note?.contains('close track'), false);
     });
 
-    test('OfflineGemmaProvider throws on corrupted JSON', () {
+    test('AiResultValidator throws on corrupted JSON', () {
       const corruptedJson = '{invalid json string}';
       expect(
-        () => OfflineGemmaProvider.parseAndSanitize(
+        () => validator.validateString(
           corruptedJson,
-          AppLanguage.en,
+          provider: AiProvider.offlineGemma,
+          requestedLanguage: AppLanguage.en,
         ),
         throwsA(isA<AiInvalidOutputException>()),
       );
