@@ -10,7 +10,7 @@ import '../domain/ai_settings.dart';
 import 'heuristic_ai_provider.dart';
 import 'litert_gemma_provider.dart';
 import 'manual_ai_provider.dart';
-import 'online_gemini_provider.dart';
+import 'openrouter_ai_provider.dart';
 
 class AiAnalysisServiceImpl implements AiAnalysisService {
   final LitertGemmaProvider _litertGemma;

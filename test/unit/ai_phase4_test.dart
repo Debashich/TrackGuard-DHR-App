@@ -8,8 +8,8 @@ import 'package:trackguard_dhr/core/errors/app_exception.dart';
 import 'package:trackguard_dhr/features/ai/data/ai_analysis_service_impl.dart';
 import 'package:trackguard_dhr/features/ai/data/ai_prompt_builder.dart';
 import 'package:trackguard_dhr/features/ai/data/ai_result_validator.dart';
-import 'package:trackguard_dhr/features/ai/data/cactus_gemma_provider.dart';
-import 'package:trackguard_dhr/features/ai/data/online_gemini_provider.dart';
+import 'package:trackguard_dhr/features/ai/data/litert_gemma_provider.dart';
+import 'package:trackguard_dhr/features/ai/data/openrouter_ai_provider.dart';
 import 'package:trackguard_dhr/features/ai/domain/ai_provider_config.dart';
 import 'package:trackguard_dhr/features/ai/domain/ai_settings.dart';
 import 'package:trackguard_dhr/l10n/app_localizations.dart';
@@ -32,17 +32,17 @@ class _MockConnectivityService implements ConnectivityService {
   Stream<bool> watchOnlineStatus() => Stream.value(online);
 }
 
-class _MockCactusGemmaProvider extends CactusGemmaProvider {
+class _MockLitertGemmaProvider extends LitertGemmaProvider {
   final bool ready;
 
-  _MockCactusGemmaProvider({this.ready = true});
+  _MockLitertGemmaProvider({this.ready = true});
 
   @override
   bool get isReady => ready;
 
   @override
-  CactusGemmaState get state =>
-      ready ? CactusGemmaState.ready : CactusGemmaState.notInstalled;
+  LitertGemmaState get state =>
+      ready ? LitertGemmaState.ready : LitertGemmaState.notInstalled;
 
   @override
   Future<bool> isModelInstalled() async => ready;
@@ -281,7 +281,7 @@ void main() {
 
     test('Manual mode immediately returns manual classification', () async {
       final service = AiAnalysisServiceImpl(
-        cactusGemma: _MockCactusGemmaProvider(ready: true),
+        litertGemma: _MockLitertGemmaProvider(ready: true),
         onlineGemini: _MockOnlineGeminiProvider(available: true),
       );
 
@@ -297,9 +297,9 @@ void main() {
       expect(result.modelName, isNull);
     });
 
-    test('Offline Gemma mode uses Cactus Gemma when ready', () async {
+    test('Offline Gemma mode uses LiteRT Gemma when ready', () async {
       final service = AiAnalysisServiceImpl(
-        cactusGemma: _MockCactusGemmaProvider(ready: true),
+        litertGemma: _MockLitertGemmaProvider(ready: true),
         onlineGemini: _MockOnlineGeminiProvider(available: false),
       );
 
@@ -318,7 +318,7 @@ void main() {
       'Offline Gemma mode throws when Gemma is not ready',
       () async {
         final service = AiAnalysisServiceImpl(
-          cactusGemma: _MockCactusGemmaProvider(ready: false),
+          litertGemma: _MockLitertGemmaProvider(ready: false),
         );
 
         await expectLater(
@@ -335,7 +335,7 @@ void main() {
 
     test('Online Gemini mode uses Gemini cloud when available', () async {
       final service = AiAnalysisServiceImpl(
-        cactusGemma: _MockCactusGemmaProvider(ready: false),
+        litertGemma: _MockLitertGemmaProvider(ready: false),
         onlineGemini: _MockOnlineGeminiProvider(available: true),
       );
 
@@ -354,7 +354,7 @@ void main() {
       'Online Gemini mode falls back to Offline Gemma when cloud is offline',
       () async {
         final service = AiAnalysisServiceImpl(
-          cactusGemma: _MockCactusGemmaProvider(ready: true),
+          litertGemma: _MockLitertGemmaProvider(ready: true),
           onlineGemini: _MockOnlineGeminiProvider(available: false),
         );
 
@@ -375,7 +375,7 @@ void main() {
       'Automatic mode prefers Offline Gemma for privacy/offline operation',
       () async {
         final service = AiAnalysisServiceImpl(
-          cactusGemma: _MockCactusGemmaProvider(ready: true),
+          litertGemma: _MockLitertGemmaProvider(ready: true),
           onlineGemini: _MockOnlineGeminiProvider(available: true),
         );
 
@@ -394,7 +394,7 @@ void main() {
       'Automatic mode uses Online Gemini when Offline Gemma is not ready',
       () async {
         final service = AiAnalysisServiceImpl(
-          cactusGemma: _MockCactusGemmaProvider(ready: false),
+          litertGemma: _MockLitertGemmaProvider(ready: false),
           onlineGemini: _MockOnlineGeminiProvider(available: true),
         );
 

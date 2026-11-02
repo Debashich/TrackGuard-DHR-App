@@ -30,8 +30,8 @@ The application must support:
 - DHR section and kilometre-marker estimation.
 - Manual location correction when GPS is unavailable.
 - Human review of all AI suggestions.
-- Offline Gemma 4 E2B inference through the Cactus library.
-- Online Gemini inference through a secure backend.
+- Offline Gemma 4 E2B inference through the LiteRT-LM runtime.
+- Online vision AI inference (OpenRouter / Gemini backend).
 - Local report queue.
 - Reliable synchronization with Supabase.
 - Google authentication.
@@ -168,7 +168,7 @@ Recommended packages, subject to compatibility verification:
 - `flutter_secure_storage`
 - `intl`
 - `flutter_localizations`
-- Cactus Flutter/native integration for Gemma inference
+- LiteRT-LM (`litertlm`) integration for Gemma 4 E2B on-device inference
 
 ## 6. Domain Models
 
@@ -561,8 +561,8 @@ abstract class AiAnalysisProvider {
 
 Implement:
 
-- Cactus/Gemma offline provider.
-- Gemini provider client through a secured backend function.
+- LiteRT-LM / Gemma 4 E2B offline provider.
+- OpenRouter / Gemini online provider client.
 - Heuristic/manual fallback.
 - Strict JSON parsing.
 - Hazard/severity sanitization.
@@ -574,10 +574,10 @@ Provider selection:
 
 ```text
 If online mode is selected and connectivity exists:
-    call secured Gemini backend
+    call OpenRouter / secured cloud vision backend
 
 Else if offline Gemma is installed and ready:
-    use Cactus/Gemma
+    use LiteRT-LM / Gemma 4 E2B
 
 Else:
     use manual classification and deterministic fallback
@@ -760,7 +760,7 @@ The offline provider must:
 - Include model metadata.
 - Fall back safely if the device cannot run the model.
 
-### Online Gemini
+### Online AI (OpenRouter / Gemini backend)
 
 Gemini must:
 
@@ -1013,8 +1013,8 @@ Milestone:
 
 Shahbaz:
 
-- Cactus/Gemma integration.
-- Gemini client abstraction.
+- LiteRT-LM / Gemma 4 E2B integration.
+- OpenRouter / Gemini client abstraction.
 - Language-aware prompts.
 - Output validation.
 - Model settings.

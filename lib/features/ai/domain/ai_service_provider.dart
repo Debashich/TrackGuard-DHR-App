@@ -4,7 +4,7 @@ import '../../../core/supabase/supabase_provider.dart';
 import '../data/ai_analysis_service_impl.dart';
 import '../data/litert_gemma_provider.dart';
 import '../data/litert_offline_model_manager.dart';
-import '../data/online_gemini_provider.dart';
+import '../data/openrouter_ai_provider.dart';
 import 'ai_analysis_service.dart';
 import 'offline_model_manager.dart';
 import 'offline_model_state.dart';
