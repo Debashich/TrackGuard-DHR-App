@@ -31,6 +31,19 @@ class AppLocalizationsBn extends AppLocalizations {
   String get signInGoogle => 'গুগল দিয়ে সাইন ইন করুন';
 
   @override
+  String get offlineFieldLogin => 'ফিল্ড পরিদর্শন (অফলাইন মোড)';
+
+  @override
+  String get offlineFieldLoginSubtitle =>
+      'অন-ডিভাইস জেমা এআই ব্যবহার করুন • ইন্টারনেটের প্রয়োজন নেই';
+
+  @override
+  String get offlineModeBadge => 'অফলাইন মোড (ইন্টারনেট নেই)';
+
+  @override
+  String get onlineModeBadge => 'অনলাইন (ক্লাউড সিঙ্ক প্রস্তুত)';
+
+  @override
   String get devSignInGangman => 'ডেভেলপার সাইন ইন (গ্যাংম্যান)';
 
   @override

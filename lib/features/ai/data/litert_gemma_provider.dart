@@ -122,16 +122,11 @@ class LitertGemmaProvider {
         _setState(LitertGemmaState.ready);
         return true;
       } else if (modelState.status == OfflineModelStatus.downloaded) {
-        try {
-          await manager.initialize();
-          if (manager is LitertOfflineModelManager) {
-            _engine = manager.engine;
-          }
+        // Model weights exist on disk - indicate available without freezing UI looper with 30s JNI init
+        if (_state != LitertGemmaState.ready) {
           _setState(LitertGemmaState.ready);
-          return true;
-        } catch (e) {
-          debugPrint('Failed to auto-initialize downloaded model: $e');
         }
+        return true;
       } else if (modelState.isDownloading) {
         _setState(LitertGemmaState.downloading);
       } else {
@@ -205,7 +200,7 @@ class LitertGemmaProvider {
           modelPath: modelPath,
           backend: const Backend.cpu(),
           visionBackend: const Backend.cpu(),
-          maxNumTokens: 4096,
+          maxNumTokens: 1024,
           maxNumImages: 1,
         ),
       );
@@ -275,9 +270,9 @@ class LitertGemmaProvider {
     final manager = modelManager;
     if (manager != null) {
       final modelState = await manager.getState();
-      if (!modelState.isReady) {
+      if (!modelState.isReady && !modelState.isDownloaded) {
         throw const OfflineModelUnavailableException(
-          'Offline Gemma 4 E2B model is not initialized or ready.',
+          'Offline Gemma 4 E2B model is not downloaded or ready on this device.',
         );
       }
       if (_engine == null && manager is LitertOfflineModelManager) {

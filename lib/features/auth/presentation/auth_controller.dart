@@ -3,17 +3,18 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/connectivity/connectivity_provider.dart';
 import '../../../shared/models/app_user.dart';
 import '../../../shared/models/user_role.dart';
 import '../data/auth_repository.dart';
-import '../data/development_auth_repository.dart';
+import '../data/supabase_auth_repository.dart';
 import '../domain/auth_state.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return _sharedAuthRepo;
 });
 
-final _sharedAuthRepo = DevelopmentAuthRepository();
+final _sharedAuthRepo = SupabaseAuthRepository();
 
 class AuthController extends Notifier<AuthState> {
   late AuthRepository _repository;
@@ -35,7 +36,8 @@ class AuthController extends Notifier<AuthState> {
         if (error is ProfileNotFoundException) {
           state = AuthState.profilePending();
         } else {
-          state = AuthState.error(error.toString());
+          debugPrint('Auth subscription error: $error; attempting cached fallback.');
+          _tryFallbackToCached();
         }
       },
     );
@@ -49,50 +51,67 @@ class AuthController extends Notifier<AuthState> {
     return AuthState.unauthenticated();
   }
 
+  Future<void> _tryFallbackToCached() async {
+    final cached = await _repository.getCachedUser();
+    if (cached != null) {
+      _handleUserLoaded(cached);
+    } else {
+      state = AuthState.unauthenticated();
+    }
+  }
+
   Future<void> _restoreSession() async {
     try {
       final user = await _repository.getCurrentUser();
 
       if (user != null) {
         _handleUserLoaded(user);
+      } else {
+        state = AuthState.unauthenticated();
       }
     } on ProfileNotFoundException {
       state = AuthState.profilePending();
     } catch (error) {
-      state = AuthState.error(error.toString());
+      debugPrint('Restore session caught error: $error; falling back to cache');
+      await _tryFallbackToCached();
     }
   }
 
   Future<void> signInWithGoogle() async {
     state = AuthState.authenticating();
 
+    // Check connectivity first
+    try {
+      final connectivity = ref.read(connectivityServiceProvider);
+      final isOnline = await connectivity.isOnline();
+      if (!isOnline) {
+        // If device has no internet, check if there is an existing cached user
+        final cached = await _repository.getCachedUser();
+        if (cached != null) {
+          _handleUserLoaded(cached);
+          return;
+        } else {
+          state = AuthState.error(
+            'Internet connection is required to sign in with Google for the first time.',
+          );
+          return;
+        }
+      }
+    } catch (_) {
+      // Proceed to attempt Google sign-in
+    }
+
     try {
       await _repository.signInWithGoogle();
       // The auth-state listener handles the completed OAuth redirect.
     } catch (error) {
-      state = AuthState.error(error.toString());
-    }
-  }
-
-  Future<void> signInDevelopment({
-    required UserRole role,
-    bool isActive = true,
-  }) async {
-    if (!kDebugMode) {
-      state = AuthState.error('Development sign-in is disabled.');
-      return;
-    }
-
-    state = AuthState.authenticating();
-
-    try {
-      final user = await _repository.signInDevelopment(
-        role: role,
-        isActive: isActive,
-      );
-      _handleUserLoaded(user);
-    } catch (error) {
-      state = AuthState.error(error.toString());
+      debugPrint('Google sign-in failed ($error)');
+      final cached = await _repository.getCachedUser();
+      if (cached != null) {
+        _handleUserLoaded(cached);
+      } else {
+        state = AuthState.error(error.toString());
+      }
     }
   }
 

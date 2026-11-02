@@ -31,6 +31,19 @@ class AppLocalizationsNe extends AppLocalizations {
   String get signInGoogle => 'गुगलबाट साइन इन गर्नुहोस्';
 
   @override
+  String get offlineFieldLogin => 'फिल्ड निरीक्षण (अफलाइन मोड)';
+
+  @override
+  String get offlineFieldLoginSubtitle =>
+      'अन-डिभाइस जेम्मा एआई प्रयोग गर्नुहोस् • इन्टरनेट आवश्यक छैन';
+
+  @override
+  String get offlineModeBadge => 'अफलाइन मोड (इन्टरनेट छैन)';
+
+  @override
+  String get onlineModeBadge => 'अनलाइन (क्लाउड सिंक तयार)';
+
+  @override
   String get devSignInGangman => 'डेभलपर साइन इन (ग्याङम्यान)';
 
   @override

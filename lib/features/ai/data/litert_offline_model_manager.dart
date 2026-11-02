@@ -30,6 +30,7 @@ class LitertOfflineModelManager implements OfflineModelManager {
 
   Engine? _engine;
   bool _isInitialized = false;
+  Future<void>? _activeInitFuture;
 
   static const int requiredFreeDiskSpaceBytes =
       3500 * 1024 * 1024; // ~3.5 GB free for 2.6 GB model + buffer
@@ -403,6 +404,28 @@ class LitertOfflineModelManager implements OfflineModelManager {
 
   @override
   Future<void> initialize() async {
+    // 1. Guard against duplicate allocation if already initialized
+    if (_isInitialized && _engine != null) {
+      return;
+    }
+
+    // 2. Guard against concurrent in-flight initialization calls
+    if (_activeInitFuture != null) {
+      return _activeInitFuture;
+    }
+
+    final future = _doInitialize();
+    _activeInitFuture = future;
+    try {
+      await future;
+    } finally {
+      if (identical(_activeInitFuture, future)) {
+        _activeInitFuture = null;
+      }
+    }
+  }
+
+  Future<void> _doInitialize() async {
     final modelDirPath = await _getModelDirPath();
 
     // Verify artifact integrity prior to initializing native LiteRT-LM FFI.
@@ -449,14 +472,14 @@ class LitertOfflineModelManager implements OfflineModelManager {
         debugPrint('Failed to set visualTokenBudget: $flagError');
       }
 
-      // Initialize native LiteRT-LM Engine on CPU with explicit vision executor backend and 4096 token context.
-      // CPU backend avoids native Mali WebGPU driver crashes (abort/SIGSEGV) during vision patch embedding.
+      // Initialize native LiteRT-LM Engine on CPU with explicit vision executor backend.
+      // Use maxNumTokens: 1024 to minimize KV-cache RAM footprint and avoid native OOM.
       final engine = Engine(
         engineConfig: EngineConfig(
           modelPath: modelPath,
           backend: const Backend.cpu(),
           visionBackend: const Backend.cpu(),
-          maxNumTokens: 4096,
+          maxNumTokens: 1024,
           maxNumImages: 1,
         ),
       );
@@ -553,8 +576,11 @@ class LitertOfflineModelManager implements OfflineModelManager {
 
   @override
   void dispose() {
+    _activeInitFuture = null;
     _stateController.close();
     _engine?.dispose();
+    _engine = null;
+    _isInitialized = false;
   }
 }
 

@@ -5,7 +5,7 @@ import '../../../app/theme.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/app_language.dart';
-import '../../../shared/widgets/primary_button.dart';
+import '../../../shared/widgets/google_sign_in_button.dart';
 import '../domain/auth_state.dart';
 import 'auth_controller.dart';
 
@@ -120,22 +120,24 @@ class SignInScreen extends ConsumerWidget {
                     ),
                     child: Text(
                       authState.errorMessage!,
-                      style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13),
+                      style: const TextStyle(
+                        color: AppTheme.textPrimary,
+                        fontSize: 13,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
                 ],
 
                 // Google Sign In
-                PrimaryButton(
+                GoogleSignInButton(
                   text: l10n.signInGoogle,
-                  icon: Icons.account_circle,
                   isLoading: isAuthenticating,
                   onPressed: isAuthenticating
                       ? null
                       : () => ref
-                            .read(authControllerProvider.notifier)
-                            .signInWithGoogle(),
+                          .read(authControllerProvider.notifier)
+                          .signInWithGoogle(),
                 ),
 
                 const SizedBox(height: 32),

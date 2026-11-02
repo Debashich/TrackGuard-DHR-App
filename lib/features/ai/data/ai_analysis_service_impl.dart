@@ -73,7 +73,9 @@ class AiAnalysisServiceImpl implements AiAnalysisService {
 
     // Mode: Offline Gemma explicitly selected
     if (mode == AiMode.offlineGemma) {
-      if (_litertGemma.isReady) {
+      final isAvailable =
+          _litertGemma.isReady || await _litertGemma.isModelInstalled();
+      if (isAvailable) {
         final result = await _litertGemma.analyze(
           image: image,
           location: location,
@@ -117,7 +119,9 @@ class AiAnalysisServiceImpl implements AiAnalysisService {
 
     // Mode: Automatic
     // 1. Prefer Offline Gemma for offline/privacy-first alignment operations
-    if (_litertGemma.isReady) {
+    final canUseOffline =
+        _litertGemma.isReady || await _litertGemma.isModelInstalled();
+    if (canUseOffline) {
       final result = await _litertGemma.analyze(
         image: image,
         location: location,

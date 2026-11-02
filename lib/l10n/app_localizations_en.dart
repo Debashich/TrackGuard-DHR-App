@@ -31,6 +31,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInGoogle => 'Sign In with Google';
 
   @override
+  String get offlineFieldLogin => 'Field Inspection (Offline Mode)';
+
+  @override
+  String get offlineFieldLoginSubtitle =>
+      'Use on-device Gemma AI • No internet required';
+
+  @override
+  String get offlineModeBadge => 'Offline Mode (No Internet)';
+
+  @override
+  String get onlineModeBadge => 'Online (Cloud Sync Ready)';
+
+  @override
   String get devSignInGangman => 'Developer Sign In (Gangman)';
 
   @override

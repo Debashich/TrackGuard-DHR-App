@@ -10,13 +10,39 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/app_language.dart';
 import '../../../shared/widgets/connectivity_indicator.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../ai/domain/ai_service_provider.dart';
+import '../../ai/domain/offline_model_state.dart';
 import '../../reports/domain/report_repository_provider.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _warmupOfflineModel();
+    });
+  }
+
+  void _warmupOfflineModel() async {
+    final manager = ref.read(offlineModelManagerProvider);
+    final state = await manager.getState();
+    // If the model is downloaded on disk but not yet activated, warm it up in background
+    if (state.status == OfflineModelStatus.downloaded) {
+      manager.initialize().catchError((error) {
+        debugPrint('Dashboard offline model warm-up deferred: $error');
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final authState = ref.watch(authControllerProvider);
     final user = authState.user;
@@ -181,7 +207,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 Card(
                   color: AppTheme.primaryBlue,

@@ -31,6 +31,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get signInGoogle => 'गूगल के साथ साइन इन करें';
 
   @override
+  String get offlineFieldLogin => 'फील्ड निरीक्षण (ऑफलाइन मोड)';
+
+  @override
+  String get offlineFieldLoginSubtitle =>
+      'ऑन-डिवाइस जेम्मा एआई का उपयोग करें • इंटरनेट की आवश्यकता नहीं';
+
+  @override
+  String get offlineModeBadge => 'ऑफलाइन मोड (इंटरनेट नहीं)';
+
+  @override
+  String get onlineModeBadge => 'ऑनलाइन (क्लाउड सिंक तैयार)';
+
+  @override
   String get devSignInGangman => 'डेवलपर साइन इन (गैंगमैन)';
 
   @override

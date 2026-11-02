@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -8,6 +9,18 @@ import 'features/ai/application/ai_startup_initializer.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Suppress unhandled non-fatal network exceptions (such as offline Supabase token refresh)
+  PlatformDispatcher.instance.onError = (error, stack) {
+    final errStr = error.toString();
+    if (errStr.contains('AuthRetryableFetchException') ||
+        errStr.contains('ClientException') ||
+        errStr.contains('SocketException')) {
+      debugPrint('Suppressed offline network exception: $errStr');
+      return true;
+    }
+    return false;
+  };
 
   // Load .env configuration (Next.js style)
   await AppEnv.load();
