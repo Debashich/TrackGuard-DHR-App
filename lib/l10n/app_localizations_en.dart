@@ -31,6 +31,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInGoogle => 'Sign In with Google';
 
   @override
+  String get offlineFieldLogin => 'Field Inspection (Offline Mode)';
+
+  @override
+  String get offlineFieldLoginSubtitle =>
+      'Use on-device Gemma AI • No internet required';
+
+  @override
+  String get offlineModeBadge => 'Offline Mode (No Internet)';
+
+  @override
+  String get onlineModeBadge => 'Online (Cloud Sync Ready)';
+
+  @override
   String get devSignInGangman => 'Developer Sign In (Gangman)';
 
   @override
@@ -866,7 +879,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get offlineModelMobileDataWarning =>
-      'Downloading ~1.2 GB over mobile data may incur carrier charges or consume data limits.';
+      'Downloading ~2.6 GB over mobile data may incur carrier charges or consume data limits.';
 
   @override
   String get offlineModelCancelDownload => 'Cancel Download';

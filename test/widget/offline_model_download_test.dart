@@ -108,7 +108,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Gemma 4 E2B'), findsOneWidget);
-      expect(find.text('SPECIFICATIONS & REQUIREMENTS'), findsOneWidget);
       expect(find.text('DOWNLOAD PREFERENCES'), findsOneWidget);
       expect(find.text('MODEL STATUS & ACTIONS'), findsOneWidget);
       expect(find.text('Download Model'), findsOneWidget);

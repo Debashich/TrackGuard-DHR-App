@@ -47,18 +47,14 @@ class OnlineGeminiProvider implements OnlineAiProvider {
     ConnectivityService? connectivityService,
     AiResultValidator? validator,
     AiPromptBuilder? promptBuilder,
-    http.Client? httpClient,
-    String? apiKey,
-    String? model,
-    String? apiUrl,
+    this.httpClient,
+    this.apiKey,
+    this.model,
+    this.apiUrl,
   })  : _connectivityService =
             connectivityService ?? DefaultConnectivityService(),
         _validator = validator ?? AiResultValidator(),
-        _promptBuilder = promptBuilder ?? AiPromptBuilder(),
-        httpClient = httpClient,
-        apiKey = apiKey,
-        model = model,
-        apiUrl = apiUrl;
+        _promptBuilder = promptBuilder ?? AiPromptBuilder();
 
   @override
   Future<bool> isAvailable() async {

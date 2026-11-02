@@ -3,7 +3,7 @@ import 'dart:io';
 import '../../../shared/models/ai_analysis_result.dart';
 import '../../../shared/models/app_language.dart';
 import '../../../shared/models/geo_location.dart';
-import '../data/cactus_gemma_provider.dart';
+import '../data/litert_gemma_provider.dart';
 import 'ai_settings.dart';
 
 abstract class AiAnalysisService {
@@ -11,8 +11,8 @@ abstract class AiAnalysisService {
   Future<bool> isOnlineProviderAvailable();
   Future<void> initializeOfflineModel();
 
-  CactusGemmaState get offlineModelState;
-  Stream<CactusGemmaState> watchOfflineModelState();
+  LitertGemmaState get offlineModelState;
+  Stream<LitertGemmaState> watchOfflineModelState();
 
   Future<AiAnalysisResult> analyze({
     required File image,

@@ -357,6 +357,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.5"
+  glob:
+    dependency: transitive
+    description:
+      name: glob
+      sha256: "218aeb56050c714f62a3182775320dfa04602b55074873e24e31bbd39bda96fb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   go_router:
     dependency: "direct main"
     description:
@@ -525,78 +533,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  lib_llama_cpp:
-    dependency: "direct main"
-    description:
-      name: lib_llama_cpp
-      sha256: f57853358a307a4330381f43d787ba680c5a66d2a6cbb856f509112109c72792
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.5"
-  lib_llama_cpp_android:
-    dependency: transitive
-    description:
-      name: lib_llama_cpp_android
-      sha256: "94f66914b721288cc085b8fd784966156b4ea5690e7efddce55e3682eb315877"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.5"
-  lib_llama_cpp_ffi:
-    dependency: transitive
-    description:
-      name: lib_llama_cpp_ffi
-      sha256: f656e6dcec3f70f293c32671b9de2614ba3d57c9d3ccd0cc5866fc0f013fb3bb
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.5"
-  lib_llama_cpp_ios:
-    dependency: transitive
-    description:
-      name: lib_llama_cpp_ios
-      sha256: b091274f3a8d0f8a2dbf3554c07712ed33558c7831812b8788ef2c74fb322cb5
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.5"
-  lib_llama_cpp_linux:
-    dependency: transitive
-    description:
-      name: lib_llama_cpp_linux
-      sha256: c18dd0342927f091b79cef64ac1848774bd76774dbf983f21bee22f9bce2abbd
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.5"
-  lib_llama_cpp_macos:
-    dependency: transitive
-    description:
-      name: lib_llama_cpp_macos
-      sha256: "6b42c0d677601b48de50aec543f456c6d83e5f907e37898ff30e9105a81ad9a3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.5"
-  lib_llama_cpp_platform_interface:
-    dependency: transitive
-    description:
-      name: lib_llama_cpp_platform_interface
-      sha256: f8f0728ca6e7f3b8c8673b916f9797d83d47c2f56e80a4a45e1c543b20dcd8da
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.5"
-  lib_llama_cpp_server:
-    dependency: transitive
-    description:
-      name: lib_llama_cpp_server
-      sha256: "91476dd3ecb11ae9022537a8fadc88861b328decff954114e9fbae2b40b8c057"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.5"
-  lib_llama_cpp_windows:
-    dependency: transitive
-    description:
-      name: lib_llama_cpp_windows
-      sha256: a29d72b73c0e17e7f4e2c8668daba76b17ad5b66a16857e228ac10dce248bab0
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.5"
   lints:
     dependency: transitive
     description:
@@ -613,6 +549,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  litertlm:
+    dependency: "direct main"
+    description:
+      name: litertlm
+      sha256: a072a39223d92d34367c9a176fc23a313305da9cafc227507b7b17d23d619e8d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.14"
   logging:
     dependency: transitive
     description:
@@ -661,6 +605,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  native_toolchain_c:
+    dependency: transitive
+    description:
+      name: native_toolchain_c
+      sha256: f9c168717100ae6d9fee9ffb0be379bf1f8b26b0f6bcbd4fdddcd931993a6a72
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.19.2"
   nm:
     dependency: transitive
     description:

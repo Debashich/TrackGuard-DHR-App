@@ -79,39 +79,22 @@ class AiStartupInitializer {
         _updateReadiness(
           const AiStartupReadiness(
             status: AiStartupReadinessStatus.ready,
-            message: 'Offline Gemma ready',
+            message: 'Offline photo helper ready',
           ),
         );
         return;
       }
 
       if (state.status == OfflineModelStatus.downloaded) {
-        // Model weights exist and passed validation -> automatically initialize
+        // Model weights exist and passed validation.
+        // Defer native engine initialization to on-demand (when analysis is requested or settings opened)
+        // to prevent 30s UI looper freezing, skipped frames, and memory pressure at app launch.
         _updateReadiness(
           const AiStartupReadiness(
-            status: AiStartupReadinessStatus.initializing,
-            message: 'Initializing Gemma 4 E2B...',
+            status: AiStartupReadinessStatus.ready,
+            message: 'Offline photo helper ready (on-demand)',
           ),
         );
-
-        try {
-          await modelManager.initialize();
-          _updateReadiness(
-            const AiStartupReadiness(
-              status: AiStartupReadinessStatus.ready,
-              message: 'Offline Gemma ready',
-            ),
-          );
-        } catch (initError) {
-          debugPrint('Automatic startup initialization deferred: $initError');
-          _updateReadiness(
-            AiStartupReadiness(
-              status: AiStartupReadinessStatus.unavailable,
-              message: 'Offline Gemma unavailable',
-              error: initError.toString(),
-            ),
-          );
-        }
         return;
       }
 

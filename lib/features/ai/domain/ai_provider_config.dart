@@ -1,17 +1,15 @@
 class AiProviderConfig {
   static const String offlineGemmaModelName = 'Gemma 4 E2B';
-  static const String offlineGemmaSlug = 'gemma-4-e2b';
+  static const String offlineGemmaSlug = 'gemma-4-e2b-litertlm';
   static const String offlineGemmaRepository =
-      'lmstudio-community/gemma-4-E2B-it-GGUF';
-  static const String offlineGemmaFile = 'gemma-4-E2B-it-Q4_K_M.gguf';
-  static const String offlineGemmaProjectorFile =
-      'mmproj-gemma-4-E2B-it-BF16.gguf';
+      'litert-community/gemma-4-E2B-it-litert-lm';
+  static const String offlineGemmaFile = 'gemma-4-E2B-it.litertlm';
   static const String offlineGemmaBranch = 'main';
-  static const String offlineGemmaVersion = 'phase4-gemma4-e2b-v1';
+  static const String offlineGemmaVersion = 'litertlm-gemma4-e2b-v1';
   static const String offlineGemmaSha256 = '';
-  static const int offlineGemmaMinSizeBytes = 50 * 1024 * 1024; // 50 MB
+  static const int offlineGemmaMinSizeBytes = 2 * 1024 * 1024 * 1024; // 2 GB
   static const int offlineGemmaEstimatedSizeBytes =
-      1500 * 1024 * 1024; // ~1.5 GB
+      2600 * 1024 * 1024; // ~2.6 GB
 
   static const String openRouterApiUrl =
       'https://openrouter.ai/api/v1/chat/completions';
@@ -26,15 +24,7 @@ class AiProviderConfig {
     String branch = offlineGemmaBranch,
     String file = offlineGemmaFile,
   }) {
-    return 'https://huggingface.co/$repository/resolve/$branch/$file';
-  }
-
-  static String buildHuggingFaceProjectorResolveUrl({
-    String repository = offlineGemmaRepository,
-    String branch = offlineGemmaBranch,
-    String file = offlineGemmaProjectorFile,
-  }) {
-    return 'https://huggingface.co/$repository/resolve/$branch/$file';
+    return 'https://huggingface.co/$repository/resolve/$branch/$file?download=true';
   }
 
   static String buildHuggingFaceRepoUrl({

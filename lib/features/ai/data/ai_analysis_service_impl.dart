@@ -7,28 +7,29 @@ import '../../../shared/models/app_language.dart';
 import '../../../shared/models/geo_location.dart';
 import '../domain/ai_analysis_service.dart';
 import '../domain/ai_settings.dart';
-import 'cactus_gemma_provider.dart';
 import 'heuristic_ai_provider.dart';
+import 'litert_gemma_provider.dart';
 import 'manual_ai_provider.dart';
 import 'online_gemini_provider.dart';
 
 class AiAnalysisServiceImpl implements AiAnalysisService {
-  final CactusGemmaProvider _cactusGemma;
+  final LitertGemmaProvider _litertGemma;
   final OnlineGeminiProvider _onlineGemini;
   final ManualAiProvider _manualAi;
 
   AiAnalysisServiceImpl({
-    CactusGemmaProvider? cactusGemma,
+    LitertGemmaProvider? litertGemma,
+    LitertGemmaProvider? cactusGemma,
     OnlineGeminiProvider? onlineGemini,
     HeuristicAiProvider? heuristicAi,
     ManualAiProvider? manualAi,
-  }) : _cactusGemma = cactusGemma ?? CactusGemmaProvider(),
+  }) : _litertGemma = litertGemma ?? cactusGemma ?? LitertGemmaProvider(),
        _onlineGemini = onlineGemini ?? OnlineGeminiProvider(),
        _manualAi = manualAi ?? ManualAiProvider();
 
   @override
   Future<bool> isOfflineModelAvailable() async {
-    return _cactusGemma.isModelInstalled();
+    return _litertGemma.isModelInstalled();
   }
 
   @override
@@ -38,14 +39,14 @@ class AiAnalysisServiceImpl implements AiAnalysisService {
 
   @override
   Future<void> initializeOfflineModel() async {
-    await _cactusGemma.initialize();
+    await _litertGemma.initialize();
   }
 
   @override
-  CactusGemmaState get offlineModelState => _cactusGemma.state;
+  LitertGemmaState get offlineModelState => _litertGemma.state;
 
   @override
-  Stream<CactusGemmaState> watchOfflineModelState() => _cactusGemma.stateStream;
+  Stream<LitertGemmaState> watchOfflineModelState() => _litertGemma.stateStream;
 
   @override
   Future<AiAnalysisResult> analyze({
@@ -57,8 +58,8 @@ class AiAnalysisServiceImpl implements AiAnalysisService {
     final mode = requestedMode ?? AiMode.automatic;
 
     // Ensure model readiness is up-to-date before evaluating routing
-    if (!_cactusGemma.isReady) {
-      await _cactusGemma.isModelInstalled();
+    if (!_litertGemma.isReady) {
+      await _litertGemma.isModelInstalled();
     }
 
     // Mode: Manual classification
@@ -72,8 +73,10 @@ class AiAnalysisServiceImpl implements AiAnalysisService {
 
     // Mode: Offline Gemma explicitly selected
     if (mode == AiMode.offlineGemma) {
-      if (_cactusGemma.isReady) {
-        final result = await _cactusGemma.analyze(
+      final isAvailable =
+          _litertGemma.isReady || await _litertGemma.isModelInstalled();
+      if (isAvailable) {
+        final result = await _litertGemma.analyze(
           image: image,
           location: location,
           language: language,
@@ -96,8 +99,8 @@ class AiAnalysisServiceImpl implements AiAnalysisService {
         );
         return result.copyWith(requestedProvider: AiProvider.onlineGemini);
       } else {
-        if (_cactusGemma.isReady) {
-          final gemmaResult = await _cactusGemma.analyze(
+        if (_litertGemma.isReady) {
+          final gemmaResult = await _litertGemma.analyze(
             image: image,
             location: location,
             language: language,
@@ -116,8 +119,10 @@ class AiAnalysisServiceImpl implements AiAnalysisService {
 
     // Mode: Automatic
     // 1. Prefer Offline Gemma for offline/privacy-first alignment operations
-    if (_cactusGemma.isReady) {
-      final result = await _cactusGemma.analyze(
+    final canUseOffline =
+        _litertGemma.isReady || await _litertGemma.isModelInstalled();
+    if (canUseOffline) {
+      final result = await _litertGemma.analyze(
         image: image,
         location: location,
         language: language,

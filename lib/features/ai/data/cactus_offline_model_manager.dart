@@ -1,6 +1,6 @@
-export 'llama_offline_model_manager.dart';
+export 'litert_offline_model_manager.dart';
 
-import 'llama_offline_model_manager.dart';
+import 'litert_offline_model_manager.dart';
 
-/// Backward-compatible alias for [LlamaOfflineModelManager].
-typedef CactusOfflineModelManager = LlamaOfflineModelManager;
+/// Backward-compatible alias for [LitertOfflineModelManager].
+typedef CactusOfflineModelManager = LitertOfflineModelManager;

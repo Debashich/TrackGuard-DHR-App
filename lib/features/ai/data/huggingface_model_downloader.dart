@@ -38,7 +38,7 @@ class HuggingFaceModelDownloader {
     final cleanRepo = repository.trim().replaceAll(RegExp(r'^/|/$'), '');
     final cleanFile = file.trim().replaceAll(RegExp(r'^/|/$'), '');
     final cleanBranch = branch.trim().isEmpty ? 'main' : branch.trim();
-    return 'https://huggingface.co/$cleanRepo/resolve/$cleanBranch/$cleanFile';
+    return 'https://huggingface.co/$cleanRepo/resolve/$cleanBranch/$cleanFile?download=true';
   }
 
   /// Cancels an in-progress download and cleans up temporary partial files.

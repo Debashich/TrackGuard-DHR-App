@@ -1,5 +1,4 @@
 import '../../../shared/models/app_user.dart';
-import '../../../shared/models/user_role.dart';
 
 class ProfileNotFoundException implements Exception {
   final String userId;
@@ -18,12 +17,9 @@ abstract class AuthRepository {
 
   Future<void> signInWithGoogle();
 
-  Future<AppUser> signInDevelopment({
-    required UserRole role,
-    bool isActive = true,
-  });
-
   Future<void> signOut();
 
   Future<AppUser?> loadProfile(String userId);
+
+  Future<AppUser?> getCachedUser();
 }

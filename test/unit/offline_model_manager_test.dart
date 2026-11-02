@@ -5,9 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:trackguard_dhr/core/connectivity/connectivity_service.dart';
 import 'package:trackguard_dhr/core/errors/app_exception.dart';
 import 'package:trackguard_dhr/features/ai/application/ai_startup_initializer.dart';
-import 'package:trackguard_dhr/features/ai/data/cactus_offline_model_manager.dart';
 import 'package:trackguard_dhr/features/ai/data/huggingface_model_downloader.dart';
+import 'package:trackguard_dhr/features/ai/data/litert_offline_model_manager.dart';
 import 'package:trackguard_dhr/features/ai/data/offline_model_artifact_validator.dart';
+import 'package:trackguard_dhr/features/ai/domain/ai_provider_config.dart';
 import 'package:trackguard_dhr/features/ai/domain/offline_model_manager.dart';
 import 'package:trackguard_dhr/features/ai/domain/offline_model_state.dart';
 
@@ -104,27 +105,28 @@ void main() {
       expect(state.downloadedBytes, equals(0));
       expect(state.progress, equals(0.0));
       expect(state.formattedDownloadedSize, equals('0 MB'));
+      expect(state.formattedTotalSize, equals('~2.6 GB'));
+      expect(state.filename, equals('gemma-4-E2B-it.litertlm'));
     });
 
     test('Formatted sizes calculate MB and GB properly', () {
       final state = const OfflineModelState().copyWith(
-        downloadedBytes: 250 * 1024 * 1024,
-        totalBytes: 1250 * 1024 * 1024,
-        progress: 0.2,
+        downloadedBytes: 500 * 1024 * 1024,
+        totalBytes: 2600 * 1024 * 1024,
+        progress: 0.19,
       );
-      expect(state.formattedDownloadedSize, equals('250.0 MB'));
-      expect(state.formattedTotalSize, equals('1.22 GB'));
-      expect(state.progressPercent, equals(20));
+      expect(state.formattedDownloadedSize, equals('500.0 MB'));
+      expect(state.formattedTotalSize, equals('2.54 GB'));
+      expect(state.progressPercent, equals(19));
     });
 
     test('OfflineModelState JSON serialization works roundtrip', () {
       final now = DateTime.now();
       final state = const OfflineModelState().copyWith(
         status: OfflineModelStatus.ready,
-        version: '1.2.0',
-        repository: 'lmstudio-community/gemma-4-E2B-it-GGUF',
-        filename: 'gemma-4-E2B-it-Q4_K_M.gguf',
-        projectorFilename: 'mmproj-gemma-4-E2B-it-BF16.gguf',
+        version: 'litertlm-gemma4-e2b-v1',
+        repository: 'litert-community/gemma-4-E2B-it-litert-lm',
+        filename: 'gemma-4-E2B-it.litertlm',
         downloadedBytes: 1000,
         totalBytes: 1000,
         downloadedAt: now,
@@ -133,16 +135,12 @@ void main() {
       final restored = OfflineModelState.fromJson(json);
 
       expect(restored.status, equals(OfflineModelStatus.ready));
-      expect(restored.version, equals('1.2.0'));
+      expect(restored.version, equals('litertlm-gemma4-e2b-v1'));
       expect(
         restored.repository,
-        equals('lmstudio-community/gemma-4-E2B-it-GGUF'),
+        equals('litert-community/gemma-4-E2B-it-litert-lm'),
       );
-      expect(restored.filename, equals('gemma-4-E2B-it-Q4_K_M.gguf'));
-      expect(
-        restored.projectorFilename,
-        equals('mmproj-gemma-4-E2B-it-BF16.gguf'),
-      );
+      expect(restored.filename, equals('gemma-4-E2B-it.litertlm'));
       expect(restored.downloadedBytes, equals(1000));
       expect(restored.canDelete, isTrue);
     });
@@ -163,30 +161,30 @@ void main() {
   });
 
   group('HuggingFaceModelDownloader Tests', () {
-    test('Builds valid Hugging Face resolve URL', () {
+    test('Builds valid Hugging Face resolve URL with ?download=true', () {
       final url = HuggingFaceModelDownloader.buildResolveUrl(
-        repository: 'lmstudio-community/gemma-4-E2B-it-GGUF',
-        file: 'gemma-4-E2B-it-Q4_K_M.gguf',
+        repository: 'litert-community/gemma-4-E2B-it-litert-lm',
+        file: 'gemma-4-E2B-it.litertlm',
         branch: 'main',
       );
       expect(
         url,
         equals(
-          'https://huggingface.co/lmstudio-community/gemma-4-E2B-it-GGUF/resolve/main/gemma-4-E2B-it-Q4_K_M.gguf',
+          'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm?download=true',
         ),
       );
     });
 
     test('Trims slashes and defaults to main branch in resolve URL', () {
       final url = HuggingFaceModelDownloader.buildResolveUrl(
-        repository: '/bartowski/gemma-2-2b-it-GGUF/',
-        file: '/model.gguf',
+        repository: '/litert-community/gemma-4-E2B-it-litert-lm/',
+        file: '/gemma-4-E2B-it.litertlm',
         branch: '',
       );
       expect(
         url,
         equals(
-          'https://huggingface.co/bartowski/gemma-2-2b-it-GGUF/resolve/main/model.gguf',
+          'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm?download=true',
         ),
       );
     });
@@ -204,7 +202,7 @@ void main() {
     });
 
     test('Fails when directory contains only small placeholder or manifest', () async {
-      final modelDir = Directory('${tempDir.path}/models/gemma-4-e2b');
+      final modelDir = Directory('${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}');
       await modelDir.create(recursive: true);
       final manifest = File('${modelDir.path}/manifest.json');
       await manifest.writeAsString('{"model":"placeholder"}');
@@ -218,9 +216,9 @@ void main() {
     });
 
     test('Fails when model artifact is smaller than minimum threshold', () async {
-      final modelDir = Directory('${tempDir.path}/models/gemma-4-e2b');
+      final modelDir = Directory('${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}');
       await modelDir.create(recursive: true);
-      final file = File('${modelDir.path}/gemma-4-E2B-it-Q4_K_M.gguf');
+      final file = File('${modelDir.path}/gemma-4-E2B-it.litertlm');
       await file.writeAsString('TINY_STUB');
 
       final res = await validator.validateArtifact(
@@ -232,11 +230,11 @@ void main() {
     });
 
     test('Succeeds and verifies SHA-256 for genuine artifact', () async {
-      final modelDir = Directory('${tempDir.path}/models/gemma-4-e2b');
+      final modelDir = Directory('${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}');
       await modelDir.create(recursive: true);
-      final file = File('${modelDir.path}/gemma-4-E2B-it-Q4_K_M.gguf');
+      final file = File('${modelDir.path}/gemma-4-E2B-it.litertlm');
 
-      // Create dummy file that meets 100 byte test threshold
+      // Create dummy file that meets 200 byte test threshold
       final dummyBytes = List<int>.filled(200, 42);
       await file.writeAsBytes(dummyBytes);
 
@@ -245,7 +243,7 @@ void main() {
 
       final res = await validator.validateArtifact(
         directoryPath: modelDir.path,
-        expectedFilename: 'gemma-4-E2B-it-Q4_K_M.gguf',
+        expectedFilename: 'gemma-4-E2B-it.litertlm',
         expectedSha256: expectedHash,
         minSizeBytes: 100,
       );
@@ -256,14 +254,14 @@ void main() {
     });
 
     test('Fails when SHA-256 checksum mismatches', () async {
-      final modelDir = Directory('${tempDir.path}/models/gemma-4-e2b');
+      final modelDir = Directory('${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}');
       await modelDir.create(recursive: true);
-      final file = File('${modelDir.path}/gemma-4-E2B-it-Q4_K_M.gguf');
+      final file = File('${modelDir.path}/gemma-4-E2B-it.litertlm');
       await file.writeAsBytes(List<int>.filled(200, 42));
 
       final res = await validator.validateArtifact(
         directoryPath: modelDir.path,
-        expectedFilename: 'gemma-4-E2B-it-Q4_K_M.gguf',
+        expectedFilename: 'gemma-4-E2B-it.litertlm',
         expectedSha256: 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
         minSizeBytes: 100,
       );
@@ -309,12 +307,12 @@ void main() {
     });
   });
 
-  group('CactusOfflineModelManager Tests', () {
+  group('LiteRtOfflineModelManager Tests', () {
     test(
       'Initial availability check returns notDownloaded when dir is empty',
       () async {
         final connectivity = _MockConnectivityService(online: true);
-        final manager = CactusOfflineModelManager(
+        final manager = LitertOfflineModelManager(
           connectivityService: connectivity,
           getDocDir: () async => tempDir,
         );
@@ -327,14 +325,14 @@ void main() {
 
     test('Download fails when device is offline', () async {
       final connectivity = _MockConnectivityService(online: false);
-      final manager = CactusOfflineModelManager(
+      final manager = LitertOfflineModelManager(
         connectivityService: connectivity,
         getDocDir: () async => tempDir,
       );
 
       await expectLater(
         () => manager.download(),
-        throwsA(isA<OfflineModelNetworkUnavailableException>()),
+        throwsA(isA<OfflineModelDownloadFailedException>()),
       );
       final state = await manager.getState();
       expect(state.status, equals(OfflineModelStatus.failed));
@@ -344,7 +342,7 @@ void main() {
       'Cancel download resets state to notDownloaded and clears active sink',
       () async {
         final connectivity = _MockConnectivityService(online: true);
-        final manager = CactusOfflineModelManager(
+        final manager = LitertOfflineModelManager(
           connectivityService: connectivity,
           getDocDir: () async => tempDir,
         );
@@ -358,7 +356,7 @@ void main() {
 
     test('Deleting model removes files and updates state without deleting root files', () async {
       final connectivity = _MockConnectivityService(online: true);
-      final manager = CactusOfflineModelManager(
+      final manager = LitertOfflineModelManager(
         connectivityService: connectivity,
         getDocDir: () async => tempDir,
       );

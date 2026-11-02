@@ -126,11 +126,16 @@ class _OfflineModelDownloadScreenState
                 padding: const EdgeInsets.all(18),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(
-                    '${l10n.offlinePhotoHelperPackTitle} (~500 MB)',
+                    '${l10n.offlinePhotoHelperPackTitle} (~2.6 GB)',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 8),
                   Text(l10n.offlinePhotoHelperPackSubtitle),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Please keep at least 4 GB of free storage available.',
+                    style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                  ),
                   const SizedBox(height: 14),
                   if (state.isDownloading) LinearProgressIndicator(value: state.progressPercent / 100),
                 ]),

@@ -17,6 +17,7 @@ class OfflineModelState {
   final String? version;
   final String? repository;
   final String? filename;
+  @Deprecated('LiteRT-LM uses a single self-contained .litertlm model file.')
   final String? projectorFilename;
   final String? sha256;
   final int? totalBytes;
@@ -31,12 +32,13 @@ class OfflineModelState {
 
   const OfflineModelState({
     this.status = OfflineModelStatus.notDownloaded,
-    this.modelId = 'gemma-4-e2b',
+    this.modelId = 'gemma-4-e2b-litertlm',
     this.modelName = 'Gemma 4 E2B',
-    this.version = 'phase4-gemma4-e2b-v1',
-    this.repository = 'lmstudio-community/gemma-4-E2B-it-GGUF',
-    this.filename = 'gemma-4-E2B-it-Q4_K_M.gguf',
-    this.projectorFilename = 'mmproj-gemma-4-E2B-it-BF16.gguf',
+    this.version = 'litertlm-gemma4-e2b-v1',
+    this.repository = 'litert-community/gemma-4-E2B-it-litert-lm',
+    this.filename = 'gemma-4-E2B-it.litertlm',
+    @Deprecated('LiteRT-LM uses a single self-contained .litertlm model file.')
+    this.projectorFilename,
     this.sha256,
     this.totalBytes,
     this.downloadedBytes = 0,
@@ -69,7 +71,7 @@ class OfflineModelState {
   }
 
   String get formattedTotalSize {
-    if (totalBytes == null || totalBytes! <= 0) return '~1.25 GB';
+    if (totalBytes == null || totalBytes! <= 0) return '~2.6 GB';
     final mb = totalBytes! / (1024 * 1024);
     if (mb < 1000) return '${mb.toStringAsFixed(1)} MB';
     return '${(mb / 1024).toStringAsFixed(2)} GB';
@@ -125,7 +127,6 @@ class OfflineModelState {
     'version': version,
     'repository': repository,
     'filename': filename,
-    'projectorFilename': projectorFilename,
     'sha256': sha256,
     'totalBytes': totalBytes,
     'downloadedBytes': downloadedBytes,
@@ -142,17 +143,14 @@ class OfflineModelState {
 
     return OfflineModelState(
       status: status,
-      modelId: json['modelId'] as String? ?? 'gemma-4-e2b',
+      modelId: json['modelId'] as String? ?? 'gemma-4-e2b-litertlm',
       modelName: json['modelName'] as String? ?? 'Gemma 4 E2B',
-      version: json['version'] as String? ?? 'phase4-gemma4-e2b-v1',
+      version: json['version'] as String? ?? 'litertlm-gemma4-e2b-v1',
       repository:
           json['repository'] as String? ??
-          'lmstudio-community/gemma-4-E2B-it-GGUF',
-      filename:
-          json['filename'] as String? ?? 'gemma-4-E2B-it-Q4_K_M.gguf',
-      projectorFilename:
-          json['projectorFilename'] as String? ??
-          'mmproj-gemma-4-E2B-it-BF16.gguf',
+          'litert-community/gemma-4-E2B-it-litert-lm',
+      filename: json['filename'] as String? ?? 'gemma-4-E2B-it.litertlm',
+      projectorFilename: json['projectorFilename'] as String?,
       sha256: json['sha256'] as String?,
       totalBytes: json['totalBytes'] as int?,
       downloadedBytes: json['downloadedBytes'] as int? ?? 0,

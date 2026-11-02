@@ -1,9 +1,9 @@
-export 'llama_gemma_provider.dart';
+export 'litert_gemma_provider.dart';
 
-import 'llama_gemma_provider.dart';
+import 'litert_gemma_provider.dart';
 
-/// Backward-compatible alias for [LlamaGemmaProvider].
-typedef CactusGemmaProvider = LlamaGemmaProvider;
+/// Backward-compatible alias for [LitertGemmaProvider].
+typedef CactusGemmaProvider = LitertGemmaProvider;
 
-/// Backward-compatible alias for [LlamaGemmaState].
-typedef CactusGemmaState = LlamaGemmaState;
+/// Backward-compatible alias for [LitertGemmaState].
+typedef CactusGemmaState = LitertGemmaState;

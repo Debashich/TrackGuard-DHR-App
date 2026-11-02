@@ -44,7 +44,7 @@ class OfflineModelValidationResult {
 class OfflineModelArtifactValidator {
   const OfflineModelArtifactValidator();
 
-  /// Validates that a model directory contains a genuine, non-placeholder model artifact.
+  /// Validates that a model directory contains a genuine, non-placeholder LiteRT-LM (.litertlm) artifact.
   Future<OfflineModelValidationResult> validateArtifact({
     required String directoryPath,
     String? expectedFilename,
@@ -61,7 +61,7 @@ class OfflineModelArtifactValidator {
     final targetFilename = expectedFilename ?? AiProviderConfig.offlineGemmaFile;
     final minSize = minSizeBytes ?? AiProviderConfig.offlineGemmaMinSizeBytes;
 
-    // Search for expected file or any GGUF/bin weights file
+    // Search for expected .litertlm file
     final targetPath = p.join(directoryPath, targetFilename);
     File? foundFile;
 
@@ -69,14 +69,13 @@ class OfflineModelArtifactValidator {
     if (await directFile.exists()) {
       foundFile = directFile;
     } else {
-      // Look for any valid primary .gguf or .bin file in the directory
+      // Look for any valid primary .litertlm file in the directory (ignoring .part or stubs)
       final entities = await dir.list().toList();
       for (final entity in entities) {
         if (entity is File) {
           final ext = p.extension(entity.path).toLowerCase();
           final basename = p.basename(entity.path).toLowerCase();
-          if ((ext == '.gguf' || ext == '.bin') &&
-              !basename.startsWith('mmproj')) {
+          if (ext == '.litertlm' && !basename.endsWith('.part')) {
             foundFile = entity;
             break;
           }
@@ -86,7 +85,14 @@ class OfflineModelArtifactValidator {
 
     if (foundFile == null) {
       return OfflineModelValidationResult.invalid(
-        'No valid model weight artifact (.gguf) found in $directoryPath',
+        'No valid model weight artifact (.litertlm) found in $directoryPath',
+      );
+    }
+
+    // Ensure extension is strictly .litertlm and not a partial download
+    if (!foundFile.path.toLowerCase().endsWith('.litertlm')) {
+      return OfflineModelValidationResult.invalid(
+        'Invalid model file format. Expected a .litertlm model artifact.',
       );
     }
 
@@ -130,4 +136,3 @@ class OfflineModelArtifactValidator {
     }
   }
 }
-

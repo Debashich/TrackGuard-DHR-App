@@ -144,6 +144,30 @@ abstract class AppLocalizations {
   /// **'Sign In with Google'**
   String get signInGoogle;
 
+  /// No description provided for @offlineFieldLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Field Inspection (Offline Mode)'**
+  String get offlineFieldLogin;
+
+  /// No description provided for @offlineFieldLoginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use on-device Gemma AI • No internet required'**
+  String get offlineFieldLoginSubtitle;
+
+  /// No description provided for @offlineModeBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Mode (No Internet)'**
+  String get offlineModeBadge;
+
+  /// No description provided for @onlineModeBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Online (Cloud Sync Ready)'**
+  String get onlineModeBadge;
+
   /// No description provided for @devSignInGangman.
   ///
   /// In en, this message translates to:
@@ -1579,7 +1603,7 @@ abstract class AppLocalizations {
   /// No description provided for @offlineModelMobileDataWarning.
   ///
   /// In en, this message translates to:
-  /// **'Downloading ~1.2 GB over mobile data may incur carrier charges or consume data limits.'**
+  /// **'Downloading ~2.6 GB over mobile data may incur carrier charges or consume data limits.'**
   String get offlineModelMobileDataWarning;
 
   /// No description provided for @offlineModelCancelDownload.
