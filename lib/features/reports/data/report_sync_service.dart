@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../shared/models/hazard_report.dart';
+import '../../../shared/models/inspection_status.dart';
 import '../../../shared/models/sync_status.dart';
 import 'report_repository.dart';
 import 'supabase_media_data_source.dart';
@@ -99,5 +100,27 @@ class ReportSyncService {
     }
 
     return reports;
+  }
+
+  Future<HazardReport?> refreshInspectionStatus(String reportId) async {
+    final remoteState = await remote.fetchInspectionState(reportId);
+    if (remoteState == null) return repository.getReportById(reportId);
+
+    final local = await repository.getReportById(reportId);
+    if (local == null) return null;
+
+    final updatedAt = DateTime.tryParse(
+      remoteState['updated_at'] as String? ?? '',
+    );
+
+    final refreshed = local.copyWith(
+      inspectionStatus: InspectionStatus.fromString(
+        remoteState['inspection_status'] as String?,
+      ),
+      updatedAt: updatedAt ?? local.updatedAt,
+    );
+
+    await repository.saveReport(refreshed);
+    return refreshed;
   }
 }

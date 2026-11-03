@@ -61,7 +61,9 @@ class _TestOfflineModelManager implements OfflineModelManager {
       const OfflineModelDownloadSettings();
 
   @override
-  Future<void> setDownloadSettings(OfflineModelDownloadSettings settings) async {}
+  Future<void> setDownloadSettings(
+    OfflineModelDownloadSettings settings,
+  ) async {}
 
   @override
   void dispose() {}
@@ -201,36 +203,51 @@ void main() {
       expect(res.errorMessage, contains('does not exist'));
     });
 
-    test('Fails when directory contains only small placeholder or manifest', () async {
-      final modelDir = Directory('${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}');
-      await modelDir.create(recursive: true);
-      final manifest = File('${modelDir.path}/manifest.json');
-      await manifest.writeAsString('{"model":"placeholder"}');
+    test(
+      'Fails when directory contains only small placeholder or manifest',
+      () async {
+        final modelDir = Directory(
+          '${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}',
+        );
+        await modelDir.create(recursive: true);
+        final manifest = File('${modelDir.path}/manifest.json');
+        await manifest.writeAsString('{"model":"placeholder"}');
 
-      final res = await validator.validateArtifact(
-        directoryPath: modelDir.path,
-        minSizeBytes: 1024 * 1024,
-      );
-      expect(res.isValid, isFalse);
-      expect(res.errorMessage, contains('No valid model weight artifact'));
-    });
+        final res = await validator.validateArtifact(
+          directoryPath: modelDir.path,
+          minSizeBytes: 1024 * 1024,
+        );
+        expect(res.isValid, isFalse);
+        expect(res.errorMessage, contains('No valid model weight artifact'));
+      },
+    );
 
-    test('Fails when model artifact is smaller than minimum threshold', () async {
-      final modelDir = Directory('${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}');
-      await modelDir.create(recursive: true);
-      final file = File('${modelDir.path}/gemma-4-E2B-it.litertlm');
-      await file.writeAsString('TINY_STUB');
+    test(
+      'Fails when model artifact is smaller than minimum threshold',
+      () async {
+        final modelDir = Directory(
+          '${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}',
+        );
+        await modelDir.create(recursive: true);
+        final file = File('${modelDir.path}/gemma-4-E2B-it.litertlm');
+        await file.writeAsString('TINY_STUB');
 
-      final res = await validator.validateArtifact(
-        directoryPath: modelDir.path,
-        minSizeBytes: 1024 * 1024, // 1 MB min threshold
-      );
-      expect(res.isValid, isFalse);
-      expect(res.errorMessage, contains('below the minimum required threshold'));
-    });
+        final res = await validator.validateArtifact(
+          directoryPath: modelDir.path,
+          minSizeBytes: 1024 * 1024, // 1 MB min threshold
+        );
+        expect(res.isValid, isFalse);
+        expect(
+          res.errorMessage,
+          contains('below the minimum required threshold'),
+        );
+      },
+    );
 
     test('Succeeds and verifies SHA-256 for genuine artifact', () async {
-      final modelDir = Directory('${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}');
+      final modelDir = Directory(
+        '${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}',
+      );
       await modelDir.create(recursive: true);
       final file = File('${modelDir.path}/gemma-4-E2B-it.litertlm');
 
@@ -254,7 +271,9 @@ void main() {
     });
 
     test('Fails when SHA-256 checksum mismatches', () async {
-      final modelDir = Directory('${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}');
+      final modelDir = Directory(
+        '${tempDir.path}/models/${AiProviderConfig.offlineGemmaSlug}',
+      );
       await modelDir.create(recursive: true);
       final file = File('${modelDir.path}/gemma-4-E2B-it.litertlm');
       await file.writeAsBytes(List<int>.filled(200, 42));
@@ -262,7 +281,8 @@ void main() {
       final res = await validator.validateArtifact(
         directoryPath: modelDir.path,
         expectedFilename: 'gemma-4-E2B-it.litertlm',
-        expectedSha256: 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+        expectedSha256:
+            'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
         minSizeBytes: 100,
       );
 
@@ -272,39 +292,48 @@ void main() {
   });
 
   group('AiStartupInitializer Tests', () {
-    test('Non-blocking startup initializes already downloaded model automatically', () async {
-      final fakeManager = _TestOfflineModelManager(
-        state: const OfflineModelState(
-          status: OfflineModelStatus.downloaded,
-        ),
-      );
+    test(
+      'Recognizes downloaded model without initializing engine at startup',
+      () async {
+        final fakeManager = _TestOfflineModelManager(
+          state: const OfflineModelState(status: OfflineModelStatus.downloaded),
+        );
 
-      final initializer = AiStartupInitializer(modelManager: fakeManager);
-      await initializer.initializeOnStartup();
+        final initializer = AiStartupInitializer(modelManager: fakeManager);
+        await initializer.initializeOnStartup();
 
-      // Wait brief moment for background unawaited task
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+        await Future<void>.delayed(const Duration(milliseconds: 50));
 
-      expect(fakeManager.initializeCalled, isTrue);
-      expect(initializer.currentReadiness.status, equals(AiStartupReadinessStatus.ready));
-    });
+        expect(fakeManager.initializeCalled, isFalse);
+        expect(fakeManager.downloadCalled, isFalse);
+        expect(
+          initializer.currentReadiness.status,
+          equals(AiStartupReadinessStatus.ready),
+        );
+      },
+    );
+    test(
+      'Does NOT download model automatically when missing on disk',
+      () async {
+        final fakeManager = _TestOfflineModelManager(
+          state: const OfflineModelState(
+            status: OfflineModelStatus.notDownloaded,
+          ),
+        );
 
-    test('Does NOT download model automatically when missing on disk', () async {
-      final fakeManager = _TestOfflineModelManager(
-        state: const OfflineModelState(
-          status: OfflineModelStatus.notDownloaded,
-        ),
-      );
+        final initializer = AiStartupInitializer(modelManager: fakeManager);
+        await initializer.initializeOnStartup();
 
-      final initializer = AiStartupInitializer(modelManager: fakeManager);
-      await initializer.initializeOnStartup();
+        await Future<void>.delayed(const Duration(milliseconds: 50));
 
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-
-      expect(fakeManager.downloadCalled, isFalse);
-      expect(fakeManager.initializeCalled, isFalse);
-      expect(initializer.currentReadiness.status, equals(AiStartupReadinessStatus.unavailable));
-    });
+        expect(fakeManager.downloadCalled, isFalse);
+        expect(fakeManager.initializeCalled, isFalse);
+        expect(
+          initializer.currentReadiness.status,
+          equals(AiStartupReadinessStatus.unavailable),
+        );
+      },
+    );
   });
 
   group('LiteRtOfflineModelManager Tests', () {

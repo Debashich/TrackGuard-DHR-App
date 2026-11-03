@@ -41,4 +41,16 @@ class SupabaseReportDataSource {
         )
         .toList();
   }
+
+  Future<Map<String, dynamic>?> fetchInspectionState(String reportId) async {
+    final row = await _client
+        .from('reports')
+        .select('inspection_status, updated_at')
+        .eq('id', reportId)
+        .maybeSingle();
+
+    if (row == null) return null;
+
+    return Map<String, dynamic>.from(row);
+  }
 }

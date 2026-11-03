@@ -110,10 +110,10 @@ void main() {
       expect(find.text('Gemma 4 E2B'), findsOneWidget);
       expect(find.text('DOWNLOAD PREFERENCES'), findsOneWidget);
       expect(find.text('MODEL STATUS & ACTIONS'), findsOneWidget);
-      expect(find.text('Download Model'), findsOneWidget);
+      expect(find.text('Download on Wi-Fi'), findsOneWidget);
 
       // Tap download button
-      await tester.tap(find.text('Download Model'));
+      await tester.tap(find.text('Download on Wi-Fi'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 

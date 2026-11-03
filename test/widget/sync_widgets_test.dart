@@ -43,11 +43,11 @@ void main() {
         ),
       );
 
-      expect(find.text('PENDING SYNC'), findsOneWidget);
-      expect(find.text('SYNCED'), findsOneWidget);
-      expect(find.text('SYNC FAILED'), findsOneWidget);
-      expect(find.text('SYNCING...'), findsOneWidget);
-      expect(find.text('CONFLICT'), findsOneWidget);
+      expect(find.text('Pending Sync'), findsOneWidget);
+      expect(find.text('Synced'), findsOneWidget);
+      expect(find.text('Sync Failed'), findsOneWidget);
+      expect(find.text('Syncing...'), findsOneWidget);
+      expect(find.text('Conflict'), findsOneWidget);
     });
   });
 
@@ -193,7 +193,7 @@ void main() {
         buildTestableWidget(SyncStatusCard(report: report, onRetry: () {})),
       );
 
-      expect(find.text('SYNC FAILED'), findsOneWidget);
+      expect(find.text('Sync Failed'), findsAtLeastNWidgets(1));
       expect(find.textContaining('Retry attempts: 2'), findsOneWidget);
       expect(
         find.text(

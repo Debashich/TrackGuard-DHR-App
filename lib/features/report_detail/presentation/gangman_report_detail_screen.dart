@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -28,7 +29,24 @@ class GangmanReportDetailScreen extends ConsumerStatefulWidget {
       _GangmanReportDetailScreenState();
 }
 
-Widget _statusStep(String label, bool complete) => Column(mainAxisSize: MainAxisSize.min, children: [Icon(complete ? Icons.check_circle : Icons.radio_button_unchecked, color: complete ? AppTheme.statusGreen : AppTheme.borderDark), const SizedBox(height: 4), SizedBox(width: 82, child: Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)))]);
+Widget _statusStep(String label, bool complete) => Column(
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    Icon(
+      complete ? Icons.check_circle : Icons.radio_button_unchecked,
+      color: complete ? AppTheme.statusGreen : AppTheme.borderDark,
+    ),
+    const SizedBox(height: 4),
+    SizedBox(
+      width: 82,
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+      ),
+    ),
+  ],
+);
 
 class _GangmanReportDetailScreenState
     extends ConsumerState<GangmanReportDetailScreen> {
@@ -40,6 +58,7 @@ class _GangmanReportDetailScreenState
     _reportFuture = ref
         .read(reportRepositoryProvider)
         .getReportById(widget.reportId);
+    unawaited(_refreshInspectionStatus());
   }
 
   @override
@@ -49,6 +68,28 @@ class _GangmanReportDetailScreenState
       _reportFuture = ref
           .read(reportRepositoryProvider)
           .getReportById(widget.reportId);
+      unawaited(_refreshInspectionStatus());
+    }
+  }
+
+  Future<void> _refreshInspectionStatus() async {
+    final reportId = widget.reportId;
+    final syncService = ref.read(reportSyncServiceProvider);
+
+    if (syncService == null) return;
+
+    try {
+      final refreshed = await syncService.refreshInspectionStatus(reportId);
+
+      if (!mounted || refreshed == null || widget.reportId != reportId) {
+        return;
+      }
+
+      setState(() {
+        _reportFuture = Future.value(refreshed);
+      });
+    } catch (error) {
+      debugPrint('[ReportDetail] Status refresh failed: $error');
     }
   }
 
@@ -97,7 +138,11 @@ class _GangmanReportDetailScreenState
               top: 40,
               right: 16,
               child: IconButton(
-                icon: const Icon(Icons.close, color: AppTheme.textPrimary, size: 30),
+                icon: const Icon(
+                  Icons.close,
+                  color: AppTheme.textPrimary,
+                  size: 30,
+                ),
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
             ),
