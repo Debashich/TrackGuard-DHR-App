@@ -75,7 +75,9 @@ class ReportReviewState {
       isSaving: isSaving ?? this.isSaving,
       savedReportId: savedReportId ?? this.savedReportId,
       errorMessage: errorMessage,
-      aiErrorMessage: clearAiError ? null : (aiErrorMessage ?? this.aiErrorMessage),
+      aiErrorMessage: clearAiError
+          ? null
+          : (aiErrorMessage ?? this.aiErrorMessage),
     );
   }
 }
@@ -208,6 +210,7 @@ class ReportReviewController extends Notifier<ReportReviewState> {
         retryCount: 0,
         originalPhotoPath: draft.photoPath,
         thumbnailPhotoPath: draft.thumbnailPath,
+        additionalPhotos: draft.additionalPhotos,
       );
 
       final repo = ref.read(reportRepositoryProvider);

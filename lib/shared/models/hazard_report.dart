@@ -5,6 +5,7 @@ import 'inspection_status.dart';
 import 'location_source.dart';
 import 'severity.dart';
 import 'sync_status.dart';
+import 'report_photo.dart';
 
 class HazardReport {
   final String id;
@@ -43,6 +44,7 @@ class HazardReport {
 
   final String? originalPhotoPath;
   final String? thumbnailPhotoPath;
+  final List<ReportPhoto> additionalPhotos;
   final String? deviceInfo;
 
   const HazardReport({
@@ -77,6 +79,7 @@ class HazardReport {
     this.lastSyncError,
     this.originalPhotoPath,
     this.thumbnailPhotoPath,
+    this.additionalPhotos = const [],
     this.deviceInfo,
   });
   static const Object _unsetSyncError = Object();
@@ -112,6 +115,7 @@ class HazardReport {
     Object? lastSyncError = _unsetSyncError,
     String? originalPhotoPath,
     String? thumbnailPhotoPath,
+    List<ReportPhoto>? additionalPhotos,
     String? deviceInfo,
   }) {
     return HazardReport(
@@ -150,6 +154,7 @@ class HazardReport {
           : lastSyncError as String?,
       originalPhotoPath: originalPhotoPath ?? this.originalPhotoPath,
       thumbnailPhotoPath: thumbnailPhotoPath ?? this.thumbnailPhotoPath,
+      additionalPhotos: additionalPhotos ?? this.additionalPhotos,
       deviceInfo: deviceInfo ?? this.deviceInfo,
     );
   }
@@ -187,6 +192,9 @@ class HazardReport {
       'last_sync_error': lastSyncError,
       'original_photo_path': originalPhotoPath,
       'thumbnail_photo_path': thumbnailPhotoPath,
+      'additional_photos': additionalPhotos
+          .map((photo) => photo.toJson())
+          .toList(),
       'device_info': deviceInfo,
     };
   }
@@ -247,6 +255,15 @@ class HazardReport {
       lastSyncError: json['last_sync_error'] as String?,
       originalPhotoPath: json['original_photo_path'] as String?,
       thumbnailPhotoPath: json['thumbnail_photo_path'] as String?,
+      additionalPhotos:
+          (json['additional_photos'] as List<dynamic>?)
+              ?.map(
+                (photo) => ReportPhoto.fromJson(
+                  Map<String, dynamic>.from(photo as Map),
+                ),
+              )
+              .toList() ??
+          const [],
       deviceInfo: json['device_info'] as String?,
     );
   }
