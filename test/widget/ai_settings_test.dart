@@ -31,10 +31,13 @@ void main() {
         await tester.pumpAndSettle();
 
         // Verify AI Modes
-        expect(find.text('Automatic (Offline-First)'), findsOneWidget);
-        expect(find.text('Offline Gemma 4 E2B'), findsOneWidget);
-        expect(find.text('Online Gemini Cloud'), findsOneWidget);
-        expect(find.text('Manual Classification Only'), findsOneWidget);
+        expect(
+          find.text('Automatic Photo Helper (Recommended)'),
+          findsOneWidget,
+        );
+        expect(find.text('Offline Photo Helper'), findsOneWidget);
+        expect(find.text('Online Photo Helper'), findsOneWidget);
+        expect(find.text('Manual Only'), findsOneWidget);
 
         // Verify Gemma Card
         expect(find.text('OFFLINE GEMMA ENGINE'), findsOneWidget);
@@ -42,7 +45,7 @@ void main() {
 
         // Verify Gemini Card
         expect(find.text('GEMINI CLOUD REASONING'), findsOneWidget);
-        expect(find.text('Gemini (Secure Edge Function)'), findsOneWidget);
+        expect(find.text('Nemotron 3.5 Super VL (OpenRouter)'), findsOneWidget);
 
         // Verify Mandatory Human Confirmation
         expect(find.text('Human Confirmation Mandatory'), findsOneWidget);
@@ -67,11 +70,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap Offline Gemma mode
-      await tester.tap(find.text('Offline Gemma 4 E2B'));
+      await tester.tap(find.text('Offline Photo Helper'));
       await tester.pumpAndSettle();
 
       // Tap Manual Classification mode
-      await tester.tap(find.text('Manual Classification Only'));
+      await tester.tap(find.text('Manual Only'));
       await tester.pumpAndSettle();
     });
   });

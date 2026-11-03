@@ -403,6 +403,12 @@ void main() {
         expect(find.text('Photo not found on device'), findsOneWidget);
 
         // AI suggestion audit card
+        await tester.scrollUntilVisible(
+          find.text('Technical & AI Audit Details'),
+          500,
+        );
+        await tester.tap(find.text('Technical & AI Audit Details'));
+        await tester.pumpAndSettle();
         expect(find.text('AI ADVISORY METADATA'), findsOneWidget);
         expect(find.text('Gemma 4 E2B'), findsOneWidget);
 
