@@ -210,17 +210,26 @@ class CameraService {
     return ImageUtils.persistCapturedImage(File(xFile.path), prefix: 'orig');
   }
 
-  Future<File?> pickFromGallery() async {
-    final xFile = await _imagePicker.pickImage(
-      source: ImageSource.gallery,
+  Future<List<File>> pickFromGallery() async {
+    final xFiles = await _imagePicker.pickMultiImage(
       maxWidth: 1920,
       maxHeight: 1920,
       imageQuality: 85,
     );
 
-    if (xFile == null) return null;
+    if (xFiles.isEmpty) return [];
 
-    return ImageUtils.persistCapturedImage(File(xFile.path), prefix: 'orig');
+    final files = <File>[];
+
+    for (final xFile in xFiles) {
+      final file = await ImageUtils.persistCapturedImage(
+        File(xFile.path),
+        prefix: 'orig',
+      );
+      files.add(file);
+    }
+
+    return files;
   }
 
   Future<void> _stopCameraInternal() async {

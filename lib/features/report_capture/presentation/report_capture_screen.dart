@@ -132,7 +132,9 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
         ),
         body: SafeArea(
           top: false,
-          child: captureState.capturedFile != null
+          child:
+              captureState.capturedFiles.isNotEmpty &&
+                  !captureState.isTakingAdditionalPhoto
               ? _buildPhotoReview(context, captureState)
               : _buildCameraPreview(context, captureState, cameraController),
         ),
@@ -189,10 +191,11 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
   // ───────────────────────── Photo review ─────────────────────────
 
   Widget _buildPhotoReview(BuildContext context, ReportCaptureState state) {
-    if (state.capturedFile == null) return const SizedBox.shrink();
-
     final l10n = AppLocalizations.of(context)!;
     final controller = ref.read(reportCaptureControllerProvider.notifier);
+    final photos = state.capturedFiles;
+
+    if (photos.isEmpty) return const SizedBox.shrink();
 
     return Column(
       children: [
@@ -204,7 +207,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
                 fit: StackFit.expand,
                 children: [
                   const ColoredBox(color: _C.surface),
-                  Image.file(state.capturedFile!, fit: BoxFit.contain),
+                  Image.file(photos.first, fit: BoxFit.contain),
                   Positioned(
                     top: 12,
                     left: 12,
@@ -214,15 +217,147 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
                       child: _locationPill(context, state, review: true),
                     ),
                   ),
+                  Positioned(
+                    bottom: 12,
+                    left: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '${photos.length} ${photos.length == 1 ? 'photo' : 'photos'} selected',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ),
+
+        // Selected photo thumbnails.
+        SizedBox(
+          height: 100,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            scrollDirection: Axis.horizontal,
+            itemCount: photos.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
+            itemBuilder: (context, index) {
+              return SizedBox(
+                width: 76,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.file(
+                        photos[index],
+                        width: 76,
+                        height: 76,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    if (index == 0)
+                      Positioned(
+                        bottom: 3,
+                        left: 3,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _C.brass,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: const Text(
+                            'PRIMARY',
+                            style: TextStyle(
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    Positioned(
+                      top: -6,
+                      right: -6,
+                      child: Material(
+                        color: Colors.red.shade700,
+                        shape: const CircleBorder(),
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => controller.removePhoto(index),
+                          child: const Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+
+        // Add photos / camera actions.
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: state.isCapturing
+                      ? null
+                      : controller.pickFromGallery,
+                  icon: const Icon(Icons.add_photo_alternate_outlined),
+                  label: const Text('Add photos'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _C.text,
+                    side: BorderSide(color: _C.hairline),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: controller.startAdditionalCapture,
+                  icon: const Icon(Icons.camera_alt_outlined),
+                  label: const Text('Take another'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _C.brass,
+                    side: const BorderSide(color: _C.brass),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
             child: Row(
               children: [
                 Expanded(
@@ -238,10 +373,6 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
                         backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
-                        ),
-                        textStyle: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
                         ),
                       ),
                       onPressed: controller.retakePhoto,
@@ -259,15 +390,22 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
                       icon: Icons.check_rounded,
                       backgroundColor: AppTheme.statusGreen,
                       foregroundColor: Colors.white,
-                      onPressed: () async {
-                        final success = await controller
-                            .confirmDraftAndProceed();
-                        if (success && context.mounted) {
-                          context.push('/gangman/report/review').then((_) {
-                            if (mounted) _controller?.resumeCameraIfNeeded();
-                          });
-                        }
-                      },
+                      onPressed: state.isCapturing
+                          ? null
+                          : () async {
+                              final success = await controller
+                                  .confirmDraftAndProceed();
+
+                              if (success && context.mounted) {
+                                context.push('/gangman/report/review').then((
+                                  _,
+                                ) {
+                                  if (mounted) {
+                                    _controller?.resumeCameraIfNeeded();
+                                  }
+                                });
+                              }
+                            },
                     ),
                   ),
                 ),

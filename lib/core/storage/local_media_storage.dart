@@ -5,12 +5,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../shared/models/report_draft.dart';
+import '../../shared/models/report_photo.dart';
 
 class LocalMediaStorage {
   static const _uuid = Uuid();
 
-  /// Copies temporary camera/gallery files into app-owned storage.
-  /// Returns a draft whose paths remain valid after app restarts.
   Future<ReportDraft> persistDraftMedia(ReportDraft draft) async {
     final documents = await getApplicationDocumentsDirectory();
 
@@ -21,31 +20,49 @@ class LocalMediaStorage {
     await folder.create(recursive: true);
 
     try {
-      final original = await _copyInto(
-        sourcePath: draft.photoPath,
-        destinationDirectory: folder,
-        fileName: 'original',
-      );
+      final persistedPhotos = <ReportPhoto>[];
 
-      String? thumbnailPath;
-      if (draft.thumbnailPath != null) {
-        final thumbnail = await _copyInto(
-          sourcePath: draft.thumbnailPath!,
+      for (var i = 0; i < draft.photos.length; i++) {
+        final photo = draft.photos[i];
+
+        final original = await _copyInto(
+          sourcePath: photo.originalPath,
           destinationDirectory: folder,
-          fileName: 'thumbnail',
+          fileName: 'original_$i',
         );
-        thumbnailPath = thumbnail.path;
+
+        String? thumbnailPath;
+
+        if (photo.thumbnailPath != null) {
+          final thumbnail = await _copyInto(
+            sourcePath: photo.thumbnailPath!,
+            destinationDirectory: folder,
+            fileName: 'thumbnail_$i',
+          );
+
+          thumbnailPath = thumbnail.path;
+        }
+
+        persistedPhotos.add(
+          ReportPhoto(
+            originalPath: original.path,
+            thumbnailPath: thumbnailPath,
+          ),
+        );
       }
 
+      final primary = persistedPhotos.first;
+
       return draft.copyWith(
-        photoPath: original.path,
-        thumbnailPath: thumbnailPath,
+        photoPath: primary.originalPath,
+        thumbnailPath: primary.thumbnailPath,
+        additionalPhotos: persistedPhotos.skip(1).toList(),
       );
     } catch (_) {
-      // Avoid leaving a partially copied media directory behind.
       if (await folder.exists()) {
         await folder.delete(recursive: true);
       }
+
       rethrow;
     }
   }
