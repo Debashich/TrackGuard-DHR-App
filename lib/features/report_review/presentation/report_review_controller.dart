@@ -62,12 +62,13 @@ class ReportReviewState {
     String? errorMessage,
     String? aiErrorMessage,
     bool clearAiError = false,
+    bool clearAiResult = false,
   }) {
     return ReportReviewState(
       draft: draft ?? this.draft,
       isLoadingDraft: isLoadingDraft ?? this.isLoadingDraft,
       isAnalyzing: isAnalyzing ?? this.isAnalyzing,
-      aiResult: aiResult ?? this.aiResult,
+      aiResult: clearAiResult ? null : (aiResult ?? this.aiResult),
       confirmedHazard: confirmedHazard ?? this.confirmedHazard,
       confirmedSeverity: confirmedSeverity ?? this.confirmedSeverity,
       kmMarker: kmMarker ?? this.kmMarker,
@@ -84,17 +85,21 @@ class ReportReviewState {
 
 class ReportReviewController extends Notifier<ReportReviewState> {
   static const _uuid = Uuid();
+  int _analysisGeneration = 0;
+  String? _activeSessionId;
 
   @override
   ReportReviewState build() {
-    Future.microtask(() => loadDraftAndAnalyze());
     return const ReportReviewState();
   }
 
   Future<void> loadDraftAndAnalyze() async {
-    state = state.copyWith(isLoadingDraft: true);
+    final generation = ++_analysisGeneration;
+    state = const ReportReviewState(isLoadingDraft: true);
     final repo = ref.read(reportRepositoryProvider);
     final draft = await repo.getDraft();
+
+    if (!ref.mounted || generation != _analysisGeneration) return;
 
     if (draft == null) {
       state = state.copyWith(
@@ -105,20 +110,27 @@ class ReportReviewController extends Notifier<ReportReviewState> {
     }
 
     final initialKm = draft.location.kmMarker ?? 51.0;
+    _activeSessionId = draft.sessionId;
     state = state.copyWith(
       draft: draft,
       isLoadingDraft: false,
       kmMarker: initialKm,
     );
 
-    await runAnalysis();
+    await runAnalysis(null, generation);
   }
 
-  Future<void> runAnalysis([AiMode? requestedMode]) async {
+  Future<void> runAnalysis([AiMode? requestedMode, int? generation]) async {
+    final requestGeneration = generation ?? ++_analysisGeneration;
     final draft = state.draft;
     if (draft == null) return;
+    final sessionId = draft.sessionId;
 
-    state = state.copyWith(isAnalyzing: true, clearAiError: true);
+    state = state.copyWith(
+      isAnalyzing: true,
+      clearAiResult: true,
+      clearAiError: true,
+    );
     final aiService = ref.read(aiAnalysisServiceProvider);
     final language = ref.read(appLanguageProvider);
     final mode = requestedMode ?? ref.read(aiSettingsProvider).mode;
@@ -131,6 +143,13 @@ class ReportReviewController extends Notifier<ReportReviewState> {
         requestedMode: mode,
       );
 
+      if (!ref.mounted ||
+          requestGeneration != _analysisGeneration ||
+          _activeSessionId != sessionId ||
+          state.draft?.sessionId != sessionId) {
+        return;
+      }
+
       state = state.copyWith(
         isAnalyzing: false,
         aiResult: result,
@@ -139,6 +158,12 @@ class ReportReviewController extends Notifier<ReportReviewState> {
         confirmedSeverity: result.severity ?? state.confirmedSeverity,
       );
     } catch (e) {
+      if (!ref.mounted ||
+          requestGeneration != _analysisGeneration ||
+          _activeSessionId != sessionId ||
+          state.draft?.sessionId != sessionId) {
+        return;
+      }
       debugPrint('AI Analysis Failed: $e');
       state = state.copyWith(
         isAnalyzing: false,
@@ -210,7 +235,6 @@ class ReportReviewController extends Notifier<ReportReviewState> {
         retryCount: 0,
         originalPhotoPath: draft.photoPath,
         thumbnailPhotoPath: draft.thumbnailPath,
-        additionalPhotos: draft.additionalPhotos,
       );
 
       final repo = ref.read(reportRepositoryProvider);

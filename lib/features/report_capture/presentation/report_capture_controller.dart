@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/storage/local_media_storage.dart';
 import '../../../core/constants/dhr_waypoints.dart';
 import '../../../core/utils/image_utils.dart';
 import '../../../shared/models/geo_location.dart';
 import '../../../shared/models/report_draft.dart';
-import '../../../shared/models/report_photo.dart';
 import '../../reports/domain/report_repository_provider.dart';
 import '../data/camera_service.dart';
 import '../data/location_service.dart';
@@ -17,8 +17,7 @@ class ReportCaptureState {
   final bool isCameraInitializing;
   final bool isCameraReady;
   final bool isCapturing;
-  final List<File> capturedFiles;
-  final bool isTakingAdditionalPhoto;
+  final File? capturedFile;
   final GeoLocation? location;
   final bool isLocationAcquiring;
   final String? errorMessage;
@@ -27,23 +26,18 @@ class ReportCaptureState {
     this.isCameraInitializing = true,
     this.isCameraReady = false,
     this.isCapturing = false,
-    this.capturedFiles = const [],
-    this.isTakingAdditionalPhoto = false,
+    this.capturedFile,
     this.location,
     this.isLocationAcquiring = false,
     this.errorMessage,
   });
 
-  // Compatibility with existing single-photo consumers.
-  File? get capturedFile => capturedFiles.isEmpty ? null : capturedFiles.first;
-
   ReportCaptureState copyWith({
     bool? isCameraInitializing,
     bool? isCameraReady,
     bool? isCapturing,
-    List<File>? capturedFiles,
-    bool clearCapturedFiles = false,
-    bool? isTakingAdditionalPhoto,
+    File? capturedFile,
+    bool clearCapturedFile = false,
     GeoLocation? location,
     bool? isLocationAcquiring,
     String? errorMessage,
@@ -52,11 +46,9 @@ class ReportCaptureState {
       isCameraInitializing: isCameraInitializing ?? this.isCameraInitializing,
       isCameraReady: isCameraReady ?? this.isCameraReady,
       isCapturing: isCapturing ?? this.isCapturing,
-      capturedFiles: clearCapturedFiles
-          ? const []
-          : (capturedFiles ?? this.capturedFiles),
-      isTakingAdditionalPhoto:
-          isTakingAdditionalPhoto ?? this.isTakingAdditionalPhoto,
+      capturedFile: clearCapturedFile
+          ? null
+          : (capturedFile ?? this.capturedFile),
       location: location ?? this.location,
       isLocationAcquiring: isLocationAcquiring ?? this.isLocationAcquiring,
       errorMessage: errorMessage,
@@ -65,6 +57,7 @@ class ReportCaptureState {
 }
 
 class ReportCaptureController extends Notifier<ReportCaptureState> {
+  static const _uuid = Uuid();
   final CameraService _cameraService = CameraService();
   final LocationService _locationService = LocationService();
 
@@ -129,14 +122,9 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
       final file = await _cameraService.takePhoto();
 
       if (file != null) {
-        final files = [...state.capturedFiles, file];
-
         await _cameraService.pausePreview();
 
-        state = state.copyWith(
-          capturedFiles: files,
-          isTakingAdditionalPhoto: false,
-        );
+        state = state.copyWith(capturedFile: file);
       }
 
       state = state.copyWith(isCapturing: false);
@@ -154,59 +142,25 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
     state = state.copyWith(isCapturing: true, errorMessage: null);
 
     try {
-      final files = await _cameraService.pickFromGallery();
+      final file = await _cameraService.pickFromGallery();
 
-      if (files.isNotEmpty) {
+      if (file != null) {
         await _cameraService.pausePreview();
 
-        state = state.copyWith(
-          capturedFiles: [...state.capturedFiles, ...files],
-          isTakingAdditionalPhoto: false,
-        );
+        state = state.copyWith(capturedFile: file);
       }
 
       state = state.copyWith(isCapturing: false);
     } catch (e) {
       state = state.copyWith(
         isCapturing: false,
-        errorMessage: 'Failed to select images from gallery: $e',
+        errorMessage: 'Failed to select image from gallery: $e',
       );
     }
   }
 
-  Future<void> startAdditionalCapture() async {
-    state = state.copyWith(isTakingAdditionalPhoto: true, errorMessage: null);
-
-    if (_cameraService.isInitialized) {
-      await _cameraService.resumePreview();
-
-      state = state.copyWith(isCameraReady: true, isCameraInitializing: false);
-    } else {
-      await initializeCamera();
-    }
-  }
-
-  Future<void> removePhoto(int index) async {
-    if (index < 0 || index >= state.capturedFiles.length) return;
-
-    final files = [...state.capturedFiles]..removeAt(index);
-
-    state = state.copyWith(
-      capturedFiles: files,
-      isTakingAdditionalPhoto: false,
-    );
-
-    if (files.isEmpty) {
-      await resumeCameraIfNeeded();
-    }
-  }
-
   Future<void> retakePhoto() async {
-    state = state.copyWith(
-      clearCapturedFiles: true,
-      isTakingAdditionalPhoto: false,
-      errorMessage: null,
-    );
+    state = state.copyWith(clearCapturedFile: true, errorMessage: null);
 
     await resumeCameraIfNeeded();
   }
@@ -218,7 +172,7 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
   }
 
   Future<void> resumeCameraIfNeeded() async {
-    if (state.capturedFiles.isEmpty || state.isTakingAdditionalPhoto) {
+    if (state.capturedFile == null) {
       if (_cameraService.isInitialized) {
         await _cameraService.resumePreview();
 
@@ -253,7 +207,7 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
   }
 
   Future<bool> confirmDraftAndProceed() async {
-    if (state.capturedFiles.isEmpty) return false;
+    if (state.capturedFile == null) return false;
 
     await _cameraService.stopCamera();
 
@@ -263,20 +217,12 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
       final location =
           state.location ?? _locationService.createFallbackLocation();
 
-      final photos = <ReportPhoto>[];
-
-      for (final file in state.capturedFiles) {
-        final thumbnail = await ImageUtils.generateThumbnail(file);
-
-        photos.add(
-          ReportPhoto(originalPath: file.path, thumbnailPath: thumbnail.path),
-        );
-      }
+      final thumbnail = await ImageUtils.generateThumbnail(state.capturedFile!);
 
       final draft = ReportDraft(
-        photoPath: photos.first.originalPath,
-        thumbnailPath: photos.first.thumbnailPath,
-        additionalPhotos: photos.skip(1).toList(),
+        sessionId: _uuid.v4(),
+        photoPath: state.capturedFile!.path,
+        thumbnailPath: thumbnail.path,
         location: location,
         createdAt: DateTime.now(),
       );

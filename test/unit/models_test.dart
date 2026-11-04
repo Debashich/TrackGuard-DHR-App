@@ -8,6 +8,7 @@ import 'package:trackguard_dhr/shared/models/inspection_status.dart';
 import 'package:trackguard_dhr/shared/models/location_source.dart';
 import 'package:trackguard_dhr/shared/models/severity.dart';
 import 'package:trackguard_dhr/shared/models/sync_status.dart';
+import 'package:trackguard_dhr/shared/models/report_draft.dart';
 
 void main() {
   group('Domain Models & Enums Tests', () {
@@ -138,6 +139,62 @@ void main() {
       expect(restored.aiProvider, AiProvider.heuristic);
       expect(restored.syncStatus, SyncStatus.pending);
       expect(restored.inspectionStatus, InspectionStatus.open);
+    });
+
+    test('Legacy multi-photo report payload remains readable', () {
+      final now = DateTime.now();
+      final report = HazardReport.fromJson({
+        'id': 'legacy-report',
+        'created_by': 'user-001',
+        'created_at': now.toIso8601String(),
+        'updated_at': now.toIso8601String(),
+        'section_id': 'kurseong-ghum',
+        'confirmed_hazard_type': 'slip',
+        'confirmed_severity': 'medium',
+        'user_note': '',
+        'additional_photos': [
+          {'original_path': '/legacy/extra.jpg'},
+        ],
+      });
+
+      expect(report.id, 'legacy-report');
+      expect(report.originalPhotoPath, isNull);
+      expect(report.toJson().containsKey('additional_photos'), isFalse);
+    });
+
+    test('Legacy multi-photo draft payload remains readable', () {
+      final draft = ReportDraft.fromJson({
+        'photo_path': '/legacy/photo.jpg',
+        'thumbnail_path': '/legacy/thumb.jpg',
+        'additional_photos': [
+          {'original_path': '/legacy/extra.jpg'},
+        ],
+        'location': {
+          'sectionId': 'kurseong-ghum',
+          'capturedAt': DateTime.now().toIso8601String(),
+        },
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
+      expect(draft.photoPath, '/legacy/photo.jpg');
+      expect(draft.toJson().containsKey('additional_photos'), isFalse);
+    });
+
+    test('Draft session identity survives serialization', () {
+      final draft = ReportDraft.fromJson({
+        'session_id': 'photo-session-002',
+        'photo_path': '/new/photo.jpg',
+        'location': {
+          'sectionId': 'kurseong-ghum',
+          'capturedAt': DateTime.now().toIso8601String(),
+        },
+      });
+
+      expect(draft.sessionId, 'photo-session-002');
+      expect(
+        ReportDraft.fromJson(draft.toJson()).sessionId,
+        'photo-session-002',
+      );
     });
   });
 }
