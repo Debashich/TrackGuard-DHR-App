@@ -479,7 +479,7 @@ class LitertOfflineModelManager implements OfflineModelManager {
           modelPath: modelPath,
           backend: const Backend.cpu(),
           visionBackend: const Backend.cpu(),
-          maxNumTokens: 1024,
+          maxNumTokens: 2048,
           maxNumImages: 1,
         ),
       );

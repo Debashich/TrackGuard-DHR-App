@@ -200,7 +200,7 @@ class LitertGemmaProvider {
           modelPath: modelPath,
           backend: const Backend.cpu(),
           visionBackend: const Backend.cpu(),
-          maxNumTokens: 1024,
+          maxNumTokens: 2048,
           maxNumImages: 1,
         ),
       );
@@ -295,8 +295,9 @@ class LitertGemmaProvider {
 
     _setState(LitertGemmaState.running);
 
-    // 1. Build structured prompt
-    final promptText = _promptBuilder.buildPrompt(
+    // 1. Build structured prompts
+    final systemPrompt = _promptBuilder.buildSystemPrompt();
+    final userPrompt = _promptBuilder.buildUserPrompt(
       language: language,
       location: location,
     );
@@ -312,14 +313,25 @@ class LitertGemmaProvider {
       // 2. Prepare optimized vision image (scaled down to avoid Mali GPU/CPU VRAM OOM)
       visionImageFile = await ImageUtils.prepareOptimizedVisionImage(image);
 
-      // 3. Create LiteRT-LM conversation
-      conversation = await _engine!.createConversation();
+      // 3. Create LiteRT-LM conversation with system message and constrained sampling
+      conversation = await _engine!.createConversation(
+        ConversationConfig(
+          systemMessage: Message.system(systemPrompt),
+          sessionConfig: const SessionConfig(
+            samplerConfig: SamplerConfig(
+              topK: 40,
+              topP: 0.9,
+              temperature: 0.2,
+            ),
+          ),
+        ),
+      );
 
       // 4. Multimodal Message with image first, then text prompt (required for proper autoregressive sequencing in Gemma 4)
       final message = Message.userContents(
         Contents([
           Content.imageFile(visionImageFile.path),
-          Content.text(promptText),
+          Content.text(userPrompt),
         ]),
       );
 

@@ -100,7 +100,7 @@ class AiResultValidator {
 
     // 3. Validate and sanitize note
     final rawNote =
-        (rawResult['note'] ?? rawResult['description'] ?? rawResult['userNote'])
+        (rawResult['note'] ?? rawResult['description'] ?? rawResult['userNote'] ?? rawResult['observedDefects'] ?? rawResult['defectsObserved'])
             ?.toString();
 
     if (rawNote == null || rawNote.trim().isEmpty) {
@@ -175,6 +175,12 @@ class AiResultValidator {
       case 'trackdefect':
       case 'track_defect':
       case 'rail_defect':
+      case 'rail_crack':
+      case 'rail_break':
+      case 'broken_rail':
+      case 'sleeper_defect':
+      case 'broken_sleeper':
+      case 'track':
         return HazardType.trackDefect;
       case 'vegetation':
       case 'overgrowth':
