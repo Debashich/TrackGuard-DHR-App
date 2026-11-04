@@ -157,7 +157,9 @@ class HuggingFaceModelDownloader {
       // Calculate total expected bytes
       int? totalBytes;
       if (isResume) {
-        final contentRange = response.headers.value(HttpHeaders.contentRangeHeader);
+        final contentRange = response.headers.value(
+          HttpHeaders.contentRangeHeader,
+        );
         if (contentRange != null && contentRange.contains('/')) {
           final totalStr = contentRange.split('/').last.trim();
           totalBytes = int.tryParse(totalStr);
@@ -277,4 +279,3 @@ class HuggingFaceModelDownloader {
     }
   }
 }
-
