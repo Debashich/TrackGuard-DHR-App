@@ -39,6 +39,11 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
     super.initState();
     _noteController = TextEditingController();
     _kmController = TextEditingController();
+    Future.microtask(
+      () => ref
+          .read(reportReviewControllerProvider.notifier)
+          .loadDraftAndAnalyze(),
+    );
   }
 
   @override
@@ -162,8 +167,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
         body: ErrorView(
           title: l10n.draftMissing,
           message:
-              reviewState.errorMessage ??
-              l10n.inspectionDraftCouldNotBeLoaded,
+              reviewState.errorMessage ?? l10n.inspectionDraftCouldNotBeLoaded,
           onRetry: () => controller.loadDraftAndAnalyze(),
         ),
       );
@@ -499,5 +503,3 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
     );
   }
 }
-
-

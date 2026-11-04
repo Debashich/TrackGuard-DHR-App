@@ -19,6 +19,7 @@ void main() {
       expect(await repository.getDraft(), isNull);
 
       final draft = ReportDraft(
+        sessionId: 'test-session-001',
         photoPath: '/tmp/test.jpg',
         thumbnailPath: '/tmp/test_thumb.jpg',
         location: GeoLocation(
@@ -32,6 +33,7 @@ void main() {
       await repository.saveDraft(draft);
       final retrieved = await repository.getDraft();
       expect(retrieved?.photoPath, '/tmp/test.jpg');
+      expect(retrieved?.sessionId, 'test-session-001');
       expect(retrieved?.location.kmMarker, 55.0);
 
       await repository.clearDraft();

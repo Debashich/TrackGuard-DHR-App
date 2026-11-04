@@ -5,7 +5,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../shared/models/report_draft.dart';
-import '../../shared/models/report_photo.dart';
 
 class LocalMediaStorage {
   static const _uuid = Uuid();
@@ -20,43 +19,25 @@ class LocalMediaStorage {
     await folder.create(recursive: true);
 
     try {
-      final persistedPhotos = <ReportPhoto>[];
+      final original = await _copyInto(
+        sourcePath: draft.photoPath,
+        destinationDirectory: folder,
+        fileName: 'original',
+      );
 
-      for (var i = 0; i < draft.photos.length; i++) {
-        final photo = draft.photos[i];
-
-        final original = await _copyInto(
-          sourcePath: photo.originalPath,
+      String? thumbnailPath;
+      if (draft.thumbnailPath != null) {
+        final thumbnail = await _copyInto(
+          sourcePath: draft.thumbnailPath!,
           destinationDirectory: folder,
-          fileName: 'original_$i',
+          fileName: 'thumbnail',
         );
-
-        String? thumbnailPath;
-
-        if (photo.thumbnailPath != null) {
-          final thumbnail = await _copyInto(
-            sourcePath: photo.thumbnailPath!,
-            destinationDirectory: folder,
-            fileName: 'thumbnail_$i',
-          );
-
-          thumbnailPath = thumbnail.path;
-        }
-
-        persistedPhotos.add(
-          ReportPhoto(
-            originalPath: original.path,
-            thumbnailPath: thumbnailPath,
-          ),
-        );
+        thumbnailPath = thumbnail.path;
       }
 
-      final primary = persistedPhotos.first;
-
       return draft.copyWith(
-        photoPath: primary.originalPath,
-        thumbnailPath: primary.thumbnailPath,
-        additionalPhotos: persistedPhotos.skip(1).toList(),
+        photoPath: original.path,
+        thumbnailPath: thumbnailPath,
       );
     } catch (_) {
       if (await folder.exists()) {
