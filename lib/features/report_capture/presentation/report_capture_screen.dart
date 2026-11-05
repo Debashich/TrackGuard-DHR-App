@@ -26,6 +26,8 @@ abstract final class _C {
 
 const double _kFrameRadius = 28;
 
+enum _CaptureExitAction { saveDraft, discard }
+
 class ReportCaptureScreen extends ConsumerStatefulWidget {
   const ReportCaptureScreen({super.key});
 
@@ -37,6 +39,7 @@ class ReportCaptureScreen extends ConsumerStatefulWidget {
 class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
     with WidgetsBindingObserver {
   ReportCaptureController? _controller;
+  bool _isExitDialogOpen = false;
 
   @override
   void initState() {
@@ -90,6 +93,80 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
     );
   }
 
+  Future<void> _handleCaptureExit() async {
+    if (_isExitDialogOpen || !mounted) return;
+
+    final controller = ref.read(reportCaptureControllerProvider.notifier);
+    final captureState = ref.read(reportCaptureControllerProvider);
+
+    if (captureState.capturedFile == null) {
+      await controller.stopCamera();
+
+      if (mounted) context.pop();
+      return;
+    }
+
+    _isExitDialogOpen = true;
+
+    final action = await showDialog<_CaptureExitAction>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Leave this report?'),
+        content: const Text(
+          'You have a captured photo that has not been saved yet. '
+          'Would you like to save it as a draft or discard it?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () =>
+                Navigator.pop(dialogContext, _CaptureExitAction.discard),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Discard Report'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.pop(dialogContext, _CaptureExitAction.saveDraft),
+            child: const Text('Save as Draft'),
+          ),
+        ],
+      ),
+    );
+
+    _isExitDialogOpen = false;
+
+    if (!mounted || action == null) return;
+
+    final bool success;
+    switch (action) {
+      case _CaptureExitAction.saveDraft:
+        success = await controller.confirmDraftAndProceed();
+        break;
+      case _CaptureExitAction.discard:
+        success = await controller.discardCapturedPhoto();
+        break;
+    }
+
+    if (!mounted) return;
+
+    if (success) {
+      context.pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ref.read(reportCaptureControllerProvider).errorMessage ??
+                'Could not complete the action.',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -100,9 +177,13 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
     final cameraController = controllerNotifier.cameraController;
 
     return PopScope(
-      canPop: true,
+      canPop: captureState.capturedFile == null,
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop) _controller?.stopCamera();
+        if (didPop) {
+          _controller?.stopCamera();
+        } else if (captureState.capturedFile != null) {
+          _handleCaptureExit();
+        }
       },
       child: Scaffold(
         backgroundColor: _C.ink,
@@ -115,10 +196,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_rounded),
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            onPressed: () async {
-              await controllerNotifier.stopCamera();
-              if (context.mounted) context.pop();
-            },
+            onPressed: _handleCaptureExit,
           ),
           title: Text(
             l10n.captureTitle,

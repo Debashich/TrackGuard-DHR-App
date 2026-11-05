@@ -243,6 +243,32 @@ class ReportCaptureController extends Notifier<ReportCaptureState> {
       return false;
     }
   }
+
+  Future<bool> discardCapturedPhoto() async {
+    final capturedFile = state.capturedFile;
+    if (capturedFile == null) return false;
+
+    try {
+      await _cameraService.stopCamera();
+      if (await capturedFile.exists()) {
+        await capturedFile.delete();
+      }
+
+      if (!ref.mounted) return false;
+
+      state = state.copyWith(
+        isCameraReady: false,
+        clearCapturedFile: true,
+        errorMessage: null,
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        errorMessage: 'Failed to discard captured photo: $e',
+      );
+      return false;
+    }
+  }
 }
 
 final reportCaptureControllerProvider =
