@@ -99,7 +99,11 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
                   }
                 : null,
           ),
-          IconButton(icon: const Icon(Icons.person_outline_rounded), tooltip: l10n.navigationProfile, onPressed: () => context.push('/profile')),
+          IconButton(
+            icon: const Icon(Icons.person_outline_rounded),
+            tooltip: l10n.navigationProfile,
+            onPressed: () => context.push('/profile'),
+          ),
         ],
       ),
       body: RefreshIndicator(
@@ -286,7 +290,11 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.inbox_outlined, size: 56, color: AppTheme.borderDark),
+          const Icon(
+            Icons.inbox_outlined,
+            size: 56,
+            color: AppTheme.borderDark,
+          ),
           const SizedBox(height: 16),
           Text(
             noReportsAtAll
@@ -367,38 +375,65 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          HazardIcon.getLocalizedLabel(
-                            context,
-                            report.confirmedHazardType,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            HazardIcon.getLocalizedLabel(
+                              context,
+                              report.confirmedHazardType,
+                            ),
+                            softWrap: true,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary,
+                            ),
                           ),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
+                          const SizedBox(height: 4),
+                          Text(
+                            '$kmText • $stationName',
+                            softWrap: true,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.textSecondary,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '$kmText • $stationName',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                  SeverityBadge(severity: report.confirmedSeverity),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: SeverityBadge(severity: report.confirmedSeverity),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 10),
 
-              Row(children: [Text(createdText, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)), const Spacer(), SyncStatusBadge(status: report.syncStatus, compact: true)]),
-              if (report.syncStatus == SyncStatus.failed && report.lastSyncError != null) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      createdText,
+                      softWrap: true,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  SyncStatusBadge(status: report.syncStatus, compact: true),
+                ],
+              ),
+              if (report.syncStatus == SyncStatus.failed &&
+                  report.lastSyncError != null) ...[
                 const SizedBox(height: 10),
                 SyncErrorBanner(
                   error: report.lastSyncError,

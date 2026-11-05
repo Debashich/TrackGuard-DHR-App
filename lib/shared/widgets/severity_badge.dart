@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 import '../models/severity.dart';
-import '../../l10n/app_localizations.dart';
+
+// import '../../l10n/app_localizations.dart';
 
 class SeverityBadge extends StatelessWidget {
   final Severity severity;
@@ -29,31 +30,40 @@ class SeverityBadge extends StatelessWidget {
 
   Color get _ink {
     switch (severity) {
-      case Severity.low: return const Color(0xFF14532D);
-      case Severity.medium: return const Color(0xFF78350F);
-      case Severity.high: return const Color(0xFF7C2D12);
-      case Severity.critical: return const Color(0xFF7F1D1D);
+      case Severity.low:
+        return const Color(0xFF14532D);
+      case Severity.medium:
+        return const Color(0xFF78350F);
+      case Severity.high:
+        return const Color(0xFF7C2D12);
+      case Severity.critical:
+        return const Color(0xFF7F1D1D);
     }
   }
 
-  String _label(AppLocalizations l10n) {
-    switch (severity) {
-      case Severity.low:
-        return l10n.severityLow;
-      case Severity.medium:
-        return l10n.severityMedium;
-      case Severity.high:
-        return l10n.severityHigh;
-      case Severity.critical:
-        return l10n.severityCritical;
-    }
-  }
+  // String _label(AppLocalizations l10n) {
+  //   switch (severity) {
+  //     case Severity.low:
+  //       return l10n.severityLow;
+  //     case Severity.medium:
+  //       return l10n.severityMedium;
+  //     case Severity.high:
+  //       return l10n.severityHigh;
+  //     case Severity.critical:
+  //       return l10n.severityCritical;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final color = _color;
-    final text = l10n != null ? _label(l10n) : severity.name.toUpperCase();
+
+    final text = switch (severity) {
+      Severity.low => 'Low',
+      Severity.medium => 'Medium',
+      Severity.high => 'High',
+      Severity.critical => 'Critical',
+    };
 
     return Container(
       padding: EdgeInsets.symmetric(
