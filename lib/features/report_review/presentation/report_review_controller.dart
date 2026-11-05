@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/storage/local_media_storage.dart';
 import '../../../core/constants/dhr_waypoints.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../core/supabase/supabase_provider.dart';
@@ -109,12 +110,17 @@ class ReportReviewController extends Notifier<ReportReviewState> {
       return;
     }
 
-    final initialKm = draft.location.kmMarker ?? 51.0;
+    final initialKm = draft.reviewKmMarker ?? draft.location.kmMarker ?? 51.0;
+
     _activeSessionId = draft.sessionId;
+
     state = state.copyWith(
       draft: draft,
       isLoadingDraft: false,
       kmMarker: initialKm,
+      confirmedHazard: draft.confirmedHazard ?? HazardType.other,
+      confirmedSeverity: draft.confirmedSeverity ?? Severity.medium,
+      gangmanNote: draft.gangmanNote ?? '',
     );
 
     await runAnalysis(null, generation);
@@ -154,8 +160,12 @@ class ReportReviewController extends Notifier<ReportReviewState> {
         isAnalyzing: false,
         aiResult: result,
         clearAiError: true,
-        confirmedHazard: result.hazardType ?? state.confirmedHazard,
-        confirmedSeverity: result.severity ?? state.confirmedSeverity,
+        confirmedHazard:
+            draft.confirmedHazard ?? result.hazardType ?? state.confirmedHazard,
+        confirmedSeverity:
+            draft.confirmedSeverity ??
+            result.severity ??
+            state.confirmedSeverity,
       );
     } catch (e) {
       if (!ref.mounted ||
@@ -191,6 +201,81 @@ class ReportReviewController extends Notifier<ReportReviewState> {
 
   void setGangmanNote(String note) {
     state = state.copyWith(gangmanNote: note);
+  }
+
+  Future<bool> saveAsDraft() async {
+    final draft = state.draft;
+
+    if (draft == null || state.isSaving) return false;
+
+    state = state.copyWith(isSaving: true, errorMessage: null);
+
+    try {
+      final updatedDraft = draft.copyWith(
+        confirmedHazard: state.confirmedHazard,
+        confirmedSeverity: state.confirmedSeverity,
+        reviewKmMarker: state.kmMarker,
+        gangmanNote: state.gangmanNote,
+      );
+
+      final repo = ref.read(reportRepositoryProvider);
+
+      await repo.saveDraft(updatedDraft);
+
+      if (!ref.mounted) return false;
+
+      state = state.copyWith(isSaving: false, draft: updatedDraft);
+
+      return true;
+    } catch (e) {
+      if (ref.mounted) {
+        state = state.copyWith(
+          isSaving: false,
+          errorMessage: 'Failed to save draft locally: $e',
+        );
+      }
+
+      return false;
+    }
+  }
+
+  Future<bool> discardDraft() async {
+    final draft = state.draft;
+
+    if (draft == null || state.isSaving) return false;
+
+    // Immediately invalidate ongoing AI requests.
+    _analysisGeneration++;
+    _activeSessionId = null;
+
+    state = state.copyWith(isSaving: true, errorMessage: null);
+
+    try {
+      final repo = ref.read(reportRepositoryProvider);
+
+      await repo.clearDraft();
+
+      try {
+        await LocalMediaStorage().deleteDraftMedia(draft);
+      } catch (e) {
+        debugPrint('Discarded draft media cleanup failed: $e');
+      }
+
+      if (!ref.mounted) return false;
+
+      state = const ReportReviewState(isLoadingDraft: false);
+
+      return true;
+    } catch (e) {
+      if (ref.mounted) {
+        state = state.copyWith(
+          isSaving: false,
+          errorMessage: 'Failed to discard report: $e',
+        );
+      }
+
+      return false;
+    }
   }
 
   Future<bool> confirmAndSaveReport(String createdByUserId) async {

@@ -23,6 +23,8 @@ import 'widgets/ai_suggestion_card.dart';
 import 'widgets/hazard_selector.dart';
 import 'widgets/severity_selector.dart';
 
+enum _ReviewExitAction { saveDraft, discard }
+
 class ReportReviewScreen extends ConsumerStatefulWidget {
   const ReportReviewScreen({super.key});
 
@@ -51,6 +53,81 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
     _noteController.dispose();
     _kmController.dispose();
     super.dispose();
+  }
+
+  Future<bool> _handleBackPressed() async {
+    final reviewState = ref.read(reportReviewControllerProvider);
+
+    if (reviewState.draft == null) return true;
+    if (reviewState.isSaving) return false;
+
+    final action = await showDialog<_ReviewExitAction>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Leave report?'),
+        content: const Text(
+          'You have an unfinished report. What would you like to do?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop(_ReviewExitAction.discard);
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Discard Report'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop(_ReviewExitAction.saveDraft);
+            },
+            child: const Text('Save as Draft'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted || action == null) return false;
+
+    final controller = ref.read(reportReviewControllerProvider.notifier);
+
+    switch (action) {
+      case _ReviewExitAction.saveDraft:
+        final saved = await controller.saveAsDraft();
+
+        if (!mounted) return false;
+
+        if (!saved) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not save draft. Please try again.'),
+            ),
+          );
+        }
+
+        return saved;
+
+      case _ReviewExitAction.discard:
+        final discarded = await controller.discardDraft();
+
+        if (!mounted) return false;
+
+        if (!discarded) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not discard report. Please try again.'),
+            ),
+          );
+        }
+
+        return discarded;
+    }
   }
 
   void _showSuccessDialog(BuildContext context, String reportId) {
@@ -181,313 +258,289 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
       _kmController.text = reviewState.kmMarker.toStringAsFixed(1);
     }
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.reviewTitle)),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l10n.savesSafelyOnPhoneFirst,
-                style: const TextStyle(color: AppTheme.textSecondary),
-              ),
-              const SizedBox(height: 6),
-              PrimaryButton(
-                text: l10n.saveAndQueue,
-                icon: Icons.save,
-                isLoading: reviewState.isSaving,
-                onPressed: reviewState.isSaving
-                    ? null
-                    : () async {
-                        final success = await controller.confirmAndSaveReport(
-                          userId,
-                        );
-                        if (!context.mounted) return;
-                        final savedId = ref
-                            .read(reportReviewControllerProvider)
-                            .savedReportId;
-                        if (success && savedId != null) {
-                          _showSuccessDialog(context, savedId);
-                        }
-                      },
-              ),
-            ],
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Photo Thumbnail Preview Card
-              Card(
-                clipBehavior: Clip.antiAlias,
-                child: SizedBox(
-                  height: 180,
-                  width: double.infinity,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.file(File(draft.photoPath), fit: BoxFit.cover),
-                      Positioned(
-                        bottom: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black87,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            loc.source == LocationSource.gps
-                                ? l10n.locationSourceGps
-                                : l10n.locationSourceFallback,
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: loc.source == LocationSource.gps
-                                  ? AppTheme.statusGreen
-                                  : AppTheme.primaryAmber,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+    if (_noteController.text.isEmpty && reviewState.gangmanNote.isNotEmpty) {
+      _noteController.text = reviewState.gangmanNote;
+    }
+
+    // ignore: deprecated_member_use
+    return WillPopScope(
+      onWillPop: _handleBackPressed,
+      child: Scaffold(
+        appBar: AppBar(title: Text(l10n.reviewTitle)),
+        bottomNavigationBar: SafeArea(
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l10n.savesSafelyOnPhoneFirst,
+                  style: const TextStyle(color: AppTheme.textSecondary),
                 ),
-              ),
-              const SizedBox(height: 12),
-
-              // Location details card
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(14.0),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.place,
-                        color: AppTheme.primaryBlue,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              loc.nearestStationName ??
-                                  'Darjeeling Himalayan Railway',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Km ${reviewState.kmMarker.toStringAsFixed(1)} • ${DhrWaypoints.getSectionName(DhrWaypoints.estimateSection(reviewState.kmMarker))}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppTheme.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // AI Suggestion Card
-              AiSuggestionCard(
-                aiResult: reviewState.aiResult,
-                errorMessage: reviewState.aiErrorMessage,
-                isAnalyzing: reviewState.isAnalyzing,
-                currentMode: ref.watch(aiSettingsProvider).mode,
-                onRetry: () => controller.runAnalysis(),
-                onSwitchToManual: () => controller.switchToManual(),
-                onDownloadModel: () => context.push('/settings/ai/download'),
-              ),
-              const SizedBox(height: 20),
-
-              // Human Confirmation Section Header
-              Text(
-                l10n.humanConfirmationTitle.toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.primaryBlue,
-                  letterSpacing: 0.8,
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // Hazard Type Selection
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.hazardType,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      HazardSelector(
-                        selectedHazard: reviewState.confirmedHazard,
-                        onSelected: (HazardType h) =>
-                            controller.setConfirmedHazard(h),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Severity Selection
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.severity,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      SeveritySelector(
-                        selectedSeverity: reviewState.confirmedSeverity,
-                        onSelected: (Severity s) =>
-                            controller.setConfirmedSeverity(s),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Km Marker & Gangman field note
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextField(
-                        controller: _kmController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: l10n.editKm,
-                          prefixIcon: const Icon(
-                            Icons.linear_scale,
-                            color: AppTheme.primaryBlue,
-                          ),
-                          suffixText: 'km',
-                        ),
-                        onChanged: (val) {
-                          final parsed = double.tryParse(val);
-                          if (parsed != null) {
-                            controller.setKmMarker(parsed);
+                const SizedBox(height: 6),
+                PrimaryButton(
+                  text: l10n.saveAndQueue,
+                  icon: Icons.save,
+                  isLoading: reviewState.isSaving,
+                  onPressed: reviewState.isSaving
+                      ? null
+                      : () async {
+                          final success = await controller.confirmAndSaveReport(
+                            userId,
+                          );
+                          if (!context.mounted) return;
+                          final savedId = ref
+                              .read(reportReviewControllerProvider)
+                              .savedReportId;
+                          if (success && savedId != null) {
+                            _showSuccessDialog(context, savedId);
                           }
                         },
-                      ),
-                      const SizedBox(height: 14),
-                      TextField(
-                        controller: _noteController,
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          labelText: l10n.gangmanNote,
-                          hintText: l10n.gangmanNoteHint,
-                          alignLabelWithHint: true,
+                ),
+              ],
+            ),
+          ),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Photo Thumbnail Preview Card
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: SizedBox(
+                    height: 180,
+                    width: double.infinity,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.file(File(draft.photoPath), fit: BoxFit.cover),
+                        Positioned(
+                          bottom: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black87,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              loc.source == LocationSource.gps
+                                  ? l10n.locationSourceGps
+                                  : l10n.locationSourceFallback,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: loc.source == LocationSource.gps
+                                    ? AppTheme.statusGreen
+                                    : AppTheme.primaryAmber,
+                              ),
+                            ),
+                          ),
                         ),
-                        onChanged: (val) => controller.setGangmanNote(val),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 12),
 
-              // Offline / Sync readiness banner before saving
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.surfaceDarkElevated,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppTheme.borderDark),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      isOnline ? Icons.wifi : Icons.wifi_off,
-                      size: 20,
-                      color: isOnline
-                          ? AppTheme.statusGreen
-                          : AppTheme.primaryAmber,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        isOnline
-                            ? l10n.syncStationSignalAvailable
-                            : l10n.syncOfflineSafe,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.textSecondary,
-                          height: 1.3,
+                // Location details card
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14.0),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.place,
+                          color: AppTheme.primaryBlue,
+                          size: 24,
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                loc.nearestStationName ??
+                                    'Darjeeling Himalayan Railway',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Km ${reviewState.kmMarker.toStringAsFixed(1)} • ${DhrWaypoints.getSectionName(DhrWaypoints.estimateSection(reviewState.kmMarker))}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
+                const SizedBox(height: 16),
 
-              // Show local save error if any
-              if (reviewState.errorMessage != null) ...[
+                // AI Suggestion Card
+                AiSuggestionCard(
+                  aiResult: reviewState.aiResult,
+                  errorMessage: reviewState.aiErrorMessage,
+                  isAnalyzing: reviewState.isAnalyzing,
+                  currentMode: ref.watch(aiSettingsProvider).mode,
+                  onRetry: () => controller.runAnalysis(),
+                  onSwitchToManual: () => controller.switchToManual(),
+                  onDownloadModel: () => context.push('/settings/ai/download'),
+                ),
+                const SizedBox(height: 20),
+
+                // Human Confirmation Section Header
+                Text(
+                  l10n.humanConfirmationTitle.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.primaryBlue,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // Hazard Type Selection
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.hazardType,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        HazardSelector(
+                          selectedHazard: reviewState.confirmedHazard,
+                          onSelected: (HazardType h) =>
+                              controller.setConfirmedHazard(h),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Severity Selection
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.severity,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SeveritySelector(
+                          selectedSeverity: reviewState.confirmedSeverity,
+                          onSelected: (Severity s) =>
+                              controller.setConfirmedSeverity(s),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Km Marker & Gangman field note
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextField(
+                          controller: _kmController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: l10n.editKm,
+                            prefixIcon: const Icon(
+                              Icons.linear_scale,
+                              color: AppTheme.primaryBlue,
+                            ),
+                            suffixText: 'km',
+                          ),
+                          onChanged: (val) {
+                            final parsed = double.tryParse(val);
+                            if (parsed != null) {
+                              controller.setKmMarker(parsed);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 14),
+                        TextField(
+                          controller: _noteController,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            labelText: l10n.gangmanNote,
+                            hintText: l10n.gangmanNoteHint,
+                            alignLabelWithHint: true,
+                          ),
+                          onChanged: (val) => controller.setGangmanNote(val),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Offline / Sync readiness banner before saving
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.statusRed.withValues(alpha: 0.15),
+                    color: AppTheme.surfaceDarkElevated,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.statusRed),
+                    border: Border.all(color: AppTheme.borderDark),
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.error_outline,
-                        color: AppTheme.statusRed,
+                      Icon(
+                        isOnline ? Icons.wifi : Icons.wifi_off,
                         size: 20,
+                        color: isOnline
+                            ? AppTheme.statusGreen
+                            : AppTheme.primaryAmber,
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          reviewState.errorMessage!,
+                          isOnline
+                              ? l10n.syncStationSignalAvailable
+                              : l10n.syncOfflineSafe,
                           style: const TextStyle(
                             fontSize: 12,
-                            color: AppTheme.textPrimary,
+                            color: AppTheme.textSecondary,
+                            height: 1.3,
                           ),
                         ),
                       ),
@@ -495,8 +548,40 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
+
+                // Show local save error if any
+                if (reviewState.errorMessage != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.statusRed.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppTheme.statusRed),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          color: AppTheme.statusRed,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            reviewState.errorMessage!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

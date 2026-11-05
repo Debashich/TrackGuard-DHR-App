@@ -69,4 +69,25 @@ class LocalMediaStorage {
 
     return source.copy(destination.path);
   }
+
+  Future<void> deleteDraftMedia(ReportDraft draft) async {
+    final documents = await getApplicationDocumentsDirectory();
+
+    final mediaRoot = p.normalize(
+      p.join(documents.path, 'trackguard', 'media'),
+    );
+
+    final draftDirectory = Directory(p.dirname(draft.photoPath));
+
+    final normalizedDraftPath = p.normalize(draftDirectory.path);
+
+    // Never delete files outside TrackGuard's managed media directory.
+    if (!p.isWithin(mediaRoot, normalizedDraftPath)) {
+      return;
+    }
+
+    if (await draftDirectory.exists()) {
+      await draftDirectory.delete(recursive: true);
+    }
+  }
 }
