@@ -13,43 +13,64 @@ import 'auth_repository.dart';
 class SupabaseAuthRepository implements AuthRepository {
   static const _cachedUserKey = 'trackguard_cached_user_profile_v1';
   final _controller = StreamController<AppUser?>.broadcast();
+  bool _authListenerAttached = false;
 
   SupabaseAuthRepository() {
+    _tryAttachAuthListener();
+  }
+
+  /// Attaches the Supabase auth state listener if Supabase is initialized.
+  /// Safe to call multiple times — only the first successful call registers.
+  void _tryAttachAuthListener() {
+    if (_authListenerAttached) return;
+
     final client = _getSupabaseClient();
+    if (client == null) return;
 
-    if (client != null) {
-      client.auth.onAuthStateChange.listen((data) async {
-        final supaUser = data.session?.user;
+    _authListenerAttached = true;
+    client.auth.onAuthStateChange.listen((data) async {
+      final supaUser = data.session?.user;
 
-        if (supaUser == null) {
-          _controller.add(null);
+      if (supaUser == null) {
+        _controller.add(null);
+        return;
+      }
+
+      try {
+        final profile = await loadProfile(supaUser.id);
+
+        if (profile == null) {
+          _controller.addError(ProfileNotFoundException(supaUser.id));
           return;
         }
 
-        try {
-          final profile = await loadProfile(supaUser.id);
-
-          if (profile == null) {
-            _controller.addError(ProfileNotFoundException(supaUser.id));
-            return;
-          }
-
-          _controller.add(profile);
-        } catch (error) {
-          debugPrint('Auth state change profile fetch failed (offline fallback): $error');
-          final cached = await getCachedUser();
-          if (cached != null) {
-            _controller.add(cached);
-          } else {
-            final fallback = _createFallbackUser(
-              id: supaUser.id,
-              email: supaUser.email,
-            );
-            await cacheUser(fallback);
-            _controller.add(fallback);
-          }
+        _controller.add(profile);
+      } catch (error) {
+        debugPrint('Auth state change profile fetch failed (offline fallback): $error');
+        final cached = await getCachedUser();
+        if (cached != null) {
+          _controller.add(cached);
+        } else {
+          final fallback = _createFallbackUser(
+            id: supaUser.id,
+            email: supaUser.email,
+          );
+          await cacheUser(fallback);
+          _controller.add(fallback);
         }
-      });
+      }
+    });
+  }
+
+  /// Called after deferred Supabase.initialize() completes to re-attach
+  /// the auth listener and re-check the session.
+  Future<void> onSupabaseReady() async {
+    _tryAttachAuthListener();
+
+    // Re-check for an existing session now that Supabase is available
+    final user = await getCurrentUser();
+    if (user != null) {
+      _controller.add(user);
     }
   }
 

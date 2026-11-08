@@ -36,7 +36,9 @@ class AuthController extends Notifier<AuthState> {
         if (error is ProfileNotFoundException) {
           state = AuthState.profilePending();
         } else {
-          debugPrint('Auth subscription error: $error; attempting cached fallback.');
+          debugPrint(
+            'Auth subscription error: $error; attempting cached fallback.',
+          );
           _tryFallbackToCached();
         }
       },
@@ -48,7 +50,7 @@ class AuthController extends Notifier<AuthState> {
 
     _restoreSession();
 
-    return AuthState.unauthenticated();
+    return AuthState.initializing();
   }
 
   Future<void> _tryFallbackToCached() async {

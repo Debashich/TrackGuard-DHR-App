@@ -1,180 +1,202 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
 
-import '../../../app/theme.dart';
-import '../../../core/localization/l10n.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../../shared/models/app_language.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:video_player/video_player.dart';
+
 import '../../../shared/widgets/google_sign_in_button.dart';
 import '../domain/auth_state.dart';
 import 'auth_controller.dart';
 
-class SignInScreen extends ConsumerWidget {
+class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends ConsumerState<SignInScreen> {
+  VideoPlayerController? _videoController;
+  bool _introStarted = false;
+  bool _showLoginButton = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Start intro immediately so there is zero delay before the splash plays
+    _startIntro();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache the first-frame asset so Flutter can render it instantly
+    precacheImage(const AssetImage('assets/branding/splash_frame.png'), context);
+  }
+
+  Future<void> _startIntro() async {
+    if (_introStarted) return;
+    _introStarted = true;
+
+    final controller = VideoPlayerController.asset(
+      'assets/branding/splash_intro_optimized.mp4',
+    );
+
+    _videoController = controller;
+
+    try {
+      await controller.initialize();
+
+      if (!mounted) {
+        await controller.dispose();
+        return;
+      }
+
+      await controller.setLooping(false);
+      await controller.setVolume(0);
+
+      controller.addListener(_onVideoChanged);
+
+      setState(() {});
+
+      await controller.play();
+    } catch (error) {
+      debugPrint('Splash video failed: $error');
+
+      if (identical(_videoController, controller)) {
+        _videoController = null;
+
+        if (mounted) {
+          setState(() => _showLoginButton = true);
+        }
+      }
+
+      await controller.dispose();
+    }
+  }
+
+  void _onVideoChanged() {
+    final controller = _videoController;
+
+    if (controller == null || !controller.value.isCompleted) {
+      return;
+    }
+
+    // Stop listening, but keep the controller alive.
+    // VideoPlayer will continue displaying its final frame.
+    controller.removeListener(_onVideoChanged);
+
+    unawaited(controller.pause());
+
+    if (mounted) {
+      setState(() => _showLoginButton = true);
+    }
+  }
+
+  Widget _buildBackground() {
+    final controller = _videoController;
+
+    if (controller != null && controller.value.isInitialized) {
+      return FittedBox(
+        fit: BoxFit.cover,
+        child: SizedBox(
+          width: controller.value.size.width,
+          height: controller.value.size.height,
+          child: VideoPlayer(controller),
+        ),
+      );
+    }
+
+    // Render first frame of the splash immediately while video is decoding
+    return Image.asset(
+      'assets/branding/splash_frame.png',
+      fit: BoxFit.cover,
+      gaplessPlayback: true,
+      width: double.infinity,
+      height: double.infinity,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen<AuthState>(authControllerProvider, (previous, next) {
+      if (next.status == AuthStatus.unauthenticated) {
+        _startIntro();
+      }
+    });
+
     final authState = ref.watch(authControllerProvider);
-    final currentLang = ref.watch(appLanguageProvider);
-    final isAuthenticating = authState.status == AuthStatus.authenticating;
+    final isAuthenticating =
+        authState.status == AuthStatus.authenticating;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.appTitle),
-        actions: [
-          PopupMenuButton<AppLanguage>(
-            icon: const Icon(Icons.language, color: AppTheme.primaryAmber),
-            tooltip: l10n.selectLanguage,
-            onSelected: (lang) {
-              ref.read(appLanguageProvider.notifier).setLanguage(lang);
-            },
-            itemBuilder: (context) => AppLanguage.values.map((lang) {
-              final isSelected = lang == currentLang;
-              return PopupMenuItem<AppLanguage>(
-                value: lang,
-                child: Row(
-                  children: [
-                    if (isSelected)
-                      const Icon(
-                        Icons.check,
-                        size: 18,
-                        color: AppTheme.primaryBlue,
-                      )
-                    else
-                      const SizedBox(width: 18),
-                    const SizedBox(width: 8),
-                    Text(lang.displayName),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24.0,
-              vertical: 20.0,
+      backgroundColor: const Color(0xFFB7D4F2), // Matches splash sky background
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarDividerColor: Colors.transparent,
+          systemNavigationBarIconBrightness: Brightness.dark,
+          systemNavigationBarContrastEnforced: false,
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned.fill(
+              child: _buildBackground(),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Branding Header
-                Center(
-                  child: Container(
-                    width: 88,
-                    height: 88,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue.withValues(alpha: 0.10),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.5),
-                        width: 2,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.train_rounded,
-                      size: 48,
-                      color: AppTheme.primaryBlue,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  l10n.appTitle.toUpperCase(),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  l10n.tagline,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 40),
 
-                // Error Message if any
-                if (authState.status == AuthStatus.authError &&
-                    authState.errorMessage != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 20),
-                    decoration: BoxDecoration(
-                      color: AppTheme.statusRed.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppTheme.statusRed),
-                    ),
-                    child: Text(
-                      authState.errorMessage!,
-                      style: const TextStyle(
-                        color: AppTheme.textPrimary,
-                        fontSize: 13,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-
-                // Google Sign In
-                GoogleSignInButton(
-                  text: l10n.signInGoogle,
-                  isLoading: isAuthenticating,
-                  onPressed: isAuthenticating
-                      ? null
-                      : () => ref
-                          .read(authControllerProvider.notifier)
-                          .signInWithGoogle(),
+            // Subtle dark overlay fades in smoothly when the login button appears
+            Positioned.fill(
+              child: AnimatedOpacity(
+                opacity: _showLoginButton ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 500),
+                child: const ColoredBox(
+                  color: Color(0x33000000),
                 ),
-
-                const SizedBox(height: 32),
-                // Offline Notice
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppTheme.borderDark),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.cloud_off,
-                        color: AppTheme.primaryBlue,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          l10n.offlineExplanation,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textSecondary,
-                            height: 1.3,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+
+            Center(
+              child: IgnorePointer(
+                ignoring: !_showLoginButton,
+                child: AnimatedOpacity(
+                  opacity: _showLoginButton ? 1 : 0,
+                  duration: const Duration(milliseconds: 700),
+                  curve: Curves.easeOut,
+                  child: SizedBox(
+                    width: 250,
+                    child: GoogleSignInButton(
+                      text: 'Log in with Google',
+                      isLoading: isAuthenticating,
+                      onPressed: isAuthenticating
+                          ? null
+                          : () => ref
+                              .read(authControllerProvider.notifier)
+                              .signInWithGoogle(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    final controller = _videoController;
+
+    if (controller != null) {
+      controller.removeListener(_onVideoChanged);
+      unawaited(controller.dispose());
+    }
+
+    super.dispose();
   }
 }

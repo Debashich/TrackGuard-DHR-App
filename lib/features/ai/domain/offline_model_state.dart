@@ -17,8 +17,6 @@ class OfflineModelState {
   final String? version;
   final String? repository;
   final String? filename;
-  @Deprecated('LiteRT-LM uses a single self-contained .litertlm model file.')
-  final String? projectorFilename;
   final String? sha256;
   final int? totalBytes;
   final int downloadedBytes;
@@ -37,8 +35,6 @@ class OfflineModelState {
     this.version = 'litertlm-gemma4-e2b-v1',
     this.repository = 'litert-community/gemma-4-E2B-it-litert-lm',
     this.filename = 'gemma-4-E2B-it.litertlm',
-    @Deprecated('LiteRT-LM uses a single self-contained .litertlm model file.')
-    this.projectorFilename,
     this.sha256,
     this.totalBytes,
     this.downloadedBytes = 0,
@@ -86,7 +82,6 @@ class OfflineModelState {
     String? version,
     String? repository,
     String? filename,
-    String? projectorFilename,
     String? sha256,
     int? totalBytes,
     int? downloadedBytes,
@@ -105,7 +100,6 @@ class OfflineModelState {
       version: version ?? this.version,
       repository: repository ?? this.repository,
       filename: filename ?? this.filename,
-      projectorFilename: projectorFilename ?? this.projectorFilename,
       sha256: sha256 ?? this.sha256,
       totalBytes: totalBytes ?? this.totalBytes,
       downloadedBytes: downloadedBytes ?? this.downloadedBytes,
@@ -150,7 +144,6 @@ class OfflineModelState {
           json['repository'] as String? ??
           'litert-community/gemma-4-E2B-it-litert-lm',
       filename: json['filename'] as String? ?? 'gemma-4-E2B-it.litertlm',
-      projectorFilename: json['projectorFilename'] as String?,
       sha256: json['sha256'] as String?,
       totalBytes: json['totalBytes'] as int?,
       downloadedBytes: json['downloadedBytes'] as int? ?? 0,

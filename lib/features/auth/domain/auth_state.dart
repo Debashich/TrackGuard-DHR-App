@@ -1,6 +1,7 @@
 import '../../../shared/models/app_user.dart';
 
 enum AuthStatus {
+  initializing,
   unauthenticated,
   authenticating,
   authenticated,
@@ -18,6 +19,9 @@ class AuthState {
   final String? errorMessage;
 
   const AuthState({required this.status, this.user, this.errorMessage});
+
+  factory AuthState.initializing() =>
+      const AuthState(status: AuthStatus.initializing);
 
   factory AuthState.unauthenticated() =>
       const AuthState(status: AuthStatus.unauthenticated);
