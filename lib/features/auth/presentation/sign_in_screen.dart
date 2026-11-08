@@ -149,34 +149,98 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               child: _buildBackground(),
             ),
 
-            // Subtle dark overlay fades in smoothly when the login button appears
+            // Seamless atmospheric mountain-blue gradient matching the mockup
             Positioned.fill(
               child: AnimatedOpacity(
                 opacity: _showLoginButton ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 500),
-                child: const ColoredBox(
-                  color: Color(0x33000000),
+                duration: const Duration(milliseconds: 600),
+                child: const IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: [0.0, 0.46, 0.62, 0.78, 0.92, 1.0],
+                        colors: [
+                          Colors.transparent,
+                          Colors.transparent,
+                          Color(0x350A2952),
+                          Color(0x8A062044),
+                          Color(0xD9031735),
+                          Color(0xF502122A),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
 
-            Center(
-              child: IgnorePointer(
-                ignoring: !_showLoginButton,
-                child: AnimatedOpacity(
-                  opacity: _showLoginButton ? 1 : 0,
-                  duration: const Duration(milliseconds: 700),
-                  curve: Curves.easeOut,
-                  child: SizedBox(
-                    width: 250,
-                    child: GoogleSignInButton(
-                      text: 'Log in with Google',
-                      isLoading: isAuthenticating,
-                      onPressed: isAuthenticating
-                          ? null
-                          : () => ref
-                              .read(authControllerProvider.notifier)
-                              .signInWithGoogle(),
+            Positioned(
+              left: 24,
+              right: 24,
+              bottom: 32,
+              child: SafeArea(
+                top: false,
+                child: IgnorePointer(
+                  ignoring: !_showLoginButton,
+                  child: AnimatedOpacity(
+                    opacity: _showLoginButton ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 700),
+                    curve: Curves.easeOut,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GoogleSignInButton(
+                          text: 'Continue with Google',
+                          isLoading: isAuthenticating,
+                          onPressed: isAuthenticating
+                              ? null
+                              : () => ref
+                                  .read(authControllerProvider.notifier)
+                                  .signInWithGoogle(),
+                        ),
+                        const SizedBox(height: 18),
+                        Text.rich(
+                          TextSpan(
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              height: 1.45,
+                              letterSpacing: 0.1,
+                            ),
+                            children: const [
+                              TextSpan(
+                                text: 'By continuing, you agree to our ',
+                              ),
+                              TextSpan(
+                                text: 'Privacy Policy',
+                                style: TextStyle(
+                                  color: Color(0xFF00C2F2),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              TextSpan(text: '\nand '),
+                              TextSpan(
+                                text: 'Terms & Conditions',
+                                style: TextStyle(
+                                  color: Color(0xFF00C2F2),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              TextSpan(
+                                text: '.',
+                                style: TextStyle(
+                                  color: Color(0xFF00C2F2),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                 ),

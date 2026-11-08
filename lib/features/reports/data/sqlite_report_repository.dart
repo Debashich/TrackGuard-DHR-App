@@ -6,7 +6,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../../shared/models/hazard_report.dart';
+import '../../../shared/models/hazard_type.dart';
 import '../../../shared/models/report_draft.dart';
+import '../../../shared/models/severity.dart';
 import '../../../shared/models/sync_status.dart';
 import 'report_repository.dart';
 
@@ -61,8 +63,65 @@ class SqliteReportRepository implements ReportRepository {
             payload TEXT NOT NULL
           )
         ''');
+
+        await _seedDefaultReports(db);
       },
     );
+  }
+
+  Future<void> _seedDefaultReports(Database db) async {
+    final now = DateTime.now();
+    final defaultReports = [
+      HazardReport(
+        id: 'dhr-sample-001',
+        createdBy: 'dhr-gangman',
+        createdAt: DateTime(now.year, now.month, now.day, 10, 24),
+        updatedAt: DateTime(now.year, now.month, now.day, 10, 24),
+        confirmedHazardType: HazardType.vegetation,
+        confirmedSeverity: Severity.high,
+        userNote: 'Fallen tree blocking the railway track near Kurseong.',
+        kmMarker: 48.2,
+        sectionId: 'kurseong-ghum',
+        nearestStationName: 'Kurseong',
+        syncStatus: SyncStatus.synced,
+      ),
+      HazardReport(
+        id: 'dhr-sample-002',
+        createdBy: 'dhr-gangman',
+        createdAt: DateTime(now.year, now.month, now.day, 8, 11),
+        updatedAt: DateTime(now.year, now.month, now.day, 8, 11),
+        confirmedHazardType: HazardType.trackDefect,
+        confirmedSeverity: Severity.medium,
+        userNote: 'Fishplate loosening and rail joint defect near Tung.',
+        kmMarker: 47.8,
+        sectionId: 'kurseong-ghum',
+        nearestStationName: 'Tung',
+        syncStatus: SyncStatus.pending,
+      ),
+      HazardReport(
+        id: 'dhr-sample-003',
+        createdBy: 'dhr-gangman',
+        createdAt: DateTime(now.year, now.month, now.day - 1, 17, 36),
+        updatedAt: DateTime(now.year, now.month, now.day - 1, 17, 36),
+        confirmedHazardType: HazardType.rockfall,
+        confirmedSeverity: Severity.critical,
+        userNote: 'Landslide and boulders covering the track alignment.',
+        kmMarker: 49.4,
+        sectionId: 'kurseong-ghum',
+        nearestStationName: 'Sonada',
+        syncStatus: SyncStatus.synced,
+      ),
+    ];
+
+    for (final report in defaultReports) {
+      await db.insert('reports', {
+        'id': report.id,
+        'payload': jsonEncode(report.toJson()),
+        'sync_status': report.syncStatus.toJson(),
+        'created_at': report.createdAt.toIso8601String(),
+        'updated_at': report.updatedAt.toIso8601String(),
+      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
   }
 
   @override
@@ -132,7 +191,12 @@ class SqliteReportRepository implements ReportRepository {
   Future<List<HazardReport>> getLocalReports() async {
     final db = await _db;
 
-    final rows = await db.query('reports', orderBy: 'created_at DESC');
+    var rows = await db.query('reports', orderBy: 'created_at DESC');
+
+    if (rows.isEmpty) {
+      await _seedDefaultReports(db);
+      rows = await db.query('reports', orderBy: 'created_at DESC');
+    }
 
     return rows
         .map((row) {
@@ -148,12 +212,22 @@ class SqliteReportRepository implements ReportRepository {
   Future<HazardReport?> getReportById(String id) async {
     final db = await _db;
 
-    final rows = await db.query(
+    var rows = await db.query(
       'reports',
       where: 'id = ?',
       whereArgs: [id],
       limit: 1,
     );
+
+    if (rows.isEmpty) {
+      await _seedDefaultReports(db);
+      rows = await db.query(
+        'reports',
+        where: 'id = ?',
+        whereArgs: [id],
+        limit: 1,
+      );
+    }
 
     if (rows.isEmpty) return null;
 

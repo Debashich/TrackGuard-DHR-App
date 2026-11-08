@@ -23,6 +23,6 @@ void main() {
 
     // Verify Google Sign In button is present
     expect(find.byType(GoogleSignInButton), findsOneWidget);
-    expect(find.text('Log in with Google'), findsOneWidget);
+    expect(find.text('Continue with Google'), findsOneWidget);
   });
 }

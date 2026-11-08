@@ -10,7 +10,7 @@ import 'features/ai/application/ai_startup_initializer.dart';
 import 'features/auth/data/supabase_auth_repository.dart';
 import 'features/auth/presentation/auth_controller.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Enable edge-to-edge: transparent system bars everywhere
@@ -38,47 +38,53 @@ Future<void> main() async {
     return false;
   };
 
-  // Load .env configuration — fast local asset read, must complete before
-  // Supabase.initialize() because it provides the URL and key.
-  await AppEnv.load();
-
   // Create ProviderContainer early so the UI can paint immediately
   final container = ProviderContainer();
 
-  // Initialize Supabase without blocking the first frame.
-  // The auth controller already handles the initializing → authenticated
-  // transition, so painting the sign-in screen while Supabase boots is safe.
-  if (AppEnv.hasValidSupabaseConfiguration) {
-    // Fire-and-forget; the auth listener picks up the session once ready
-    Supabase.initialize(
-      url: AppEnv.supabaseUrl,
-      publishableKey: AppEnv.supabaseAnonKey,
-    ).then((_) {
-      // Notify the auth repository that Supabase is now available so it
-      // can attach its onAuthStateChange listener and restore the session
-      final repo = container.read(authRepositoryProvider);
-      if (repo is SupabaseAuthRepository) {
-        repo.onSupabaseReady();
-      }
-      // Start AI readiness check
-      container.read(aiStartupInitializerProvider).initializeOnStartup();
-    }).catchError((Object e) {
-      debugPrint('Supabase initialization failed (offline): $e');
-      // AI startup still works offline
-      container.read(aiStartupInitializerProvider).initializeOnStartup();
-    });
-  } else {
-    debugPrint(
-      'Supabase is not configured. Online authentication and sync are disabled.',
-    );
-    // Start background offline AI readiness check immediately
-    container.read(aiStartupInitializerProvider).initializeOnStartup();
-  }
-
+  // Run app immediately so Flutter paints its first frame without waiting
+  // for any environment, database, or network initialization.
   runApp(
     UncontrolledProviderScope(
       container: container,
       child: const TrackGuardApp(),
     ),
   );
+
+  // Defer all background service initialization until AFTER the first frame is painted
+  // to ensure 100% of CPU and I/O is dedicated to immediate splash dismissal.
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _initializeServices(container);
+  });
+}
+
+Future<void> _initializeServices(ProviderContainer container) async {
+  // Load environment variables asynchronously
+  await AppEnv.load();
+
+  if (AppEnv.hasValidSupabaseConfiguration) {
+    try {
+      await Supabase.initialize(
+        url: AppEnv.supabaseUrl,
+        publishableKey: AppEnv.supabaseAnonKey,
+      );
+
+      final repo = container.read(authRepositoryProvider);
+      if (repo is SupabaseAuthRepository) {
+        repo.onSupabaseReady();
+      }
+    } catch (e) {
+      debugPrint('Supabase initialization failed (offline): $e');
+    }
+  } else {
+    debugPrint(
+      'Supabase is not configured. Online authentication and sync are disabled.',
+    );
+  }
+
+  // Start background offline AI readiness check
+  try {
+    container.read(aiStartupInitializerProvider).initializeOnStartup();
+  } catch (e) {
+    debugPrint('AI startup check notice: $e');
+  }
 }

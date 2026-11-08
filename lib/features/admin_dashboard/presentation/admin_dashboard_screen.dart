@@ -12,6 +12,7 @@ import '../../../shared/models/app_user.dart';
 import '../../../shared/models/hazard_report.dart';
 import '../../../shared/models/inspection_status.dart';
 import '../../../shared/models/user_role.dart';
+import '../../../shared/widgets/language_selector_button.dart';
 import '../../../shared/widgets/logout_confirmation.dart';
 import '../../../shared/widgets/role_navigation_drawer.dart';
 import '../../auth/presentation/auth_controller.dart';
@@ -57,10 +58,11 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     return Scaffold(
       drawer: const RoleNavigationDrawer(currentRoute: '/admin/dashboard'),
       appBar: AppBar(
-        titleSpacing: 0,
-        title: Text(
-          l10n.adminDashboardTitle,
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+        leading: const LanguageSelectorButton(),
+        centerTitle: true,
+        title: const Text(
+          'TrackGuard DHR',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, letterSpacing: -0.2),
         ),
         actions: [
           IconButton(
