@@ -26,7 +26,8 @@ bool isAdmin(AppUser? user) => user?.role == UserRole.admin;
 bool canAccessRoute(AppUser? user, AuthStatus status, String path) {
   if (path.startsWith('/auth')) return true;
 
-  if (status == AuthStatus.inactiveUser ||
+  if (status == AuthStatus.initializing ||
+      status == AuthStatus.inactiveUser ||
       status == AuthStatus.profilePending ||
       status == AuthStatus.unauthenticated ||
       status == AuthStatus.authenticating ||
@@ -66,6 +67,8 @@ String? appRedirect(
   switch (status) {
     case AuthStatus.unauthenticated:
     case AuthStatus.authenticating:
+    case AuthStatus.initializing:
+      return isAuthRoute ? null : '/auth/sign-in';
     case AuthStatus.authError:
       return isAuthRoute ? null : '/auth/sign-in';
 
@@ -187,8 +190,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Admin Routes
       GoRoute(
         path: '/admin/dashboard',
-        builder: (context, state) =>
-            const AdminDashboardScreen(),
+        builder: (context, state) => const AdminDashboardScreen(),
       ),
     ],
   );
