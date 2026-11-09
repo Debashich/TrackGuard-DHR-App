@@ -1406,7 +1406,6 @@ class _AdminReportDetailScreenState
               icon: Symbols.lightbulb_rounded,
               title: 'AI Suggestion',
               content: r.aiNote!,
-              footer: '${r.aiProvider.name} • ${r.aiModel ?? "Gemma 4 E2B"}',
             ),
           ],
         ],
