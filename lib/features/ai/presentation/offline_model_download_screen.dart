@@ -23,6 +23,17 @@ class _OfflineModelDownloadScreenState
     extends ConsumerState<OfflineModelDownloadScreen> {
   bool _isLoading = false;
 
+  // Palette sampled to closely match the supplied reference screen.
+  static const Color _background = Color(0xFFF3F7FF);
+  static const Color _surface = Color(0xFFFCFDFF);
+  static const Color _navy = Color(0xFF101A3A);
+  static const Color _blue = Color(0xFF0863C8);
+  static const Color _blueBright = Color(0xFF168DD5);
+  static const Color _blueSoft = Color(0xFFE2F0FF);
+  static const Color _border = Color(0xFFDCE7F7);
+  static const Color _secondary = Color(0xFF53647B);
+  static const Color _teal = Color(0xFF087B8B);
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -31,14 +42,12 @@ class _OfflineModelDownloadScreenState
     final isOnlineAsync = ref.watch(isOnlineProvider);
     final isOnline = isOnlineAsync.value ?? false;
 
-    final state =
-        modelStateAsync.value ??
+    final state = modelStateAsync.value ??
         const OfflineModelState(
           status: OfflineModelStatus.checking,
           modelName: AiProviderConfig.offlineGemmaModelName,
           modelId: AiProviderConfig.offlineGemmaSlug,
         );
-
     final downloadSettings = manager.getDownloadSettings();
 
     return PopScope(
@@ -46,495 +55,78 @@ class _OfflineModelDownloadScreenState
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
         final shouldLeave = await _showExitConfirmationDialog(context, l10n);
-        if (shouldLeave && context.mounted) {
-          context.pop();
-        }
+        if (shouldLeave && context.mounted) context.pop();
       },
       child: Scaffold(
-        appBar: AppBar(title: Text(l10n.offlinePhotoHelperPackTitle)),
-        body: ListView(
-          padding: const EdgeInsets.all(16.0),
+        backgroundColor: _background,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () async {
+              if (state.isDownloading) {
+                final shouldLeave =
+                    await _showExitConfirmationDialog(context, l10n);
+                if (shouldLeave && context.mounted) context.pop();
+              } else {
+                context.pop();
+              }
+            },
+            icon: const Icon(Icons.arrow_back_rounded, color: _navy, size: 24),
+          ),
+          title: Text(
+            l10n.offlinePhotoHelperPackTitle,
+            style: const TextStyle(
+              color: _navy,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
+            ),
+          ),
+        ),
+        body: Stack(
           children: [
-            // Model Header Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryAmber.withValues(
-                              alpha: 0.15,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.psychology,
-                            color: AppTheme.primaryAmber,
-                            size: 28,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                state.modelName,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                l10n.offlineModelVersion(
-                                  state.version ?? '1.0.0',
-                                ),
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        _buildStatusBadge(state.status, l10n),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.offlineModelOfflineNotice,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.textSecondary,
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            const Positioned(
+              left: -40,
+              right: -40,
+              bottom: -70,
+              height: 150,
+              child: _BottomWaveDecoration(),
             ),
-            const SizedBox(height: 16),
-
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${l10n.offlinePhotoHelperPackTitle} (~2.6 GB)',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(l10n.offlinePhotoHelperPackSubtitle),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Please keep at least 4 GB of free storage available.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
+            ListView(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                24 + MediaQuery.of(context).padding.bottom,
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Network & Download Preferences Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.downloadPreferencesHeading,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.primaryAmber,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        l10n.offlineModelWifiOnly,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                      subtitle: Text(
-                        l10n.preventsCellularUsage,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
-                      value: downloadSettings.wifiOnly,
-                      activeThumbColor: AppTheme.primaryAmber,
-                      onChanged: state.isDownloading
-                          ? null
-                          : (val) async {
-                              await manager.setDownloadSettings(
-                                downloadSettings.copyWith(
-                                  wifiOnly: val,
-                                  allowCellularDownload: !val,
-                                ),
-                              );
-                              setState(() {});
-                            },
-                    ),
-                    if (!downloadSettings.wifiOnly) ...[
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppTheme.statusOrange.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppTheme.statusOrange.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.warning_amber_rounded,
-                              color: AppTheme.statusOrange,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                l10n.offlineModelMobileDataWarning,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.statusOrange,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
+              children: [
+                _buildHero(state, l10n),
+                const SizedBox(height: 20),
+                _buildStoragePanel(),
+                const SizedBox(height: 12),
+                _buildWifiPanel(
+                  downloadSettings: downloadSettings,
+                  isDownloading: state.isDownloading,
+                  l10n: l10n,
+                  manager: manager,
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Download Status & Progress Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.modelStatusAndActionsHeading,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.primaryAmber,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-
-                    // Progress section if downloading
-                    if (state.isDownloading) ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            l10n.offlineModelDownloading,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            '${state.progressPercent}%',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.primaryAmber,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: LinearProgressIndicator(
-                          value: state.progress > 0 ? state.progress : null,
-                          backgroundColor: AppTheme.surfaceDarkElevated,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppTheme.primaryAmber,
-                          ),
-                          minHeight: 8,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.offlineModelDownloadProgress(
-                          state.formattedDownloadedSize,
-                          state.formattedTotalSize,
-                          state.progressPercent,
-                        ),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.statusRed,
-                            side: const BorderSide(color: AppTheme.statusRed),
-                          ),
-                          onPressed: () async {
-                            await manager.cancelDownload();
-                          },
-                          icon: const Icon(Icons.close, size: 18),
-                          label: Text(l10n.offlineModelCancelDownload),
-                        ),
-                      ),
-                    ] else if (state.status ==
-                        OfflineModelStatus.initializing) ...[
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.0),
-                          child: Column(
-                            children: [
-                              CircularProgressIndicator(
-                                strokeWidth: 2.5,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Color(0xFF2563EB),
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              Text(
-                                'Initializing Gemma 4 E2B runtime context...',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: AppTheme.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ] else if (state.isReady) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppTheme.statusGreen.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppTheme.statusGreen.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.check_circle_outline,
-                              color: AppTheme.statusGreen,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l10n.offlineModelReady,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: AppTheme.statusGreen,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  if (state.downloadedAt != null)
-                                    Text(
-                                      l10n.offlineModelDownloadedAt(
-                                        '${state.downloadedAt!.day}/${state.downloadedAt!.month}/${state.downloadedAt!.year}',
-                                      ),
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: AppTheme.textSecondary,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.statusRed,
-                            side: const BorderSide(color: AppTheme.statusRed),
-                          ),
-                          onPressed: () =>
-                              _confirmAndDeleteModel(context, manager, l10n),
-                          icon: const Icon(Icons.delete_outline, size: 18),
-                          label: Text(l10n.offlineModelDelete),
-                        ),
-                      ),
-                    ] else if (state.status ==
-                        OfflineModelStatus.downloaded) ...[
-                      Text(
-                        l10n.offlineModelDownloaded,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryAmber,
-                            foregroundColor: Colors.white,
-                          ),
-                          onPressed: _isLoading
-                              ? null
-                              : () async {
-                                  setState(() => _isLoading = true);
-                                  try {
-                                    await manager.initialize();
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Initialization failed: $e',
-                                          ),
-                                          backgroundColor: AppTheme.statusRed,
-                                        ),
-                                      );
-                                    }
-                                  } finally {
-                                    if (mounted) {
-                                      setState(() => _isLoading = false);
-                                    }
-                                  }
-                                },
-                          icon: const Icon(Icons.play_arrow, size: 20),
-                          label: Text(l10n.offlineModelActivate),
-                        ),
-                      ),
-                    ] else ...[
-                      // Not downloaded or failed
-                      if (state.errorMessage != null) ...[
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: AppTheme.statusRed.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: AppTheme.statusRed.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                color: AppTheme.statusRed,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  state.errorMessage!,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: AppTheme.statusRed,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryAmber,
-                            foregroundColor: Colors.white,
-                          ),
-                          onPressed: _isLoading
-                              ? null
-                              : () async {
-                                  if (!isOnline) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          l10n.offlineModelNetworkRequired,
-                                        ),
-                                        backgroundColor: AppTheme.statusOrange,
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  setState(() => _isLoading = true);
-                                  try {
-                                    await manager.download();
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Download error: $e'),
-                                          backgroundColor: AppTheme.statusRed,
-                                        ),
-                                      );
-                                    }
-                                  } finally {
-                                    if (mounted) {
-                                      setState(() => _isLoading = false);
-                                    }
-                                  }
-                                },
-                          icon: const Icon(Icons.download_rounded, size: 20),
-                          label: Text(l10n.downloadOnWifiButton),
-                        ),
-                      ),
-                    ],
-                  ],
+                if (!downloadSettings.wifiOnly) ...[
+                  const SizedBox(height: 8),
+                  _buildMobileDataWarning(l10n),
+                ],
+                const SizedBox(height: 12),
+                _buildStatusAndActions(
+                  context: context,
+                  state: state,
+                  l10n: l10n,
+                  manager: manager,
+                  isOnline: isOnline,
                 ),
-              ),
+                const SizedBox(height: 8),
+              ],
             ),
           ],
         ),
@@ -542,9 +134,550 @@ class _OfflineModelDownloadScreenState
     );
   }
 
-  Widget _buildStatusBadge(OfflineModelStatus status, AppLocalizations l10n) {
-    Color color;
-    String label;
+  Widget _buildHero(OfflineModelState state, AppLocalizations l10n) {
+    return Column(
+      children: [
+        Container(
+          width: 84,
+          height: 84,
+          decoration: BoxDecoration(
+            color: _blueSoft,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: const Icon(
+            Icons.layers_rounded,
+            size: 38,
+            color: _blueBright,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          state.modelName,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: _navy,
+            fontSize: 24,
+            height: 1.2,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.4,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.offlinePhotoHelperPackTitle,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: _secondary,
+            fontSize: 15,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: _blueSoft,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_download_outlined, color: _blueBright, size: 16),
+              SizedBox(width: 6),
+              Text(
+                'AI Model',
+                style: TextStyle(
+                  color: _blue,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          l10n.offlineModelOfflineNotice,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Color(0xFF26364D),
+            fontSize: 14,
+            height: 1.45,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          l10n.offlineModelVersion(state.version ?? '1.0.0'),
+          style: const TextStyle(
+            color: _secondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 6),
+        _buildStatusBadge(state.status, l10n),
+      ],
+    );
+  }
+
+  Widget _buildStoragePanel() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      decoration: _panelDecoration(radius: 18),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildStorageMetric(
+              icon: Icons.storage_rounded,
+              label: 'Download Size',
+              value: '~2.6 GB',
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 44,
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            color: _border,
+          ),
+          Expanded(
+            child: _buildStorageMetric(
+              icon: Icons.smartphone_rounded,
+              label: 'Required Free Space',
+              value: '≥ 4 GB',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStorageMetric({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: _blueSoft,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: _blueBright, size: 20),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: _secondary,
+                  fontSize: 12,
+                  height: 1.2,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 3),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  value,
+                  style: const TextStyle(
+                    color: _navy,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWifiPanel({
+    required dynamic downloadSettings,
+    required bool isDownloading,
+    required AppLocalizations l10n,
+    required OfflineModelManager manager,
+  }) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+      decoration: _panelDecoration(radius: 18),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: _blueSoft,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.wifi_rounded, color: _blueBright, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.offlineModelWifiOnly,
+                  style: const TextStyle(
+                    color: _navy,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  l10n.preventsCellularUsage,
+                  style: const TextStyle(
+                    color: _secondary,
+                    fontSize: 12.5,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 4),
+          Switch.adaptive(
+            value: downloadSettings.wifiOnly,
+            activeThumbColor: Colors.white,
+            activeTrackColor: _teal,
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: const Color(0xFFB8C5D5),
+            onChanged: isDownloading
+                ? null
+                : (value) async {
+                    await manager.setDownloadSettings(
+                      downloadSettings.copyWith(
+                        wifiOnly: value,
+                        allowCellularDownload: !value,
+                      ),
+                    );
+                    if (mounted) setState(() {});
+                  },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileDataWarning(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF5E9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF2D4B4)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.warning_amber_rounded,
+              color: Color(0xFFC77725), size: 18),
+          const SizedBox(width: 9),
+          Expanded(
+            child: Text(
+              l10n.offlineModelMobileDataWarning,
+              style: const TextStyle(
+                color: Color(0xFF9A5A1D),
+                fontSize: 12,
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusAndActions({
+    required BuildContext context,
+    required OfflineModelState state,
+    required AppLocalizations l10n,
+    required OfflineModelManager manager,
+    required bool isOnline,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _panelDecoration(radius: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.modelStatusAndActionsHeading,
+            style: const TextStyle(
+              color: _blue,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.65,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (state.isDownloading) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(l10n.offlineModelDownloading,
+                    style: const TextStyle(
+                        color: _navy,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700)),
+                Text('${state.progressPercent}%',
+                    style: const TextStyle(
+                        color: _blue,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: LinearProgressIndicator(
+                value: state.progress > 0 ? state.progress : null,
+                minHeight: 6,
+                backgroundColor: _blueSoft,
+                valueColor: const AlwaysStoppedAnimation<Color>(_blue),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.offlineModelDownloadProgress(
+                state.formattedDownloadedSize,
+                state.formattedTotalSize,
+                state.progressPercent,
+              ),
+              style: const TextStyle(color: _secondary, fontSize: 12),
+            ),
+            const SizedBox(height: 12),
+            _outlinedActionButton(
+              label: l10n.offlineModelCancelDownload,
+              icon: Icons.close_rounded,
+              color: AppTheme.statusRed,
+              onPressed: () async => manager.cancelDownload(),
+            ),
+          ] else if (state.status == OfflineModelStatus.initializing) ...[
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  children: [
+                    CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor: AlwaysStoppedAnimation<Color>(_blue),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Initializing Gemma 4 E2B runtime context...',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: _secondary, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ] else if (state.isReady) ...[
+            _buildReadyNotice(state, l10n),
+            const SizedBox(height: 12),
+            _outlinedActionButton(
+              label: l10n.offlineModelDelete,
+              icon: Icons.delete_outline_rounded,
+              color: AppTheme.statusRed,
+              onPressed: () => _confirmAndDeleteModel(context, manager, l10n),
+            ),
+          ] else if (state.status == OfflineModelStatus.downloaded) ...[
+            Text(
+              l10n.offlineModelDownloaded,
+              style: const TextStyle(color: _secondary, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            _primaryActionButton(
+              label: l10n.offlineModelActivate,
+              icon: Icons.play_arrow_rounded,
+              isLoading: _isLoading,
+              onPressed: _isLoading
+                  ? null
+                  : () => _initializeModel(context, manager),
+            ),
+          ] else ...[
+            if (state.errorMessage != null) ...[
+              _buildErrorNotice(state.errorMessage!),
+              const SizedBox(height: 12),
+            ],
+            _primaryActionButton(
+              label: l10n.downloadOnWifiButton,
+              icon: Icons.download_rounded,
+              isLoading: _isLoading,
+              onPressed: _isLoading
+                  ? null
+                  : () => _downloadModel(context, manager, l10n, isOnline),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReadyNotice(OfflineModelState state, AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.statusGreen.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.statusGreen.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle_outline,
+              color: AppTheme.statusGreen, size: 19),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.offlineModelReady,
+                  style: const TextStyle(
+                    color: AppTheme.statusGreen,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                if (state.downloadedAt != null)
+                  Text(
+                    l10n.offlineModelDownloadedAt(
+                      '${state.downloadedAt!.day}/${state.downloadedAt!.month}/${state.downloadedAt!.year}',
+                    ),
+                    style: const TextStyle(color: _secondary, fontSize: 12),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorNotice(String message) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.statusRed.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.statusRed.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline_rounded,
+              color: AppTheme.statusRed, size: 18),
+          const SizedBox(width: 9),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                  color: AppTheme.statusRed, fontSize: 12, height: 1.35),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _primaryActionButton({
+    required String label,
+    required IconData icon,
+    required VoidCallback? onPressed,
+    bool isLoading = false,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: isLoading
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Icon(icon, size: 18),
+        label: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _blue,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: _blue.withValues(alpha: 0.55),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _outlinedActionButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 44,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 18),
+        label: Text(
+          label,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: color,
+          side: BorderSide(color: color.withValues(alpha: 0.65)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  BoxDecoration _panelDecoration({double radius = 18}) {
+    return BoxDecoration(
+      color: _surface.withValues(alpha: 0.94),
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: _border, width: 1),
+    );
+  }
+
+  Widget _buildStatusBadge(
+    OfflineModelStatus status,
+    AppLocalizations l10n,
+  ) {
+    late final Color color;
+    late final String label;
 
     switch (status) {
       case OfflineModelStatus.ready:
@@ -552,15 +685,15 @@ class _OfflineModelDownloadScreenState
         label = l10n.offlineModelReady;
         break;
       case OfflineModelStatus.downloaded:
-        color = AppTheme.statusBlue;
+        color = _blue;
         label = l10n.offlineModelDownloaded;
         break;
       case OfflineModelStatus.downloading:
-        color = AppTheme.primaryAmber;
+        color = _blueBright;
         label = l10n.offlineModelDownloading;
         break;
       case OfflineModelStatus.initializing:
-        color = AppTheme.primaryAmber;
+        color = _blueBright;
         label = l10n.offlineModelInitializing;
         break;
       case OfflineModelStatus.failed:
@@ -568,7 +701,7 @@ class _OfflineModelDownloadScreenState
         label = l10n.offlineModelFailed;
         break;
       case OfflineModelStatus.checking:
-        color = AppTheme.textSecondary;
+        color = _secondary;
         label = 'Checking...';
         break;
       case OfflineModelStatus.unsupported:
@@ -580,27 +713,81 @@ class _OfflineModelDownloadScreenState
         label = 'Corrupted';
         break;
       case OfflineModelStatus.notDownloaded:
-        color = AppTheme.textSecondary;
+        color = _secondary;
         label = l10n.offlineModelNotDownloaded;
         break;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        color: color.withValues(alpha: 0.09),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
       ),
       child: Text(
         label,
         style: TextStyle(
+          color: color,
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: color,
         ),
       ),
     );
+  }
+
+  Future<void> _initializeModel(
+    BuildContext context,
+    OfflineModelManager manager,
+  ) async {
+    setState(() => _isLoading = true);
+    try {
+      await manager.initialize();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Initialization failed: $e'),
+            backgroundColor: AppTheme.statusRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _downloadModel(
+    BuildContext context,
+    OfflineModelManager manager,
+    AppLocalizations l10n,
+    bool isOnline,
+  ) async {
+    if (!isOnline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.offlineModelNetworkRequired),
+          backgroundColor: const Color(0xFFC77725),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      await manager.download();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Download error: $e'),
+            backgroundColor: AppTheme.statusRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<bool> _showExitConfirmationDialog(
@@ -644,7 +831,8 @@ class _OfflineModelDownloadScreenState
           ),
           child: Row(
             children: [
-              const Icon(Icons.shield_outlined, size: 16, color: TrackGuardDialog.green),
+              const Icon(Icons.shield_outlined,
+                  size: 16, color: TrackGuardDialog.green),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -690,4 +878,47 @@ class _OfflineModelDownloadScreenState
       }
     }
   }
+}
+
+class _BottomWaveDecoration extends StatelessWidget {
+  const _BottomWaveDecoration();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(painter: _BottomWavePainter());
+  }
+}
+
+class _BottomWavePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final first = Path()
+      ..moveTo(0, size.height * 0.58)
+      ..cubicTo(size.width * 0.22, size.height * 0.24,
+          size.width * 0.31, size.height * 0.94,
+          size.width * 0.56, size.height * 0.58)
+      ..cubicTo(size.width * 0.76, size.height * 0.28,
+          size.width * 0.86, size.height * 0.35,
+          size.width, size.height * 0.56)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(first, Paint()..color = const Color(0xFFDDEBFC));
+
+    final second = Path()
+      ..moveTo(0, size.height * 0.78)
+      ..cubicTo(size.width * 0.25, size.height * 0.48,
+          size.width * 0.34, size.height * 0.82,
+          size.width * 0.58, size.height * 0.72)
+      ..cubicTo(size.width * 0.78, size.height * 0.63,
+          size.width * 0.88, size.height * 0.58,
+          size.width, size.height * 0.75)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(second, Paint()..color = const Color(0xFFEAF2FE));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
