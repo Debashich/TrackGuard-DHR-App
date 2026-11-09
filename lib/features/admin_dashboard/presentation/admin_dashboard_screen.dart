@@ -2298,7 +2298,7 @@ class _Panel extends StatelessWidget {
   );
 }
 
-/// Proportion bar plus a 2-column grid of tappable status tiles.
+/// A 2-column grid of tappable status tiles.
 class _StatusOverview extends StatelessWidget {
   const _StatusOverview({
     required this.counts,
@@ -2312,7 +2312,6 @@ class _StatusOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final all = InspectionStatus.values;
-    final total = counts.values.fold<int>(0, (a, b) => a + b);
 
     Widget tile(InspectionStatus s) {
       final Color bg;
@@ -2421,27 +2420,6 @@ class _StatusOverview extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8, bottom: 12),
       child: Column(
         children: [
-          if (total > 0)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: SizedBox(
-                  height: 8,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final s in all)
-                        if ((counts[s] ?? 0) > 0)
-                          Expanded(
-                            flex: counts[s]!,
-                            child: ColoredBox(color: _statusColor(s)),
-                          ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
           for (var i = 0; i < all.length; i += 2)
             Padding(
               padding: EdgeInsets.only(top: i > 0 ? 10 : 0),
