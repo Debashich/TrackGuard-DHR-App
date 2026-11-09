@@ -53,7 +53,10 @@ class AdminRepository {
         // For any reports missing from report_media table, try storage discovery
         for (final r in reports) {
           if (!mediaMap.containsKey(r.id)) {
-            final discoveredUrl = await _searchStorageForReport(r.id, userId: r.createdBy);
+            final discoveredUrl = await _searchStorageForReport(
+              r.id,
+              userId: r.createdBy,
+            );
             if (discoveredUrl != null && discoveredUrl.isNotEmpty) {
               mediaMap[r.id] = discoveredUrl;
             }
@@ -87,7 +90,9 @@ class AdminRepository {
         .eq('id', id)
         .maybeSingle();
     if (row == null) return null;
-    var report = SupabaseReportMapper.fromRemoteRow(Map<String, dynamic>.from(row));
+    var report = SupabaseReportMapper.fromRemoteRow(
+      Map<String, dynamic>.from(row),
+    );
 
     final mediaUrl = await fetchReportMediaUrl(id, userId: report.createdBy);
     if (mediaUrl != null && mediaUrl.isNotEmpty) {
@@ -112,7 +117,9 @@ class AdminRepository {
         final origPath = _cleanStoragePath(row['original_path'] as String?);
         final thumbPath = _cleanStoragePath(row['thumbnail_path'] as String?);
         // For full report detail, prefer full original image over thumbnail
-        final candidate = (origPath != null && origPath.isNotEmpty) ? origPath : thumbPath;
+        final candidate = (origPath != null && origPath.isNotEmpty)
+            ? origPath
+            : thumbPath;
         if (candidate != null && candidate.isNotEmpty) {
           final url = await _resolveStorageUrl(candidate);
           if (url != null && url.isNotEmpty) return url;
@@ -131,7 +138,8 @@ class AdminRepository {
     var path = raw.trim();
     if (path.isEmpty) return null;
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    if (path.startsWith('report-media/')) path = path.substring('report-media/'.length);
+    if (path.startsWith('report-media/')){
+      path = path.substring('report-media/'.length);}
     if (path.startsWith('reports/')) path = path.substring('reports/'.length);
     if (path.startsWith('/')) path = path.substring(1);
     return path;
@@ -141,7 +149,9 @@ class AdminRepository {
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
     for (final bucket in ['report-media', 'reports']) {
       try {
-        final signed = await _client.storage.from(bucket).createSignedUrl(path, 60 * 60);
+        final signed = await _client.storage
+            .from(bucket)
+            .createSignedUrl(path, 60 * 60);
         if (signed.isNotEmpty) return signed;
       } catch (_) {}
       try {
@@ -152,7 +162,10 @@ class AdminRepository {
     return null;
   }
 
-  Future<String?> _searchStorageForReport(String reportId, {String? userId}) async {
+  Future<String?> _searchStorageForReport(
+    String reportId, {
+    String? userId,
+  }) async {
     final possiblePrefixes = [
       if (userId != null && userId.isNotEmpty) '$userId/$reportId',
       'anonymous/$reportId',
@@ -225,41 +238,43 @@ class AdminRepository {
     InspectionStatus newStatus, {
     String? comment,
   }) async {
-    final user = _client.auth.currentUser;
-    await _client.from('reports').update({
-      'inspection_status': newStatus.toJson(),
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
-    }).eq('id', reportId);
-
-    if (user != null) {
-      await _client.from('report_status_history').insert({
-        'report_id': reportId,
-        'changed_by': user.id,
-        'to_status': newStatus.toJson(),
-        if (comment != null && comment.isNotEmpty) 'comment': comment,
-      });
-    }
+    await _client
+        .from('reports')
+        .update({
+          'inspection_status': newStatus.toJson(),
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', reportId);
   }
 
   Future<void> updateUserRole(String userId, UserRole role) async {
-    await _client.from('profiles').update({
-      'role': role.name,
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
-    }).eq('id', userId);
+    await _client
+        .from('profiles')
+        .update({
+          'role': role.name,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', userId);
   }
 
   Future<void> updateUserSection(String userId, String? sectionId) async {
-    await _client.from('profiles').update({
-      'assigned_section': sectionId,
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
-    }).eq('id', userId);
+    await _client
+        .from('profiles')
+        .update({
+          'assigned_section': sectionId,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', userId);
   }
 
   Future<void> setUserActive(String userId, bool isActive) async {
-    await _client.from('profiles').update({
-      'is_active': isActive,
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
-    }).eq('id', userId);
+    await _client
+        .from('profiles')
+        .update({
+          'is_active': isActive,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', userId);
   }
 
   Future<void> updateProfile({
