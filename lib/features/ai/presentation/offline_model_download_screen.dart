@@ -685,7 +685,7 @@ class _OfflineModelDownloadScreenState
         label = l10n.offlineModelReady;
         break;
       case OfflineModelStatus.downloaded:
-        color = _blue;
+        color = AppTheme.statusGreen;
         label = l10n.offlineModelDownloaded;
         break;
       case OfflineModelStatus.downloading:
@@ -713,7 +713,7 @@ class _OfflineModelDownloadScreenState
         label = 'Corrupted';
         break;
       case OfflineModelStatus.notDownloaded:
-        color = _secondary;
+        color = AppTheme.statusRed;
         label = l10n.offlineModelNotDownloaded;
         break;
     }
@@ -727,6 +727,9 @@ class _OfflineModelDownloadScreenState
       ),
       child: Text(
         label,
+        maxLines: 1,
+        softWrap: false,
+        overflow: TextOverflow.visible,
         style: TextStyle(
           color: color,
           fontSize: 11,

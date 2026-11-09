@@ -56,7 +56,9 @@ class ProfileScreen extends ConsumerWidget {
             icon: const Icon(Icons.arrow_back, color: Color(0xFF0A1E3F)),
             tooltip: l10n.navigationBack,
             onPressed: () {
-              if (context.canPop()) {
+              if (isAdmin) {
+                context.go(dashboardRoute);
+              } else if (context.canPop()) {
                 context.pop();
               } else {
                 context.go(dashboardRoute);

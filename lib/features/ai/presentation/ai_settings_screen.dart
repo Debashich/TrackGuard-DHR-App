@@ -441,9 +441,9 @@ class AiSettingsScreen extends ConsumerWidget {
         badgeIcon = Symbols.error_rounded;
         break;
       case OfflineModelStatus.notDownloaded:
-        badgeColor = const Color(0xFF64748B);
-        badgeBgColor = const Color(0xFFF1F5F9);
-        badgeBorderColor = const Color(0xFFE2E8F0);
+        badgeColor = const Color(0xFFDC2626);
+        badgeBgColor = const Color(0xFFFEE2E2);
+        badgeBorderColor = const Color(0xFFFCA5A5);
         badgeLabel = 'Not downloaded';
         badgeIcon = Symbols.info_rounded;
         break;
@@ -479,17 +479,19 @@ class AiSettingsScreen extends ConsumerWidget {
                 size: 22,
               ),
               const SizedBox(width: 8),
-              const Text(
-                'Offline Model',
-                style: TextStyle(
-                  color: Color(0xFF0A1E3F),
-                  fontSize: 17.0,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.2,
+              const Expanded(
+                child: Text(
+                  'Offline Model',
+                  style: TextStyle(
+                    color: Color(0xFF0A1E3F),
+                    fontSize: 17.0,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                  ),
+                  softWrap: false,
                 ),
-                softWrap: false,
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Flexible(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -519,7 +521,8 @@ class AiSettingsScreen extends ConsumerWidget {
                             color: badgeColor,
                           ),
                           maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
+                          overflow: TextOverflow.visible,
                         ),
                       ),
                     ],
