@@ -1,4 +1,4 @@
-package com.example.trackguard_dhr
+package com.trackguard.dhr
 
 import android.os.Build
 import android.os.Bundle
@@ -23,3 +23,4 @@ class MainActivity : FlutterActivity() {
         }
     }
 }
+

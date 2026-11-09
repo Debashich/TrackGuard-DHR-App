@@ -77,8 +77,8 @@ class SeverityBadge extends StatelessWidget {
           Severity.high => const Color(0xFFFFEDD5),
           Severity.critical => const Color(0xFFFEE2E2),
         },
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color, width: 1.5),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.6), width: 1.0),
       ),
       child: Text(
         text,

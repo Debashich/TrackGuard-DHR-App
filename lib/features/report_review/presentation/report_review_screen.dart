@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
-import '../../../app/theme.dart';
 import '../../../core/connectivity/connectivity_provider.dart';
 import '../../../core/constants/dhr_waypoints.dart';
 import '../../../l10n/app_localizations.dart';
@@ -14,8 +15,8 @@ import '../../../shared/models/severity.dart';
 import '../../../shared/models/sync_status.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
-import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/sync_status_badge.dart';
+import '../../../shared/widgets/trackguard_dialog.dart';
 import '../../ai/domain/ai_settings.dart';
 import '../../auth/presentation/auth_controller.dart';
 import 'report_review_controller.dart';
@@ -64,32 +65,21 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
     final action = await showDialog<_ReviewExitAction>(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Leave report?'),
-        content: const Text(
-          'You have an unfinished report. What would you like to do?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop(_ReviewExitAction.discard);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Discard Report'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop(_ReviewExitAction.saveDraft);
-            },
-            child: const Text('Save as Draft'),
-          ),
-        ],
+      builder: (dialogContext) => TrackGuardDialog(
+        icon: Icons.edit_note_rounded,
+        iconBgColor: TrackGuardDialog.brandBlueSoft,
+        iconColor: TrackGuardDialog.brandBlue,
+        title: 'Leave report?',
+        message: 'You have an unfinished report. What would you like to do?',
+        primaryLabel: 'Save as Draft',
+        primaryIcon: Icons.bookmark_added_rounded,
+        primaryColor: TrackGuardDialog.brandBlue,
+        onPrimaryPressed: () => Navigator.of(dialogContext).pop(_ReviewExitAction.saveDraft),
+        secondaryLabel: 'Discard Report',
+        secondaryIcon: Icons.delete_outline_rounded,
+        onSecondaryPressed: () => Navigator.of(dialogContext).pop(_ReviewExitAction.discard),
+        cancelLabel: 'Keep Editing',
+        onCancelPressed: () => Navigator.of(dialogContext).pop(),
       ),
     );
 
@@ -100,9 +90,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
     switch (action) {
       case _ReviewExitAction.saveDraft:
         final saved = await controller.saveAsDraft();
-
         if (!mounted) return false;
-
         if (!saved) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -110,14 +98,11 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
             ),
           );
         }
-
         return saved;
 
       case _ReviewExitAction.discard:
         final discarded = await controller.discardDraft();
-
         if (!mounted) return false;
-
         if (!discarded) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -125,7 +110,6 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
             ),
           );
         }
-
         return discarded;
     }
   }
@@ -135,88 +119,49 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            const Icon(
-              Icons.check_circle,
-              color: AppTheme.statusGreen,
-              size: 28,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                l10n.savedSuccessTitle,
+      builder: (ctx) => TrackGuardDialog(
+        icon: Symbols.check_circle_rounded,
+        iconBgColor: TrackGuardDialog.greenSoft,
+        iconColor: TrackGuardDialog.green,
+        title: l10n.savedSuccessTitle,
+        message: l10n.savedSuccessMessage(reportId.substring(0, 8)),
+        content: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [SyncStatusBadge(status: SyncStatus.pending)],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.syncWaitingForSignal,
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  color: Color(0xFF64748B),
+                  height: 1.3,
                 ),
               ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.savedSuccessMessage(reportId.substring(0, 8)),
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppTheme.textSecondary,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.surfaceDarkElevated,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.borderDark),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [SyncStatusBadge(status: SyncStatus.pending)],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.syncWaitingForSignal,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textSecondary,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              context.go('/gangman/home');
-            },
-            child: Text(l10n.backToHome),
+            ],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBlue,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              context.go('/gangman/reports');
-            },
-            child: Text(l10n.viewQueue),
-          ),
-        ],
+        ),
+        primaryLabel: l10n.viewQueue,
+        primaryIcon: Icons.list_alt_rounded,
+        primaryColor: TrackGuardDialog.brandBlue,
+        onPrimaryPressed: () {
+          Navigator.of(ctx).pop();
+          context.go('/gangman/reports');
+        },
+        cancelLabel: l10n.backToHome,
+        onCancelPressed: () {
+          Navigator.of(ctx).pop();
+          context.go('/gangman/home');
+        },
       ),
     );
   }
@@ -233,14 +178,44 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
 
     if (reviewState.isLoadingDraft) {
       return Scaffold(
-        appBar: AppBar(title: Text(l10n.reviewTitle)),
+        backgroundColor: const Color(0xFFF8FAFC),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          title: Text(
+            l10n.reviewTitle,
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0F172A),
+              letterSpacing: -0.2,
+            ),
+          ),
+          centerTitle: true,
+        ),
         body: LoadingView(message: l10n.processingImage),
       );
     }
 
     if (reviewState.draft == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(l10n.reviewTitle)),
+        backgroundColor: const Color(0xFFF8FAFC),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          title: Text(
+            l10n.reviewTitle,
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0F172A),
+              letterSpacing: -0.2,
+            ),
+          ),
+          centerTitle: true,
+        ),
         body: ErrorView(
           title: l10n.draftMissing,
           message:
@@ -262,135 +237,287 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
       _noteController.text = reviewState.gangmanNote;
     }
 
-    // ignore: deprecated_member_use
-    return WillPopScope(
-      onWillPop: _handleBackPressed,
-      child: Scaffold(
-        appBar: AppBar(title: Text(l10n.reviewTitle)),
-        bottomNavigationBar: SafeArea(
-          child: Container(
-            color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l10n.savesSafelyOnPhoneFirst,
-                  style: const TextStyle(color: AppTheme.textSecondary),
-                ),
-                const SizedBox(height: 6),
-                PrimaryButton(
-                  text: l10n.saveAndQueue,
-                  icon: Icons.save,
-                  isLoading: reviewState.isSaving,
-                  onPressed: reviewState.isSaving
-                      ? null
-                      : () async {
-                          final success = await controller.confirmAndSaveReport(
-                            userId,
-                          );
-                          if (!context.mounted) return;
-                          final savedId = ref
-                              .read(reportReviewControllerProvider)
-                              .savedReportId;
-                          if (success && savedId != null) {
-                            _showSuccessDialog(context, savedId);
-                          }
-                        },
-                ),
-              ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+      ),
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+          final shouldPop = await _handleBackPressed();
+          if (shouldPop && context.mounted) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF8FAFC),
+          appBar: AppBar(
+            systemOverlayStyle: const SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
             ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              icon: const Icon(
+                Symbols.arrow_back_rounded,
+                color: Color(0xFF0F172A),
+                size: 22,
+              ),
+              tooltip: 'Back',
+              onPressed: () async {
+                final shouldPop = await _handleBackPressed();
+                if (shouldPop && context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+            title: const Text(
+              'Review & Confirm Report',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F172A),
+                letterSpacing: -0.2,
+              ),
+            ),
+            centerTitle: true,
           ),
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Photo Thumbnail Preview Card
-                Card(
-                  clipBehavior: Clip.antiAlias,
-                  child: SizedBox(
-                    height: 180,
+          bottomNavigationBar: SafeArea(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: const Border(
+                  top: BorderSide(color: Color(0xFFE2E8F0)),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Info banner: Saves safely on your phone first
+                  Container(
                     width: double.infinity,
-                    child: Stack(
-                      fit: StackFit.expand,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F1FA),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFBFDBFE)),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.file(File(draft.photoPath), fit: BoxFit.cover),
-                        Positioned(
-                          bottom: 8,
-                          right: 8,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black87,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              loc.source == LocationSource.gps
-                                  ? l10n.locationSourceGps
-                                  : l10n.locationSourceFallback,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: loc.source == LocationSource.gps
-                                    ? AppTheme.statusGreen
-                                    : AppTheme.primaryAmber,
-                              ),
-                            ),
+                        Icon(
+                          Symbols.phone_android_rounded,
+                          size: 16,
+                          color: Color(0xFF074E95),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Saves safely on your phone first.',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontStyle: FontStyle.italic,
+                            color: Color(0xFF334155),
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 8),
 
-                // Location details card
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(14.0),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.place,
-                          color: AppTheme.primaryBlue,
-                          size: 24,
+                  // Confirm & Save Locally Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF074E95),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                loc.nearestStationName ??
-                                    'Darjeeling Himalayan Railway',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.textPrimary,
+                      ),
+                      onPressed: reviewState.isSaving
+                          ? null
+                          : () async {
+                              final success =
+                                  await controller.confirmAndSaveReport(userId);
+                              if (!context.mounted) return;
+                              final savedId = ref
+                                  .read(reportReviewControllerProvider)
+                                  .savedReportId;
+                              if (success && savedId != null) {
+                                _showSuccessDialog(context, savedId);
+                              }
+                            },
+                      child: reviewState.isSaving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Symbols.save_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Confirm & Save Locally',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          body: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Photo Card Preview with Source Badge
+                Container(
+                  height: 210,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.file(File(draft.photoPath), fit: BoxFit.cover),
+                      Positioned(
+                        bottom: 10,
+                        right: 10,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xCC0F172A),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Symbols.location_on_rounded,
+                                color: Color(0xFF22C55E),
+                                size: 14,
+                              ),
+                              const SizedBox(width: 4),
                               Text(
-                                'Km ${reviewState.kmMarker.toStringAsFixed(1)} • ${DhrWaypoints.getSectionName(DhrWaypoints.estimateSection(reviewState.kmMarker))}',
+                                loc.source == LocationSource.gps
+                                    ? 'Source: Real GPS'
+                                    : 'Source: Fallback Location',
                                 style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.textSecondary,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+
+                // Location Details Card
+                Container(
+                  padding: const EdgeInsets.all(14.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8F1FA),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Symbols.location_on_rounded,
+                          color: Color(0xFF074E95),
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              loc.nearestStationName ??
+                                  'Kurseong Station',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Km ${reviewState.kmMarker.toStringAsFixed(1)} • ${DhrWaypoints.getSectionName(DhrWaypoints.estimateSection(reviewState.kmMarker))}',
+                              style: const TextStyle(
+                                fontSize: 12.5,
+                                color: Color(0xFF64748B),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
 
                 // AI Suggestion Card
                 AiSuggestionCard(
@@ -402,134 +529,284 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                   onSwitchToManual: () => controller.switchToManual(),
                   onDownloadModel: () => context.push('/settings/ai/download'),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
 
-                // Human Confirmation Section Header
-                Text(
-                  l10n.humanConfirmationTitle.toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.primaryBlue,
-                    letterSpacing: 0.8,
+                // Field Verification Form Card
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
                   ),
-                ),
-                const SizedBox(height: 10),
-
-                // Hazard Type Selection
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.hazardType,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Form Header: [shield] Field Verification   [REQUIRED]
+                      Row(
+                        children: [
+                          const Icon(
+                            Symbols.verified_user_rounded,
+                            color: Color(0xFF074E95),
+                            size: 20,
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        HazardSelector(
-                          selectedHazard: reviewState.confirmedHazard,
-                          onSelected: (HazardType h) =>
-                              controller.setConfirmedHazard(h),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Severity Selection
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.severity,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        SeveritySelector(
-                          selectedSeverity: reviewState.confirmedSeverity,
-                          onSelected: (Severity s) =>
-                              controller.setConfirmedSeverity(s),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Km Marker & Gangman field note
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextField(
-                          controller: _kmController,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: l10n.editKm,
-                            prefixIcon: const Icon(
-                              Icons.linear_scale,
-                              color: AppTheme.primaryBlue,
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: Text(
+                              'Field Verification',
+                              style: TextStyle(
+                                fontSize: 15.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0F172A),
+                                letterSpacing: -0.2,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            suffixText: 'km',
                           ),
-                          onChanged: (val) {
-                            final parsed = double.tryParse(val);
-                            if (parsed != null) {
-                              controller.setKmMarker(parsed);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 14),
-                        TextField(
-                          controller: _noteController,
-                          maxLines: 3,
-                          decoration: InputDecoration(
-                            labelText: l10n.gangmanNote,
-                            hintText: l10n.gangmanNoteHint,
-                            alignLabelWithHint: true,
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3.5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEF2F2),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: const Color(0xFFFECACA)),
+                            ),
+                            child: const Text(
+                              'REQUIRED',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFFDC2626),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
                           ),
-                          onChanged: (val) => controller.setGangmanNote(val),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                      const SizedBox(height: 14),
+
+                      // 1. HAZARD CLASSIFICATION
+                      const Text(
+                        '1. HAZARD CLASSIFICATION',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF475569),
+                          letterSpacing: 0.4,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 10),
+                      HazardSelector(
+                        selectedHazard: reviewState.confirmedHazard,
+                        onSelected: (HazardType h) =>
+                            controller.setConfirmedHazard(h),
+                      ),
+                      const SizedBox(height: 16),
+                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                      const SizedBox(height: 14),
+
+                      // 2. VERIFIED SEVERITY TIER
+                      const Text(
+                        '2. VERIFIED SEVERITY TIER',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF475569),
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      SeveritySelector(
+                        selectedSeverity: reviewState.confirmedSeverity,
+                        onSelected: (Severity s) =>
+                            controller.setConfirmedSeverity(s),
+                      ),
+                      const SizedBox(height: 16),
+                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                      const SizedBox(height: 14),
+
+                      // 3. KILOMETER MARKER
+                      Row(
+                        children: [
+                          const Text(
+                            '3. KILOMETER MARKER',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF475569),
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 7,
+                              vertical: 2.5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8F1FA),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: const Color(0xFFBFDBFE)),
+                            ),
+                            child: const Text(
+                              'AUTO-MATCHED GPS',
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF074E95),
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _kmController,
+                        onTapOutside: (_) =>
+                            FocusManager.instance.primaryFocus?.unfocus(),
+                        onSubmitted: (_) =>
+                            FocusManager.instance.primaryFocus?.unfocus(),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        style: const TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0F172A),
+                        ),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC),
+                          prefixIcon: const Icon(
+                            Symbols.location_on_rounded,
+                            color: Color(0xFF074E95),
+                            size: 20,
+                          ),
+                          suffixText: 'km',
+                          suffixStyle: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF64748B),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                const BorderSide(color: Color(0xFFE2E8F0)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                const BorderSide(color: Color(0xFFE2E8F0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF074E95),
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                        onChanged: (val) {
+                          final parsed = double.tryParse(val);
+                          if (parsed != null) {
+                            controller.setKmMarker(parsed);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                      const SizedBox(height: 14),
+
+                      // 4. FIELD OBSERVATION NOTE
+                      const Text(
+                        '4. FIELD OBSERVATION NOTE',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF475569),
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _noteController,
+                        onTapOutside: (_) =>
+                            FocusManager.instance.primaryFocus?.unfocus(),
+                        maxLines: 3,
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          color: Color(0xFF0F172A),
+                          height: 1.35,
+                        ),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC),
+                          hintText:
+                              'e.g. Outer bolt missing, 2 sleepers loose, track clear...',
+                          hintStyle: const TextStyle(
+                            fontSize: 12.5,
+                            color: Color(0xFF94A3B8),
+                          ),
+                          contentPadding: const EdgeInsets.all(12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                const BorderSide(color: Color(0xFFE2E8F0)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide:
+                                const BorderSide(color: Color(0xFFE2E8F0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF074E95),
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                        onChanged: (val) => controller.setGangmanNote(val),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
 
-                // Offline / Sync readiness banner before saving
+                // Offline / Connectivity readiness banner
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceDarkElevated,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.borderDark),
+                    color: isOnline
+                        ? const Color(0xFFDCFCE7)
+                        : const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isOnline
+                          ? const Color(0xFF86EFAC)
+                          : const Color(0xFFFDE68A),
+                    ),
                   ),
                   child: Row(
                     children: [
                       Icon(
-                        isOnline ? Icons.wifi : Icons.wifi_off,
+                        isOnline
+                            ? Symbols.wifi_rounded
+                            : Symbols.wifi_off_rounded,
                         size: 20,
                         color: isOnline
-                            ? AppTheme.statusGreen
-                            : AppTheme.primaryAmber,
+                            ? const Color(0xFF16A34A)
+                            : const Color(0xFFD97706),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -537,9 +814,12 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                           isOnline
                               ? l10n.syncStationSignalAvailable
                               : l10n.syncOfflineSafe,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppTheme.textSecondary,
+                            fontWeight: FontWeight.w600,
+                            color: isOnline
+                                ? const Color(0xFF15803D)
+                                : const Color(0xFFB45309),
                             height: 1.3,
                           ),
                         ),
@@ -554,15 +834,15 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.statusRed.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppTheme.statusRed),
+                      color: const Color(0xFFFEF2F2),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFFECACA)),
                     ),
                     child: Row(
                       children: [
                         const Icon(
-                          Icons.error_outline,
-                          color: AppTheme.statusRed,
+                          Symbols.error_rounded,
+                          color: Color(0xFFDC2626),
                           size: 20,
                         ),
                         const SizedBox(width: 10),
@@ -571,7 +851,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                             reviewState.errorMessage!,
                             style: const TextStyle(
                               fontSize: 12,
-                              color: AppTheme.textPrimary,
+                              color: Color(0xFF991B1B),
                             ),
                           ),
                         ),
@@ -585,6 +865,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }

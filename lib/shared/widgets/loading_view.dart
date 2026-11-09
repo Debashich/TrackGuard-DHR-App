@@ -4,8 +4,13 @@ import '../../app/theme.dart';
 
 class LoadingView extends StatelessWidget {
   final String? message;
+  final Color? color;
 
-  const LoadingView({super.key, this.message});
+  const LoadingView({
+    super.key,
+    this.message,
+    this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,8 +18,11 @@ class LoadingView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryAmber),
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(
+              color ?? const Color(0xFF2563EB),
+            ),
+            strokeWidth: 3.0,
           ),
           if (message != null) ...[
             const SizedBox(height: 16),

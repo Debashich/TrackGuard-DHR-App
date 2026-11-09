@@ -5,6 +5,7 @@ import '../../app/theme.dart';
 import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/reports/domain/report_repository_provider.dart';
 import '../../l10n/app_localizations.dart';
+import 'trackguard_dialog.dart';
 
 Future<bool?> showLogoutConfirmationDialog(
   BuildContext context,
@@ -64,116 +65,63 @@ class _LogoutConfirmationDialogState
     final pendingCount = syncSummary.pendingCount + syncSummary.failedCount;
     final hasPendingReports = pendingCount > 0;
 
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Row(
-        children: [
-          const Icon(Icons.logout, color: AppTheme.statusRed, size: 26),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              l10n.logoutTitle,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-          ),
-        ],
-      ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.logoutConfirmation,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppTheme.textSecondary,
-                height: 1.4,
-              ),
-            ),
-            if (hasPendingReports) ...[
-              const SizedBox(height: 14),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryAmber.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppTheme.primaryAmber.withValues(alpha: 0.5),
-                  ),
+    return TrackGuardDialog(
+      icon: Icons.logout_rounded,
+      isDestructive: true,
+      title: l10n.logoutTitle,
+      message: l10n.logoutConfirmation,
+      content: hasPendingReports
+          ? Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryAmber.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppTheme.primaryAmber.withValues(alpha: 0.4),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.warning_amber_rounded,
-                          size: 18,
-                          color: AppTheme.primaryAmber,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            l10n.logoutPendingReportsWarning(pendingCount),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.primaryAmber,
-                            ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        size: 18,
+                        color: AppTheme.primaryAmber,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          l10n.logoutPendingReportsWarning(pendingCount),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.primaryAmber,
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      l10n.logoutReportsRemainOnDevice,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.textSecondary,
-                        height: 1.3,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: _isSigningOut
-              ? null
-              : () => Navigator.of(context).pop(false),
-          child: Text(
-            l10n.logoutCancel,
-            style: const TextStyle(color: AppTheme.textSecondary),
-          ),
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.statusRed,
-            foregroundColor: Colors.white,
-          ),
-          onPressed: _isSigningOut ? null : _handleConfirm,
-          child: _isSigningOut
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ],
                   ),
-                )
-              : Text(l10n.logoutConfirm),
-        ),
-      ],
+                  const SizedBox(height: 6),
+                  Text(
+                    l10n.logoutReportsRemainOnDevice,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.textSecondary,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : null,
+      primaryLabel: l10n.logoutConfirm,
+      primaryIcon: Icons.logout_rounded,
+      onPrimaryPressed: _isSigningOut ? null : _handleConfirm,
+      isPrimaryLoading: _isSigningOut,
+      cancelLabel: l10n.logoutCancel,
+      onCancelPressed: _isSigningOut ? null : () => Navigator.of(context).pop(false),
     );
   }
 }

@@ -1005,7 +1005,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startingCamera => 'Starting camera…';
 
   @override
-  String get retryCamera => 'Retry camera';
+  String get retryCamera => 'Retry Camera';
 
   @override
   String get dhrAlignment => 'DHR alignment';

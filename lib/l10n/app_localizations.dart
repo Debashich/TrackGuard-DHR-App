@@ -1813,7 +1813,7 @@ abstract class AppLocalizations {
   /// No description provided for @retryCamera.
   ///
   /// In en, this message translates to:
-  /// **'Retry camera'**
+  /// **'Retry Camera'**
   String get retryCamera;
 
   /// No description provided for @dhrAlignment.

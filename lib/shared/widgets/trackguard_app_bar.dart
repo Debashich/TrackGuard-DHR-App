@@ -4,16 +4,18 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../app/theme.dart';
+import '../../../l10n/app_localizations.dart';
 import 'language_selector_button.dart';
 
 /// Standard branded TrackGuard DHR App Bar:
-/// - Extreme Left: Language translation selector (Material Symbols translate_indic)
+/// - Left: Gangman Profile navigation icon
 /// - Center: App title "TrackGuard DHR"
-/// - Extreme Right: Profile navigation icon
+/// - Right: Language translation selector (Material Symbols translate_indic)
 class TrackGuardAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String titleText;
   final Widget? leading;
   final List<Widget>? extraActions;
+  final bool showProfileLeading;
   final bool showProfile;
   final bool showLanguage;
 
@@ -22,7 +24,8 @@ class TrackGuardAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.titleText = 'TrackGuard DHR',
     this.leading,
     this.extraActions,
-    this.showProfile = true,
+    this.showProfileLeading = true,
+    this.showProfile = false,
     this.showLanguage = true,
   });
 
@@ -31,6 +34,20 @@ class TrackGuardAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget? effectiveLeading = leading;
+    if (effectiveLeading == null && showProfileLeading) {
+      final tooltip = AppLocalizations.of(context)?.navigationProfile ?? 'Profile';
+      effectiveLeading = IconButton(
+        icon: const Icon(
+          Symbols.person_rounded,
+          size: 24,
+          color: AppTheme.textPrimary,
+        ),
+        tooltip: tooltip,
+        onPressed: () => context.push('/profile'),
+      );
+    }
+
     return AppBar(
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -40,10 +57,7 @@ class TrackGuardAppBar extends StatelessWidget implements PreferredSizeWidget {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       centerTitle: true,
-      leading: leading ??
-          (showLanguage
-              ? const LanguageSelectorButton(iconColor: AppTheme.textPrimary)
-              : null),
+      leading: effectiveLeading,
       title: Text(
         titleText,
         style: const TextStyle(
@@ -54,13 +68,16 @@ class TrackGuardAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       actions: [
-        if (extraActions != null) ...extraActions!,
+        ...?extraActions,
+        if (showLanguage)
+          const LanguageSelectorButton(iconColor: AppTheme.textPrimary),
         if (showProfile)
           IconButton(
             icon: const Icon(Symbols.person_rounded, size: 24, color: AppTheme.textPrimary),
             tooltip: 'Profile',
             onPressed: () => context.push('/profile'),
           ),
+        const SizedBox(width: 4),
       ],
     );
   }

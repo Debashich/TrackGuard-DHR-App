@@ -76,87 +76,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       child: Scaffold(
         appBar: const TrackGuardAppBar(),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(localReportsProvider);
-            ref.invalidate(pendingReportsCountProvider);
-          },
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14.0,
-                        vertical: 14.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          ConnectivityIndicator(isOnline: isOnline),
-                          const SizedBox(height: 14),
-
-                          // 1. "Report a Problem" Primary Action Button (Mockup Design)
-                          _buildReportAProblemCard(context, l10n, currentLang),
-                          const SizedBox(height: 14),
-
-                          // 2. "Recent Reports" Card (Mockup Design - Top 3 Reports)
-                          _buildRecentReportsCard(context, ref, l10n, currentLang),
-                          const SizedBox(height: 14),
-
-                          // 3. Emergency Control Room / Helpline Button (Mockup Design)
-                          _buildEmergencyHelplineCard(context, l10n, currentLang),
-                          const SizedBox(height: 24),
-
-                          const Spacer(), // Pushes the tagline to the bottom of the Column
-                          const Padding(
-                            padding: EdgeInsets.only(
-                              left: 10.0,
-                              right: 10.0,
-                              bottom: 36.0,
-                              top: 16.0,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Safeguarding\nthe Hills.",
-                                  style: TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFFCBD5E1), // Soft watermark gray
-                                    height: 1.15,
-                                    letterSpacing: -0.5,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  "Crafted with 💙 for Darjeeling Himalayan Railway",
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF94A3B8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
+        body: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(localReportsProvider);
+              ref.invalidate(pendingReportsCountProvider);
             },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14.0,
+                vertical: 14.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ConnectivityIndicator(isOnline: isOnline),
+                  const SizedBox(height: 14),
+
+                  // 1. "Report a Problem" Primary Action Button (Mockup Design)
+                  _buildReportAProblemCard(context, l10n, currentLang),
+                  const SizedBox(height: 14),
+
+                  // 2. "Recent Reports" Card (Mockup Design - Top 3 Reports)
+                  _buildRecentReportsCard(context, ref, l10n, currentLang),
+                  const SizedBox(height: 14),
+
+                  // 3. Emergency Control Room / Helpline Button (Mockup Design)
+                  _buildEmergencyHelplineCard(context, l10n, currentLang),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -298,8 +251,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ) {
     final reportsAsync = ref.watch(localReportsProvider);
     final reports = reportsAsync.value ?? [];
+    final sortedReports = [...reports]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     final displayReports =
-        reports.isNotEmpty ? reports.take(3).toList() : _getSampleReports();
+        sortedReports.isNotEmpty ? sortedReports.take(3).toList() : _getSampleReports();
 
     final recentReportsTitle = _getRecentReportsTitle(currentLang, l10n);
     final viewAllText = _getViewAllText(currentLang, l10n);
@@ -510,7 +465,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 width: 62,
                 height: 44,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildFallbackThumbnail(report),
+                errorBuilder: (_, _, _) => _buildFallbackThumbnail(report),
               )
             : _buildFallbackThumbnail(report),
       ),

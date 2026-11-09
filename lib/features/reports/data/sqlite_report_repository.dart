@@ -5,7 +5,11 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../../shared/models/ai_provider.dart';
+import '../../../shared/models/app_language.dart';
 import '../../../shared/models/hazard_report.dart';
+import '../../../shared/models/inspection_status.dart';
+import '../../../shared/models/location_source.dart';
 import '../../../shared/models/hazard_type.dart';
 import '../../../shared/models/report_draft.dart';
 import '../../../shared/models/severity.dart';
@@ -70,46 +74,83 @@ class SqliteReportRepository implements ReportRepository {
   }
 
   Future<void> _seedDefaultReports(Database db) async {
-    final now = DateTime.now();
     final defaultReports = [
       HazardReport(
         id: 'dhr-sample-001',
         createdBy: 'dhr-gangman',
-        createdAt: DateTime(now.year, now.month, now.day, 10, 24),
-        updatedAt: DateTime(now.year, now.month, now.day, 10, 24),
-        confirmedHazardType: HazardType.vegetation,
-        confirmedSeverity: Severity.high,
-        userNote: 'Fallen tree blocking the railway track near Kurseong.',
-        kmMarker: 48.2,
+        createdAt: DateTime(2026, 11, 2, 18, 38),
+        updatedAt: DateTime(2026, 11, 2, 18, 41),
+        confirmedHazardType: HazardType.damagedWall,
+        confirmedSeverity: Severity.medium,
+        userNote: 'Cracked stone retaining wall along KM 51 curve.',
+        kmMarker: 51.0,
         sectionId: 'kurseong-ghum',
-        nearestStationName: 'Kurseong',
+        nearestStationName: 'Kurseong Station',
         syncStatus: SyncStatus.synced,
+        syncTimestamp: DateTime(2026, 11, 2, 18, 38),
+        inspectionStatus: InspectionStatus.acknowledged,
+        locationSource: LocationSource.gps,
+        gpsAccuracyMeters: 100.0,
+        aiProvider: AiProvider.onlineGemini,
+        aiModel: 'nvidia/nemotron-3.5-super-vl:free',
+        aiLanguage: AppLanguage.en,
+        aiConfidence: 0.75,
       ),
       HazardReport(
         id: 'dhr-sample-002',
         createdBy: 'dhr-gangman',
-        createdAt: DateTime(now.year, now.month, now.day, 8, 11),
-        updatedAt: DateTime(now.year, now.month, now.day, 8, 11),
-        confirmedHazardType: HazardType.trackDefect,
+        createdAt: DateTime(2026, 11, 2, 10, 27),
+        updatedAt: DateTime(2026, 11, 2, 10, 27),
+        confirmedHazardType: HazardType.rockfall,
         confirmedSeverity: Severity.medium,
-        userNote: 'Fishplate loosening and rail joint defect near Tung.',
-        kmMarker: 47.8,
+        userNote: 'Fallen rock boulders and loose debris on outer rail.',
+        kmMarker: 51.0,
         sectionId: 'kurseong-ghum',
-        nearestStationName: 'Tung',
-        syncStatus: SyncStatus.pending,
+        nearestStationName: 'Kurseong Station',
+        syncStatus: SyncStatus.synced,
+        syncTimestamp: DateTime(2026, 11, 2, 10, 27),
       ),
       HazardReport(
         id: 'dhr-sample-003',
         createdBy: 'dhr-gangman',
-        createdAt: DateTime(now.year, now.month, now.day - 1, 17, 36),
-        updatedAt: DateTime(now.year, now.month, now.day - 1, 17, 36),
+        createdAt: DateTime(2026, 11, 2, 9, 45),
+        updatedAt: DateTime(2026, 11, 2, 9, 45),
         confirmedHazardType: HazardType.rockfall,
-        confirmedSeverity: Severity.critical,
-        userNote: 'Landslide and boulders covering the track alignment.',
-        kmMarker: 49.4,
+        confirmedSeverity: Severity.medium,
+        userNote: 'Small rockfall rubble near alignment drainage outlet.',
+        kmMarker: 51.0,
         sectionId: 'kurseong-ghum',
-        nearestStationName: 'Sonada',
+        nearestStationName: 'Kurseong Station',
         syncStatus: SyncStatus.synced,
+        syncTimestamp: DateTime(2026, 11, 2, 9, 45),
+      ),
+      HazardReport(
+        id: 'dhr-sample-004',
+        createdBy: 'dhr-gangman',
+        createdAt: DateTime(2026, 11, 1, 15, 20),
+        updatedAt: DateTime(2026, 11, 1, 15, 20),
+        confirmedHazardType: HazardType.blockedDrain,
+        confirmedSeverity: Severity.low,
+        userNote: 'Catchwater drain blocked with leaves and silt.',
+        kmMarker: 52.4,
+        sectionId: 'kurseong-ghum',
+        nearestStationName: 'Kurseong Station',
+        syncStatus: SyncStatus.synced,
+        syncTimestamp: DateTime(2026, 11, 1, 15, 20),
+      ),
+      HazardReport(
+        id: 'dhr-sample-005',
+        createdBy: 'dhr-gangman',
+        createdAt: DateTime(2026, 10, 31, 11, 10),
+        updatedAt: DateTime(2026, 10, 31, 11, 10),
+        confirmedHazardType: HazardType.trackDefect,
+        confirmedSeverity: Severity.high,
+        userNote: 'Loose fishplate bolts on curved rail section.',
+        kmMarker: 50.8,
+        sectionId: 'kurseong-ghum',
+        nearestStationName: 'Kurseong Station',
+        syncStatus: SyncStatus.synced,
+        syncTimestamp: DateTime(2026, 10, 31, 11, 10),
       ),
     ];
 
@@ -120,7 +161,7 @@ class SqliteReportRepository implements ReportRepository {
         'sync_status': report.syncStatus.toJson(),
         'created_at': report.createdAt.toIso8601String(),
         'updated_at': report.updatedAt.toIso8601String(),
-      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
   }
 

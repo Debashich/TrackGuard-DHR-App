@@ -32,27 +32,20 @@ void main() {
 
         // Verify AI Modes
         expect(
-          find.text('Automatic Photo Helper (Recommended)'),
+          find.textContaining('Automatic Photo Helper'),
           findsOneWidget,
         );
         expect(find.text('Offline Photo Helper'), findsOneWidget);
         expect(find.text('Online Photo Helper'), findsOneWidget);
         expect(find.text('Manual Only'), findsOneWidget);
 
-        // Verify Gemma Card
-        expect(find.text('OFFLINE GEMMA ENGINE'), findsOneWidget);
+        // Verify Offline Model Card
+        expect(find.text('Offline Model'), findsOneWidget);
         expect(find.text('Gemma 4 E2B'), findsOneWidget);
 
-        // Verify Gemini Card
-        expect(find.text('GEMINI CLOUD REASONING'), findsOneWidget);
-        expect(find.text('Nemotron 3.5 Super VL (OpenRouter)'), findsOneWidget);
-
-        // Verify Mandatory Human Confirmation
-        expect(find.text('Human Confirmation Mandatory'), findsOneWidget);
-        expect(
-          find.textContaining('AI suggestion is advisory only'),
-          findsOneWidget,
-        );
+        // Verify Gemini Card was removed
+        expect(find.text('GEMINI CLOUD REASONING'), findsNothing);
+        expect(find.text('Ready'), findsOneWidget);
       },
     );
 

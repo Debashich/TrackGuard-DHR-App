@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
+import '../../../shared/widgets/trackguard_dialog.dart';
 import '../../../core/connectivity/connectivity_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../domain/ai_provider_config.dart';
@@ -326,7 +327,7 @@ class _OfflineModelDownloadScreenState
                               CircularProgressIndicator(
                                 strokeWidth: 2.5,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppTheme.primaryAmber,
+                                  Color(0xFF2563EB),
                                 ),
                               ),
                               SizedBox(height: 10),
@@ -608,27 +609,16 @@ class _OfflineModelDownloadScreenState
   ) async {
     return await showDialog<bool>(
           context: context,
-          builder: (ctx) => AlertDialog(
-            backgroundColor: Colors.white,
-            title: Text(l10n.offlineModelDownloadInProgress),
-            content: Text(
-              l10n.cancelDownloadConfirmation,
-              style: const TextStyle(color: AppTheme.textSecondary),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(l10n.stayOnPage),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.statusRed,
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(l10n.cancelDownloadAndLeave),
-              ),
-            ],
+          builder: (ctx) => TrackGuardDialog(
+            icon: Icons.cancel_rounded,
+            isDestructive: true,
+            title: l10n.offlineModelDownloadInProgress,
+            message: l10n.cancelDownloadConfirmation,
+            primaryLabel: l10n.cancelDownloadAndLeave,
+            primaryIcon: Icons.close_rounded,
+            onPrimaryPressed: () => Navigator.of(ctx).pop(true),
+            cancelLabel: l10n.stayOnPage,
+            onCancelPressed: () => Navigator.of(ctx).pop(false),
           ),
         ) ??
         false;
@@ -641,51 +631,39 @@ class _OfflineModelDownloadScreenState
   ) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text(l10n.offlineModelDeleteTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.offlineModelDeleteConfirmation,
-              style: const TextStyle(
-                color: AppTheme.textSecondary,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppTheme.statusGreen.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                l10n.offlineModelReportsRemainSafe,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.statusGreen,
+      builder: (ctx) => TrackGuardDialog(
+        icon: Icons.delete_forever_rounded,
+        isDestructive: true,
+        title: l10n.offlineModelDeleteTitle,
+        message: l10n.offlineModelDeleteConfirmation,
+        content: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: TrackGuardDialog.greenSoft,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.shield_outlined, size: 16, color: TrackGuardDialog.green),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.offlineModelReportsRemainSafe,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: TrackGuardDialog.green,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.statusRed,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l10n.offlineModelDelete),
-          ),
-        ],
+        primaryLabel: l10n.offlineModelDelete,
+        primaryIcon: Icons.delete_outline_rounded,
+        onPrimaryPressed: () => Navigator.of(ctx).pop(true),
+        cancelLabel: 'Cancel',
+        onCancelPressed: () => Navigator.of(ctx).pop(false),
       ),
     );
 

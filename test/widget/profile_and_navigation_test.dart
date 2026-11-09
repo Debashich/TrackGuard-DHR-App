@@ -139,8 +139,8 @@ void main() {
       expect(find.text('नेपाली (Nepali)'), findsOneWidget);
 
       // Action buttons
-      expect(find.text('RETURN TO DASHBOARD'), findsOneWidget);
-      expect(find.text('SIGN OUT'), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+      expect(find.text('Sign Out'), findsOneWidget);
     });
 
     testWidgets('Renders Admin user details with admin role title', (

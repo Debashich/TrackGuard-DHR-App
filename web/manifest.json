@@ -1,6 +1,6 @@
 {
-    "name": "trackguard_dhr",
-    "short_name": "trackguard_dhr",
+    "name": "TrackGuard DHR",
+    "short_name": "TrackGuard DHR",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

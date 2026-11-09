@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/permissions/permission_service.dart';
 import '../../l10n/app_localizations.dart';
+import 'trackguard_dialog.dart';
 
 class LocationAccuracyPrompt extends StatefulWidget {
   final Widget child;
@@ -59,42 +60,58 @@ class _LocationAccuracyPromptState extends State<LocationAccuracyPrompt> {
     final shouldTurnOn = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.locationAccuracyPromptTitle),
-        content: SingleChildScrollView(
-          child: Text.rich(
-            TextSpan(
-              style: Theme.of(context).textTheme.bodyMedium,
-              children: [
-                TextSpan(text: '${l10n.locationAccuracyPromptMessage}\n\n'),
-                TextSpan(
-                  text: '${l10n.locationAccuracyPromptSettingsHeading}\n',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+      builder: (ctx) => TrackGuardDialog(
+        icon: Icons.my_location_rounded,
+        iconBgColor: TrackGuardDialog.brandBlueSoft,
+        iconColor: TrackGuardDialog.brandBlue,
+        title: l10n.locationAccuracyPromptTitle,
+        message: l10n.locationAccuracyPromptMessage,
+        content: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.locationAccuracyPromptSettingsHeading,
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0F172A),
                 ),
-                TextSpan(
-                  text:
-                      '${l10n.locationAccuracyPromptDeviceLocation}\n'
-                      '${l10n.locationAccuracyPromptLocationAccuracy}\n\n',
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '• ${l10n.locationAccuracyPromptDeviceLocation}\n'
+                '• ${l10n.locationAccuracyPromptLocationAccuracy}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF475569),
+                  height: 1.4,
                 ),
-                TextSpan(
-                  text:
-                      '${l10n.locationAccuracyPromptExplanation}\n\n'
-                      '${l10n.locationAccuracyPromptManageSettingsOr}',
+              ),
+              const SizedBox(height: 6),
+              Text(
+                l10n.locationAccuracyPromptExplanation,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  color: Color(0xFF64748B),
+                  height: 1.3,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.locationAccuracyPromptNoThanks),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.locationAccuracyPromptTurnOn),
-          ),
-        ],
+        primaryLabel: l10n.locationAccuracyPromptTurnOn,
+        primaryIcon: Icons.gps_fixed_rounded,
+        primaryColor: TrackGuardDialog.brandBlue,
+        onPrimaryPressed: () => Navigator.of(ctx).pop(true),
+        cancelLabel: l10n.locationAccuracyPromptNoThanks,
+        onCancelPressed: () => Navigator.of(ctx).pop(false),
       ),
     );
 
@@ -112,5 +129,7 @@ class _LocationAccuracyPromptState extends State<LocationAccuracyPrompt> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
 }

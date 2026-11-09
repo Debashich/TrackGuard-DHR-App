@@ -81,8 +81,8 @@ void main() {
         ),
       );
 
-      expect(find.text('SYNC SUMMARY'), findsOneWidget);
-      expect(find.text('STATION SIGNAL AVAILABLE'), findsOneWidget);
+      expect(find.text('Sync Summary'), findsOneWidget);
+      expect(find.text('Station signal available'), findsOneWidget);
       expect(find.text('Pending'), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
       expect(find.text('Failed'), findsOneWidget);

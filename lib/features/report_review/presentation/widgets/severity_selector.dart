@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trackguard_dhr/app/theme.dart';
-import 'package:trackguard_dhr/l10n/app_localizations.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:trackguard_dhr/shared/models/severity.dart';
 
 class SeveritySelector extends StatelessWidget {
@@ -13,103 +12,149 @@ class SeveritySelector extends StatelessWidget {
     required this.onSelected,
   });
 
-  Color _severityColor(Severity severity) => switch (severity) {
-    Severity.low => AppTheme.statusGreen,
-    Severity.medium => AppTheme.statusAmber,
-    Severity.high => AppTheme.statusOrange,
-    Severity.critical => AppTheme.statusRed,
-  };
+  Color _severityDotColor(Severity severity) {
+    switch (severity) {
+      case Severity.low:
+        return const Color(0xFF22C55E); // Green
+      case Severity.medium:
+        return const Color(0xFFF59E0B); // Amber
+      case Severity.high:
+        return const Color(0xFFF97316); // Orange
+      case Severity.critical:
+        return const Color(0xFFEF4444); // Red
+    }
+  }
 
-  String _severityLabel(BuildContext context, Severity severity) {
-    final l10n = AppLocalizations.of(context);
-    return switch (severity) {
-      Severity.low => l10n?.severityLow ?? 'Low',
-      Severity.medium => l10n?.severityMedium ?? 'Medium',
-      Severity.high => l10n?.severityHigh ?? 'High',
-      Severity.critical => l10n?.severityCritical ?? 'Critical',
-    };
+  String _tierCode(Severity severity) {
+    switch (severity) {
+      case Severity.low:
+        return 'LOW';
+      case Severity.medium:
+        return 'MED';
+      case Severity.high:
+        return 'HIGH';
+      case Severity.critical:
+        return 'CRIT';
+    }
+  }
+
+  String _tierLabel(Severity severity) {
+    switch (severity) {
+      case Severity.low:
+        return 'Monitor';
+      case Severity.medium:
+        return 'Maintain';
+      case Severity.high:
+        return 'Urgent';
+      case Severity.critical:
+        return 'Critical';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = (constraints.maxWidth - 10) / 2;
-        return Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: Severity.values.map((severity) {
-            final selected = severity == selectedSeverity;
-            final color = _severityColor(severity);
-            return SizedBox(
-              width: width,
-              height: 90,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: () => onSelected(severity),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
+    return Row(
+      children: Severity.values.map((severity) {
+        final isSelected = severity == selectedSeverity;
+        final dotColor = _severityDotColor(severity);
+        final isLast = severity == Severity.values.last;
+
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: isLast ? 0 : 6),
+            child: SizedBox(
+              height: 56,
+              child: Material(
+                color: isSelected
+                    ? const Color(0xFFE8F1FA)
+                    : const Color(0xFFF8FAFC),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: BorderSide(
+                    color: isSelected
+                        ? const Color(0xFF074E95)
+                        : const Color(0xFFE2E8F0),
+                    width: isSelected ? 1.5 : 1.0,
                   ),
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? color.withValues(alpha: 0.12)
-                        : AppTheme.surfaceDark,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: selected ? color : AppTheme.borderDark,
-                      width: selected ? 2.0 : 1.5,
-                    ),
-                  ),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: () => onSelected(severity),
                   child: Stack(
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 14,
-                            height: 14,
-                            margin: const EdgeInsets.only(right: 10),
-                            decoration: BoxDecoration(
-                              color: color,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 12),
-                              child: Text(
-                                _severityLabel(context, severity),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  height: 1.25,
-                                  fontWeight: selected
-                                      ? FontWeight.w700
-                                      : FontWeight.w600,
-                                  color: AppTheme.textPrimary,
+                      Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Tier Code + Dot
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 7,
+                                  height: 7,
+                                  decoration: BoxDecoration(
+                                    color: dotColor,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _tierCode(severity),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w800
+                                        : FontWeight.w700,
+                                    color: isSelected
+                                        ? const Color(0xFF074E95)
+                                        : const Color(0xFF0F172A),
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 2),
+
+                            // Subtitle label
+                            Text(
+                              _tierLabel(severity),
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                color: isSelected
+                                    ? const Color(0xFF074E95)
+                                    : const Color(0xFF64748B),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
-                      if (selected)
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: Icon(Icons.check_circle, size: 16, color: color),
+
+                      // Checkmark badge when selected
+                      if (isSelected)
+                        const Positioned(
+                          top: 4,
+                          right: 4,
+                          child: Icon(
+                            Symbols.check_circle_rounded,
+                            color: Color(0xFF074E95),
+                            size: 13,
+                          ),
                         ),
                     ],
                   ),
                 ),
               ),
-            );
-          }).toList(),
+            ),
+          ),
         );
-      },
+      }).toList(),
     );
   }
 }

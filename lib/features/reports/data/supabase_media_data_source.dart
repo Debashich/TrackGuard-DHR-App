@@ -58,14 +58,42 @@ class SupabaseMediaDataSource {
       }
     }
 
-    await _client.from('report_media').upsert({
-      'id': const Uuid().v4(),
-      'report_id': report.id,
-      'original_path': remoteOriginalPath,
-      'thumbnail_path': remoteThumbnailPath,
-      'mime_type': mimeType,
-      'file_size': await originalFile.length(),
-    }, onConflict: 'report_id');
+    try {
+      final existing = await _client
+          .from('report_media')
+          .select('id')
+          .eq('report_id', report.id)
+          .maybeSingle();
+
+      if (existing != null) {
+        await _client.from('report_media').update({
+          'original_path': remoteOriginalPath,
+          'thumbnail_path': remoteThumbnailPath,
+          'mime_type': mimeType,
+          'file_size': await originalFile.length(),
+        }).eq('id', existing['id']);
+      } else {
+        await _client.from('report_media').insert({
+          'id': const Uuid().v4(),
+          'report_id': report.id,
+          'original_path': remoteOriginalPath,
+          'thumbnail_path': remoteThumbnailPath,
+          'mime_type': mimeType,
+          'file_size': await originalFile.length(),
+        });
+      }
+    } catch (_) {
+      try {
+        await _client.from('report_media').upsert({
+          'id': const Uuid().v4(),
+          'report_id': report.id,
+          'original_path': remoteOriginalPath,
+          'thumbnail_path': remoteThumbnailPath,
+          'mime_type': mimeType,
+          'file_size': await originalFile.length(),
+        }, onConflict: 'report_id');
+      } catch (_) {}
+    }
   }
 
   String _extension(String path) {
