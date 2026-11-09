@@ -24,7 +24,7 @@ import 'widgets/ai_suggestion_card.dart';
 import 'widgets/hazard_selector.dart';
 import 'widgets/severity_selector.dart';
 
-enum _ReviewExitAction { saveDraft, discard }
+enum _ReviewExitAction { discard }
 
 class ReportReviewScreen extends ConsumerStatefulWidget {
   const ReportReviewScreen({super.key});
@@ -70,14 +70,12 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
         iconBgColor: TrackGuardDialog.brandBlueSoft,
         iconColor: TrackGuardDialog.brandBlue,
         title: 'Leave report?',
-        message: 'You have an unfinished report. What would you like to do?',
-        primaryLabel: 'Save as Draft',
-        primaryIcon: Icons.bookmark_added_rounded,
-        primaryColor: TrackGuardDialog.brandBlue,
-        onPrimaryPressed: () => Navigator.of(dialogContext).pop(_ReviewExitAction.saveDraft),
-        secondaryLabel: 'Discard Report',
-        secondaryIcon: Icons.delete_outline_rounded,
-        onSecondaryPressed: () => Navigator.of(dialogContext).pop(_ReviewExitAction.discard),
+        message: 'You have an unfinished report. Would you like to discard it?',
+        primaryLabel: 'Discard Report',
+        primaryIcon: Icons.delete_outline_rounded,
+        primaryColor: TrackGuardDialog.red,
+        onPrimaryPressed: () =>
+            Navigator.of(dialogContext).pop(_ReviewExitAction.discard),
         cancelLabel: 'Keep Editing',
         onCancelPressed: () => Navigator.of(dialogContext).pop(),
       ),
@@ -87,31 +85,16 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
 
     final controller = ref.read(reportReviewControllerProvider.notifier);
 
-    switch (action) {
-      case _ReviewExitAction.saveDraft:
-        final saved = await controller.saveAsDraft();
-        if (!mounted) return false;
-        if (!saved) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Could not save draft. Please try again.'),
-            ),
-          );
-        }
-        return saved;
-
-      case _ReviewExitAction.discard:
-        final discarded = await controller.discardDraft();
-        if (!mounted) return false;
-        if (!discarded) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Could not discard report. Please try again.'),
-            ),
-          );
-        }
-        return discarded;
+    final discarded = await controller.discardDraft();
+    if (!mounted) return false;
+    if (!discarded) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not discard report. Please try again.'),
+        ),
+      );
     }
+    return discarded;
   }
 
   void _showSuccessDialog(BuildContext context, String reportId) {
@@ -292,9 +275,7 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               decoration: BoxDecoration(
                 color: Colors.white,
-                border: const Border(
-                  top: BorderSide(color: Color(0xFFE2E8F0)),
-                ),
+                border: const Border(top: BorderSide(color: Color(0xFFE2E8F0))),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.04),
@@ -357,8 +338,8 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                       onPressed: reviewState.isSaving
                           ? null
                           : () async {
-                              final success =
-                                  await controller.confirmAndSaveReport(userId);
+                              final success = await controller
+                                  .confirmAndSaveReport(userId);
                               if (!context.mounted) return;
                               final savedId = ref
                                   .read(reportReviewControllerProvider)
@@ -410,448 +391,53 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.all(16.0),
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Photo Card Preview with Source Badge
-                Container(
-                  height: 210,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.file(File(draft.photoPath), fit: BoxFit.cover),
-                      Positioned(
-                        bottom: 10,
-                        right: 10,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xCC0F172A),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Symbols.location_on_rounded,
-                                color: Color(0xFF22C55E),
-                                size: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                loc.source == LocationSource.gps
-                                    ? 'Source: Real GPS'
-                                    : 'Source: Fallback Location',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Location Details Card
-                Container(
-                  padding: const EdgeInsets.all(14.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE8F1FA),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Symbols.location_on_rounded,
-                          color: Color(0xFF074E95),
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              loc.nearestStationName ??
-                                  'Kurseong Station',
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF0F172A),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Km ${reviewState.kmMarker.toStringAsFixed(1)} • ${DhrWaypoints.getSectionName(DhrWaypoints.estimateSection(reviewState.kmMarker))}',
-                              style: const TextStyle(
-                                fontSize: 12.5,
-                                color: Color(0xFF64748B),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-
-                // AI Suggestion Card
-                AiSuggestionCard(
-                  aiResult: reviewState.aiResult,
-                  errorMessage: reviewState.aiErrorMessage,
-                  isAnalyzing: reviewState.isAnalyzing,
-                  currentMode: ref.watch(aiSettingsProvider).mode,
-                  onRetry: () => controller.runAnalysis(),
-                  onSwitchToManual: () => controller.switchToManual(),
-                  onDownloadModel: () => context.push('/settings/ai/download'),
-                ),
-                const SizedBox(height: 14),
-
-                // Field Verification Form Card
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Form Header: [shield] Field Verification   [REQUIRED]
-                      Row(
-                        children: [
-                          const Icon(
-                            Symbols.verified_user_rounded,
-                            color: Color(0xFF074E95),
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          const Expanded(
-                            child: Text(
-                              'Field Verification',
-                              style: TextStyle(
-                                fontSize: 15.5,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF0F172A),
-                                letterSpacing: -0.2,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3.5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFEF2F2),
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: const Color(0xFFFECACA)),
-                            ),
-                            child: const Text(
-                              'REQUIRED',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFFDC2626),
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                      const SizedBox(height: 14),
-
-                      // 1. HAZARD CLASSIFICATION
-                      const Text(
-                        '1. HAZARD CLASSIFICATION',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF475569),
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      HazardSelector(
-                        selectedHazard: reviewState.confirmedHazard,
-                        onSelected: (HazardType h) =>
-                            controller.setConfirmedHazard(h),
-                      ),
-                      const SizedBox(height: 16),
-                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                      const SizedBox(height: 14),
-
-                      // 2. VERIFIED SEVERITY TIER
-                      const Text(
-                        '2. VERIFIED SEVERITY TIER',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF475569),
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      SeveritySelector(
-                        selectedSeverity: reviewState.confirmedSeverity,
-                        onSelected: (Severity s) =>
-                            controller.setConfirmedSeverity(s),
-                      ),
-                      const SizedBox(height: 16),
-                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                      const SizedBox(height: 14),
-
-                      // 3. KILOMETER MARKER
-                      Row(
-                        children: [
-                          const Text(
-                            '3. KILOMETER MARKER',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF475569),
-                              letterSpacing: 0.4,
-                            ),
-                          ),
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 7,
-                              vertical: 2.5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE8F1FA),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: const Color(0xFFBFDBFE)),
-                            ),
-                            child: const Text(
-                              'AUTO-MATCHED GPS',
-                              style: TextStyle(
-                                fontSize: 9.5,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF074E95),
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: _kmController,
-                        onTapOutside: (_) =>
-                            FocusManager.instance.primaryFocus?.unfocus(),
-                        onSubmitted: (_) =>
-                            FocusManager.instance.primaryFocus?.unfocus(),
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        style: const TextStyle(
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF0F172A),
-                        ),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: const Color(0xFFF8FAFC),
-                          prefixIcon: const Icon(
-                            Symbols.location_on_rounded,
-                            color: Color(0xFF074E95),
-                            size: 20,
-                          ),
-                          suffixText: 'km',
-                          suffixStyle: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF64748B),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF074E95),
-                              width: 1.5,
-                            ),
-                          ),
-                        ),
-                        onChanged: (val) {
-                          final parsed = double.tryParse(val);
-                          if (parsed != null) {
-                            controller.setKmMarker(parsed);
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                      const SizedBox(height: 14),
-
-                      // 4. FIELD OBSERVATION NOTE
-                      const Text(
-                        '4. FIELD OBSERVATION NOTE',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF475569),
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: _noteController,
-                        onTapOutside: (_) =>
-                            FocusManager.instance.primaryFocus?.unfocus(),
-                        maxLines: 3,
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          color: Color(0xFF0F172A),
-                          height: 1.35,
-                        ),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: const Color(0xFFF8FAFC),
-                          hintText:
-                              'e.g. Outer bolt missing, 2 sleepers loose, track clear...',
-                          hintStyle: const TextStyle(
-                            fontSize: 12.5,
-                            color: Color(0xFF94A3B8),
-                          ),
-                          contentPadding: const EdgeInsets.all(12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF074E95),
-                              width: 1.5,
-                            ),
-                          ),
-                        ),
-                        onChanged: (val) => controller.setGangmanNote(val),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-
-                // Offline / Connectivity readiness banner
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: isOnline
-                        ? const Color(0xFFDCFCE7)
-                        : const Color(0xFFFEF3C7),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isOnline
-                          ? const Color(0xFF86EFAC)
-                          : const Color(0xFFFDE68A),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        isOnline
-                            ? Symbols.wifi_rounded
-                            : Symbols.wifi_off_rounded,
-                        size: 20,
-                        color: isOnline
-                            ? const Color(0xFF16A34A)
-                            : const Color(0xFFD97706),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          isOnline
-                              ? l10n.syncStationSignalAvailable
-                              : l10n.syncOfflineSafe,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isOnline
-                                ? const Color(0xFF15803D)
-                                : const Color(0xFFB45309),
-                            height: 1.3,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Show local save error if any
-                if (reviewState.errorMessage != null) ...[
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Photo Card Preview with Source Badge
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    height: 210,
+                    width: double.infinity,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF2F2),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFFECACA)),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
-                    child: Row(
+                    clipBehavior: Clip.antiAlias,
+                    child: Stack(
+                      fit: StackFit.expand,
                       children: [
-                        const Icon(
-                          Symbols.error_rounded,
-                          color: Color(0xFFDC2626),
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            reviewState.errorMessage!,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF991B1B),
+                        Image.file(File(draft.photoPath), fit: BoxFit.cover),
+                        Positioned(
+                          bottom: 10,
+                          right: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xCC0F172A),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Symbols.location_on_rounded,
+                                  color: Color(0xFF22C55E),
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  loc.source == LocationSource.gps
+                                      ? 'Source: Real GPS'
+                                      : 'Source: Fallback Location',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -859,13 +445,415 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
+
+                  // Location Details Card
+                  Container(
+                    padding: const EdgeInsets.all(14.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE8F1FA),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Symbols.location_on_rounded,
+                            color: Color(0xFF074E95),
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                loc.nearestStationName ?? 'Kurseong Station',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF0F172A),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Km ${reviewState.kmMarker.toStringAsFixed(1)} • ${DhrWaypoints.getSectionName(DhrWaypoints.estimateSection(reviewState.kmMarker))}',
+                                style: const TextStyle(
+                                  fontSize: 12.5,
+                                  color: Color(0xFF64748B),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // AI Suggestion Card
+                  AiSuggestionCard(
+                    aiResult: reviewState.aiResult,
+                    errorMessage: reviewState.aiErrorMessage,
+                    isAnalyzing: reviewState.isAnalyzing,
+                    currentMode: ref.watch(aiSettingsProvider).mode,
+                    onRetry: () => controller.runAnalysis(),
+                    onSwitchToManual: () => controller.switchToManual(),
+                    onDownloadModel: () =>
+                        context.push('/settings/ai/download'),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Field Verification Form Card
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Form Header: [shield] Field Verification   [REQUIRED]
+                        Row(
+                          children: [
+                            const Icon(
+                              Symbols.verified_user_rounded,
+                              color: Color(0xFF074E95),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            const Expanded(
+                              child: Text(
+                                'Field Verification',
+                                style: TextStyle(
+                                  fontSize: 15.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF0F172A),
+                                  letterSpacing: -0.2,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFEF2F2),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: const Color(0xFFFECACA),
+                                ),
+                              ),
+                              child: const Text(
+                                'REQUIRED',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFFDC2626),
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                        const SizedBox(height: 14),
+
+                        // 1. HAZARD CLASSIFICATION
+                        const Text(
+                          '1. HAZARD CLASSIFICATION',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF475569),
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        HazardSelector(
+                          selectedHazard: reviewState.confirmedHazard,
+                          onSelected: (HazardType h) =>
+                              controller.setConfirmedHazard(h),
+                        ),
+                        const SizedBox(height: 16),
+                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                        const SizedBox(height: 14),
+
+                        // 2. VERIFIED SEVERITY TIER
+                        const Text(
+                          '2. VERIFIED SEVERITY TIER',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF475569),
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        SeveritySelector(
+                          selectedSeverity: reviewState.confirmedSeverity,
+                          onSelected: (Severity s) =>
+                              controller.setConfirmedSeverity(s),
+                        ),
+                        const SizedBox(height: 16),
+                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                        const SizedBox(height: 14),
+
+                        // 3. KILOMETER MARKER
+                        Row(
+                          children: [
+                            const Text(
+                              '3. KILOMETER MARKER',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF475569),
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 7,
+                                vertical: 2.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F1FA),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: const Color(0xFFBFDBFE),
+                                ),
+                              ),
+                              child: const Text(
+                                'AUTO-MATCHED GPS',
+                                style: TextStyle(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF074E95),
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: _kmController,
+                          onTapOutside: (_) =>
+                              FocusManager.instance.primaryFocus?.unfocus(),
+                          onSubmitted: (_) =>
+                              FocusManager.instance.primaryFocus?.unfocus(),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          style: const TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF0F172A),
+                          ),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color(0xFFF8FAFC),
+                            prefixIcon: const Icon(
+                              Symbols.location_on_rounded,
+                              color: Color(0xFF074E95),
+                              size: 20,
+                            ),
+                            suffixText: 'km',
+                            suffixStyle: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF64748B),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF074E95),
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                          onChanged: (val) {
+                            final parsed = double.tryParse(val);
+                            if (parsed != null) {
+                              controller.setKmMarker(parsed);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                        const SizedBox(height: 14),
+
+                        // 4. FIELD OBSERVATION NOTE
+                        const Text(
+                          '4. FIELD OBSERVATION NOTE',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF475569),
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextField(
+                          controller: _noteController,
+                          onTapOutside: (_) =>
+                              FocusManager.instance.primaryFocus?.unfocus(),
+                          maxLines: 3,
+                          style: const TextStyle(
+                            fontSize: 13.5,
+                            color: Color(0xFF0F172A),
+                            height: 1.35,
+                          ),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: const Color(0xFFF8FAFC),
+                            hintText: 'e.g. Outer bolt missing, 2 sleepers loose, track clear...',
+                            hintStyle: const TextStyle(
+                              fontSize: 12.5,
+                              color: Color(0xFF94A3B8),
+                            ),
+                            contentPadding: const EdgeInsets.all(12),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF074E95),
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                          onChanged: (val) => controller.setGangmanNote(val),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Offline / Connectivity readiness banner
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isOnline
+                          ? const Color(0xFFDCFCE7)
+                          : const Color(0xFFFEF3C7),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isOnline
+                            ? const Color(0xFF86EFAC)
+                            : const Color(0xFFFDE68A),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isOnline
+                              ? Symbols.wifi_rounded
+                              : Symbols.wifi_off_rounded,
+                          size: 20,
+                          color: isOnline
+                              ? const Color(0xFF16A34A)
+                              : const Color(0xFFD97706),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            isOnline
+                                ? l10n.syncStationSignalAvailable
+                                : l10n.syncOfflineSafe,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: isOnline
+                                  ? const Color(0xFF15803D)
+                                  : const Color(0xFFB45309),
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Show local save error if any
+                  if (reviewState.errorMessage != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFFECACA)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Symbols.error_rounded,
+                            color: Color(0xFFDC2626),
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              reviewState.errorMessage!,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF991B1B),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
