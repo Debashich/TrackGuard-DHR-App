@@ -14,7 +14,6 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/app_language.dart';
 import '../../../shared/models/hazard_report.dart';
 import '../../../shared/models/hazard_type.dart';
-import '../../../shared/models/severity.dart';
 import '../../../shared/models/sync_status.dart';
 import '../../../shared/widgets/connectivity_indicator.dart';
 import '../../../shared/widgets/hazard_icon.dart';
@@ -119,7 +118,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     AppLocalizations l10n,
     AppLanguage currentLang,
   ) {
-    final title = currentLang == AppLanguage.en ? 'Report a Problem' : l10n.newReport;
+    final title = currentLang == AppLanguage.en
+        ? 'Report a Problem'
+        : l10n.newReport;
     final subtitle = currentLang == AppLanguage.en
         ? 'Take a photo and tell us\nwhat is wrong on the track.'
         : l10n.reportTrackHazardDescription;
@@ -253,8 +254,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final reports = reportsAsync.value ?? [];
     final sortedReports = [...reports]
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    final displayReports =
-        sortedReports.isNotEmpty ? sortedReports.take(3).toList() : _getSampleReports();
+    final displayReports = sortedReports.take(3).toList();
 
     final recentReportsTitle = _getRecentReportsTitle(currentLang, l10n);
     final viewAllText = _getViewAllText(currentLang, l10n);
@@ -263,10 +263,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0),
-          width: 1.2,
-        ),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF0F172A).withValues(alpha: 0.05),
@@ -523,9 +520,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Stack(
         children: [
           Positioned.fill(
-            child: CustomPaint(
-              painter: _MiniTrackWatermarkPainter(),
-            ),
+            child: CustomPaint(painter: _MiniTrackWatermarkPainter()),
           ),
           Center(
             child: Container(
@@ -534,11 +529,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: Colors.black.withValues(alpha: 0.35),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                iconData,
-                size: 16,
-                color: accentColor,
-              ),
+              child: Icon(iconData, size: 16, color: accentColor),
             ),
           ),
         ],
@@ -622,10 +613,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFFEF2F2),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFFCA5A5),
-          width: 1.2,
-        ),
+        border: Border.all(color: const Color(0xFFFCA5A5), width: 1.2),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFFEF4444).withValues(alpha: 0.06),
@@ -639,16 +627,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () => _showEmergencyContactsBottomSheet(
-              context,
-              l10n,
-              currentLang,
-            ),
+            onTap: () =>
+                _showEmergencyContactsBottomSheet(context, l10n, currentLang),
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 13,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
               child: Row(
                 children: [
                   const Icon(
@@ -865,10 +847,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(height: 2),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: Color(0xFF64748B),
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
           ),
           const SizedBox(height: 8),
           Container(
@@ -881,11 +860,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.max,
               children: [
-                const Icon(
-                  Symbols.call_rounded,
-                  color: Colors.white,
-                  size: 15,
-                ),
+                const Icon(Symbols.call_rounded, color: Colors.white, size: 15),
                 const SizedBox(width: 6),
                 Text(
                   phone,
@@ -943,8 +918,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   String _formatLocation(HazardReport report) {
-    final kmStr = report.kmMarker != null ? _formatKm(report.kmMarker!) : 'KM --';
-    final station = report.nearestStationName ??
+    final kmStr = report.kmMarker != null
+        ? _formatKm(report.kmMarker!)
+        : 'KM --';
+    final station =
+        report.nearestStationName ??
         DhrWaypoints.getSectionName(report.sectionId);
     return '$kmStr, $station';
   }
@@ -998,51 +976,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       case AppLanguage.en:
         return 'View All';
     }
-  }
-
-  List<HazardReport> _getSampleReports() {
-    final now = DateTime.now();
-    return [
-      HazardReport(
-        id: 'dhr-sample-001',
-        createdBy: 'dhr-gangman',
-        createdAt: DateTime(now.year, now.month, now.day, 10, 24),
-        updatedAt: DateTime(now.year, now.month, now.day, 10, 24),
-        confirmedHazardType: HazardType.vegetation,
-        confirmedSeverity: Severity.high,
-        userNote: 'Fallen tree blocking the railway track near Kurseong.',
-        kmMarker: 48.2,
-        sectionId: 'kurseong-ghum',
-        nearestStationName: 'Kurseong',
-        syncStatus: SyncStatus.synced,
-      ),
-      HazardReport(
-        id: 'dhr-sample-002',
-        createdBy: 'dhr-gangman',
-        createdAt: DateTime(now.year, now.month, now.day, 8, 11),
-        updatedAt: DateTime(now.year, now.month, now.day, 8, 11),
-        confirmedHazardType: HazardType.trackDefect,
-        confirmedSeverity: Severity.medium,
-        userNote: 'Fishplate loosening and rail joint defect near Tung.',
-        kmMarker: 47.8,
-        sectionId: 'kurseong-ghum',
-        nearestStationName: 'Tung',
-        syncStatus: SyncStatus.pending,
-      ),
-      HazardReport(
-        id: 'dhr-sample-003',
-        createdBy: 'dhr-gangman',
-        createdAt: DateTime(now.year, now.month, now.day - 1, 17, 36),
-        updatedAt: DateTime(now.year, now.month, now.day - 1, 17, 36),
-        confirmedHazardType: HazardType.rockfall,
-        confirmedSeverity: Severity.critical,
-        userNote: 'Landslide and boulders covering the track alignment.',
-        kmMarker: 49.4,
-        sectionId: 'kurseong-ghum',
-        nearestStationName: 'Sonada',
-        syncStatus: SyncStatus.synced,
-      ),
-    ];
   }
 }
 
