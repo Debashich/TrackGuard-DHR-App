@@ -5,14 +5,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../../../shared/models/ai_provider.dart';
-import '../../../shared/models/app_language.dart';
 import '../../../shared/models/hazard_report.dart';
-import '../../../shared/models/inspection_status.dart';
-import '../../../shared/models/location_source.dart';
-import '../../../shared/models/hazard_type.dart';
 import '../../../shared/models/report_draft.dart';
-import '../../../shared/models/severity.dart';
 import '../../../shared/models/sync_status.dart';
 import 'report_repository.dart';
 
@@ -44,7 +38,7 @@ class SqliteReportRepository implements ReportRepository {
 
     return openDatabase(
       databasePath,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE reports (
@@ -67,102 +61,23 @@ class SqliteReportRepository implements ReportRepository {
             payload TEXT NOT NULL
           )
         ''');
-
-        await _seedDefaultReports(db);
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.delete(
+            'reports',
+            where: 'id IN (?, ?, ?, ?, ?)',
+            whereArgs: [
+              'dhr-sample-001',
+              'dhr-sample-002',
+              'dhr-sample-003',
+              'dhr-sample-004',
+              'dhr-sample-005',
+            ],
+          );
+        }
       },
     );
-  }
-
-  Future<void> _seedDefaultReports(Database db) async {
-    final defaultReports = [
-      HazardReport(
-        id: 'dhr-sample-001',
-        createdBy: 'dhr-gangman',
-        createdAt: DateTime(2026, 11, 2, 18, 38),
-        updatedAt: DateTime(2026, 11, 2, 18, 41),
-        confirmedHazardType: HazardType.damagedWall,
-        confirmedSeverity: Severity.medium,
-        userNote: 'Cracked stone retaining wall along KM 51 curve.',
-        kmMarker: 51.0,
-        sectionId: 'kurseong-ghum',
-        nearestStationName: 'Kurseong Station',
-        syncStatus: SyncStatus.synced,
-        syncTimestamp: DateTime(2026, 11, 2, 18, 38),
-        inspectionStatus: InspectionStatus.acknowledged,
-        locationSource: LocationSource.gps,
-        gpsAccuracyMeters: 100.0,
-        aiProvider: AiProvider.onlineGemini,
-        aiModel: 'nvidia/nemotron-3.5-super-vl:free',
-        aiLanguage: AppLanguage.en,
-        aiConfidence: 0.75,
-      ),
-      HazardReport(
-        id: 'dhr-sample-002',
-        createdBy: 'dhr-gangman',
-        createdAt: DateTime(2026, 11, 2, 10, 27),
-        updatedAt: DateTime(2026, 11, 2, 10, 27),
-        confirmedHazardType: HazardType.rockfall,
-        confirmedSeverity: Severity.medium,
-        userNote: 'Fallen rock boulders and loose debris on outer rail.',
-        kmMarker: 51.0,
-        sectionId: 'kurseong-ghum',
-        nearestStationName: 'Kurseong Station',
-        syncStatus: SyncStatus.synced,
-        syncTimestamp: DateTime(2026, 11, 2, 10, 27),
-      ),
-      HazardReport(
-        id: 'dhr-sample-003',
-        createdBy: 'dhr-gangman',
-        createdAt: DateTime(2026, 11, 2, 9, 45),
-        updatedAt: DateTime(2026, 11, 2, 9, 45),
-        confirmedHazardType: HazardType.rockfall,
-        confirmedSeverity: Severity.medium,
-        userNote: 'Small rockfall rubble near alignment drainage outlet.',
-        kmMarker: 51.0,
-        sectionId: 'kurseong-ghum',
-        nearestStationName: 'Kurseong Station',
-        syncStatus: SyncStatus.synced,
-        syncTimestamp: DateTime(2026, 11, 2, 9, 45),
-      ),
-      HazardReport(
-        id: 'dhr-sample-004',
-        createdBy: 'dhr-gangman',
-        createdAt: DateTime(2026, 11, 1, 15, 20),
-        updatedAt: DateTime(2026, 11, 1, 15, 20),
-        confirmedHazardType: HazardType.blockedDrain,
-        confirmedSeverity: Severity.low,
-        userNote: 'Catchwater drain blocked with leaves and silt.',
-        kmMarker: 52.4,
-        sectionId: 'kurseong-ghum',
-        nearestStationName: 'Kurseong Station',
-        syncStatus: SyncStatus.synced,
-        syncTimestamp: DateTime(2026, 11, 1, 15, 20),
-      ),
-      HazardReport(
-        id: 'dhr-sample-005',
-        createdBy: 'dhr-gangman',
-        createdAt: DateTime(2026, 10, 31, 11, 10),
-        updatedAt: DateTime(2026, 10, 31, 11, 10),
-        confirmedHazardType: HazardType.trackDefect,
-        confirmedSeverity: Severity.high,
-        userNote: 'Loose fishplate bolts on curved rail section.',
-        kmMarker: 50.8,
-        sectionId: 'kurseong-ghum',
-        nearestStationName: 'Kurseong Station',
-        syncStatus: SyncStatus.synced,
-        syncTimestamp: DateTime(2026, 10, 31, 11, 10),
-      ),
-    ];
-
-    for (final report in defaultReports) {
-      await db.insert('reports', {
-        'id': report.id,
-        'payload': jsonEncode(report.toJson()),
-        'sync_status': report.syncStatus.toJson(),
-        'created_at': report.createdAt.toIso8601String(),
-        'updated_at': report.updatedAt.toIso8601String(),
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
-    }
   }
 
   @override
@@ -231,13 +146,7 @@ class SqliteReportRepository implements ReportRepository {
   @override
   Future<List<HazardReport>> getLocalReports() async {
     final db = await _db;
-
-    var rows = await db.query('reports', orderBy: 'created_at DESC');
-
-    if (rows.isEmpty) {
-      await _seedDefaultReports(db);
-      rows = await db.query('reports', orderBy: 'created_at DESC');
-    }
+    final rows = await db.query('reports', orderBy: 'created_at DESC');
 
     return rows
         .map((row) {
@@ -253,22 +162,12 @@ class SqliteReportRepository implements ReportRepository {
   Future<HazardReport?> getReportById(String id) async {
     final db = await _db;
 
-    var rows = await db.query(
+    final rows = await db.query(
       'reports',
       where: 'id = ?',
       whereArgs: [id],
       limit: 1,
     );
-
-    if (rows.isEmpty) {
-      await _seedDefaultReports(db);
-      rows = await db.query(
-        'reports',
-        where: 'id = ?',
-        whereArgs: [id],
-        limit: 1,
-      );
-    }
 
     if (rows.isEmpty) return null;
 
