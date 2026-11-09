@@ -108,7 +108,11 @@ class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
   RouterNotifier(this._ref) {
-    _ref.listen<AuthState>(authControllerProvider, (_, _) => notifyListeners());
+    _ref.listen<AuthState>(authControllerProvider, (previous, next) {
+      if (previous?.status != next.status) {
+        notifyListeners();
+      }
+    });
   }
 }
 
@@ -191,6 +195,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/dashboard',
         builder: (context, state) => const AdminDashboardScreen(),
+        routes: [
+          GoRoute(
+            path: 'profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+        ],
       ),
     ],
   );

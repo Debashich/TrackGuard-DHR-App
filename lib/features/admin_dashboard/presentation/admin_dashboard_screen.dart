@@ -56,16 +56,19 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('[ADMIN] initState');
     _reload();
   }
 
   @override
   void dispose() {
+    debugPrint('[ADMIN] dispose');
     _userSearchController.dispose();
     super.dispose();
   }
 
   void _reload() {
+    debugPrint('[ADMIN] _reload called');
     _reports = _repo.fetchReports();
     _profiles = _repo.fetchProfiles();
   }

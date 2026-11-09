@@ -186,7 +186,10 @@ class RoleNavigationDrawer extends ConsumerWidget {
                 onTap: () {
                   Navigator.of(context).pop();
                   if (currentRoute != '/profile') {
-                    context.push('/profile');
+                    final profileRoute = currentRoute == '/admin/dashboard'
+                        ? '/admin/dashboard/profile'
+                        : '/profile';
+                    context.push(profileRoute);
                   }
                 },
                 borderRadius: BorderRadius.circular(18),
@@ -338,7 +341,11 @@ class RoleNavigationDrawer extends ConsumerWidget {
           onTap: () {
             Navigator.of(context).pop();
             if (!isSelected) {
-              context.go(route);
+              if (route == '/profile' && currentRoute == '/admin/dashboard') {
+                context.push('/admin/dashboard/profile');
+              } else {
+                context.go(route);
+              }
             }
           },
           borderRadius: BorderRadius.circular(12),

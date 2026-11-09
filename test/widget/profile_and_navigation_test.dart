@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:trackguard_dhr/features/auth/domain/auth_state.dart';
 import 'package:trackguard_dhr/features/auth/presentation/auth_controller.dart';
 import 'package:trackguard_dhr/features/profile/presentation/profile_screen.dart';
@@ -75,6 +76,43 @@ class _MockReportRepository implements ReportRepository {
   Stream<List<HazardReport>> watchLocalReports() {
     return Stream.value(mockReport != null ? [mockReport!] : []);
   }
+}
+
+class _LifecycleProbe extends StatefulWidget {
+  const _LifecycleProbe({required this.onInit, required this.onDispose});
+
+  final VoidCallback onInit;
+  final VoidCallback onDispose;
+
+  @override
+  State<_LifecycleProbe> createState() => _LifecycleProbeState();
+}
+
+class _LifecycleProbeState extends State<_LifecycleProbe> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onInit();
+  }
+
+  @override
+  void dispose() {
+    widget.onDispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: Column(
+      children: [
+        const Text('Dashboard'),
+        ElevatedButton(
+          onPressed: () => context.push('/admin/dashboard/profile'),
+          child: const Text('Open Profile'),
+        ),
+      ],
+    ),
+  );
 }
 
 void main() {
@@ -168,6 +206,60 @@ void main() {
       expect(find.text('Supervisor / Admin'), findsAtLeastNWidgets(1));
       expect(find.text('All DHR Alignment'), findsAtLeastNWidgets(1));
     });
+  });
+
+  testWidgets('Admin profile navigation retains the dashboard instance', (
+    tester,
+  ) async {
+    var initCount = 0;
+    var disposeCount = 0;
+    final router = GoRouter(
+      initialLocation: '/admin/dashboard',
+      routes: [
+        GoRoute(
+          path: '/admin/dashboard',
+          builder: (context, state) => _LifecycleProbe(
+            onInit: () => initCount++,
+            onDispose: () => disposeCount++,
+          ),
+          routes: [
+            GoRoute(
+              path: 'profile',
+              builder: (context, state) =>
+                  const Scaffold(body: Text('Profile')),
+            ),
+          ],
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authControllerProvider.overrideWith(
+            () => _MockAuthController(testAdmin),
+          ),
+        ],
+        child: MaterialApp.router(
+          routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) => child ?? const SizedBox.shrink(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Open Profile'));
+    await tester.pumpAndSettle();
+    expect(find.text('Profile'), findsOneWidget);
+
+    router.pop();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dashboard'), findsOneWidget);
+    expect(initCount, 1);
+    expect(disposeCount, 0);
   });
 
   group('LogoutConfirmationDialog Widget Tests', () {
