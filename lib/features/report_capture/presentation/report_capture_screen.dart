@@ -86,7 +86,9 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
                 .setManualWaypoint(wp, wp.km);
           },
           onKmChanged: (km) {
-            ref.read(reportCaptureControllerProvider.notifier).updateKmMarker(km);
+            ref
+                .read(reportCaptureControllerProvider.notifier)
+                .updateKmMarker(km);
           },
         );
       },
@@ -119,10 +121,12 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
         primaryLabel: 'Save as Draft',
         primaryIcon: Icons.bookmark_added_rounded,
         primaryColor: TrackGuardDialog.brandBlue,
-        onPrimaryPressed: () => Navigator.pop(dialogContext, _CaptureExitAction.saveDraft),
+        onPrimaryPressed: () =>
+            Navigator.pop(dialogContext, _CaptureExitAction.saveDraft),
         secondaryLabel: 'Discard Report',
         secondaryIcon: Icons.delete_outline_rounded,
-        onSecondaryPressed: () => Navigator.pop(dialogContext, _CaptureExitAction.discard),
+        onSecondaryPressed: () =>
+            Navigator.pop(dialogContext, _CaptureExitAction.discard),
         cancelLabel: 'Keep Editing',
         onCancelPressed: () => Navigator.pop(dialogContext),
       ),
@@ -193,10 +197,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
             scrolledUnderElevation: 0,
             centerTitle: true,
             leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back,
-                color: Color(0xFF0A1E3F),
-              ),
+              icon: const Icon(Icons.arrow_back, color: Color(0xFF0A1E3F)),
               tooltip: MaterialLocalizations.of(context).backButtonTooltip,
               onPressed: _handleCaptureExit,
             ),
@@ -245,10 +246,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0),
-          width: 1.2,
-        ),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF0F172A).withValues(alpha: 0.05),
@@ -374,10 +372,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: const Color(0xFFE2E8F0),
-                  width: 1.2,
-                ),
+                border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
                 boxShadow: [
                   BoxShadow(
                     color: const Color(0xFF0F172A).withValues(alpha: 0.08),
@@ -523,9 +518,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
                     // Four survey corner brackets
                     const IgnorePointer(
                       child: CustomPaint(
-                        painter: _CornersPainter(
-                          inset: EdgeInsets.all(20),
-                        ),
+                        painter: _CornersPainter(inset: EdgeInsets.all(20)),
                       ),
                     ),
                   ],
@@ -599,11 +592,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: Icon(
-                    icon,
-                    color: const Color(0xFF074E95),
-                    size: 24,
-                  ),
+                  child: Icon(icon, color: const Color(0xFF074E95), size: 24),
                 ),
               ),
               const SizedBox(height: 6),
@@ -633,10 +622,7 @@ class _ReportCaptureScreenState extends ConsumerState<ReportCaptureScreen>
         height: 80,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(
-            color: const Color(0xFF074E95),
-            width: 2.5,
-          ),
+          border: Border.all(color: const Color(0xFF074E95), width: 2.5),
         ),
         padding: const EdgeInsets.all(5),
         child: Container(
@@ -877,10 +863,7 @@ class _CameraErrorView extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: const Color(0xFF074E95),
-                  width: 1.2,
-                ),
+                border: Border.all(color: const Color(0xFF074E95), width: 1.2),
               ),
               child: Material(
                 color: Colors.transparent,
