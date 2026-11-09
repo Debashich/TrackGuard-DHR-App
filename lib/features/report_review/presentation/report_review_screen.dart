@@ -93,8 +93,11 @@ class _ReportReviewScreenState extends ConsumerState<ReportReviewScreen> {
           content: Text('Could not discard report. Please try again.'),
         ),
       );
+      return false;
     }
-    return discarded;
+
+    context.go('/gangman/home');
+    return false;
   }
 
   void _showSuccessDialog(BuildContext context, String reportId) {
