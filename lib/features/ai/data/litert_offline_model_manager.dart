@@ -370,9 +370,22 @@ class LitertOfflineModelManager implements OfflineModelManager {
           downloadedBytes: 0,
           progress: 0.0,
           canCancel: false,
+          errorMessage: null,
         ),
       );
     } catch (e) {
+      if (_downloader.isCancelled) {
+        _updateState(
+          _currentState.copyWith(
+            status: OfflineModelStatus.notDownloaded,
+            downloadedBytes: 0,
+            progress: 0.0,
+            canCancel: false,
+            errorMessage: null,
+          ),
+        );
+        return;
+      }
       final errorMsg = e is AppException ? e.message : e.toString();
       _updateState(
         _currentState.copyWith(
@@ -398,6 +411,7 @@ class LitertOfflineModelManager implements OfflineModelManager {
         downloadedBytes: 0,
         progress: 0.0,
         canCancel: false,
+        errorMessage: null,
       ),
     );
   }

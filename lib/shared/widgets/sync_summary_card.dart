@@ -55,7 +55,7 @@ class SyncSummaryCard extends StatelessWidget {
                 children: const [
                   Icon(
                     Symbols.layers_rounded,
-                    color: Color(0xFF0284C7),
+                    color: Color(0xFF074E95),
                     size: 21,
                   ),
                   SizedBox(width: 7),

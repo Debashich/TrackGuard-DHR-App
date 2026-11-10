@@ -201,17 +201,6 @@ class _GangmanReportDetailScreenState
               letterSpacing: -0.2,
             ),
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Symbols.person_rounded,
-                color: Color(0xFF0F172A),
-                size: 22,
-              ),
-              tooltip: l10n.navigationProfile,
-              onPressed: () => context.push('/profile'),
-            ),
-          ],
         ),
         body: FutureBuilder<HazardReport?>(
           future: _reportFuture,

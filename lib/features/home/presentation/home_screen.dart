@@ -329,16 +329,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Top 3 Report Items
-          for (int i = 0; i < displayReports.length; i++) ...[
-            if (i > 0)
-              const Divider(
-                color: Color(0xFFF1F5F9),
-                height: 20,
-                thickness: 1.2,
+          // Top 3 Report Items or Empty State
+          if (displayReports.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Symbols.inbox_rounded,
+                    size: 40,
+                    color: Color(0xFF94A3B8),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    l10n.pendingReportsCount(0),
+                    style: const TextStyle(
+                      fontSize: 14.5,
+                      color: Color(0xFF0F172A),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    l10n.offlineExplanation,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      color: Color(0xFF64748B),
+                      height: 1.35,
+                    ),
+                  ),
+                ],
               ),
-            _buildReportRow(context, displayReports[i], l10n, currentLang),
-          ],
+            )
+          else
+            for (int i = 0; i < displayReports.length; i++) ...[
+              if (i > 0)
+                const Divider(
+                  color: Color(0xFFF1F5F9),
+                  height: 20,
+                  thickness: 1.2,
+                ),
+              _buildReportRow(context, displayReports[i], l10n, currentLang),
+            ],
         ],
       ),
     );

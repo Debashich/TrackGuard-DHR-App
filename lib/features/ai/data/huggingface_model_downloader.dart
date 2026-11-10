@@ -23,6 +23,8 @@ class HuggingFaceModelDownloader {
   File? _currentPartFile;
   bool _isCancelled = false;
 
+  bool get isCancelled => _isCancelled;
+
   HuggingFaceModelDownloader({
     HttpClient Function()? clientFactory,
     OfflineModelArtifactValidator? validator,
@@ -253,6 +255,9 @@ class HuggingFaceModelDownloader {
       rethrow;
     } catch (e) {
       await _cleanupPartFile();
+      if (_isCancelled) {
+        throw const OfflineModelDownloadCancelledException();
+      }
       if (e is AppException) rethrow;
       throw OfflineModelDownloadFailedException(
         'Failed to download model artifact from Hugging Face: $e',
@@ -270,12 +275,13 @@ class HuggingFaceModelDownloader {
     } catch (_) {}
 
     try {
-      if (_currentPartFile != null && await _currentPartFile!.exists()) {
-        await _currentPartFile!.delete();
-      }
+      final part = _currentPartFile;
       _currentPartFile = null;
-    } catch (e) {
-      debugPrint('Error cleaning up partial download file: $e');
+      if (part != null && await part.exists()) {
+        await part.delete();
+      }
+    } catch (_) {
+      // Ignore cleanup error if already removed or not found
     }
   }
 }

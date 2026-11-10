@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/trackguard_dialog.dart';
 import '../../../core/connectivity/connectivity_provider.dart';
 import '../../../l10n/app_localizations.dart';
@@ -23,16 +26,15 @@ class _OfflineModelDownloadScreenState
     extends ConsumerState<OfflineModelDownloadScreen> {
   bool _isLoading = false;
 
-  // Palette sampled to closely match the supplied reference screen.
-  static const Color _background = Color(0xFFF3F7FF);
-  static const Color _surface = Color(0xFFFCFDFF);
-  static const Color _navy = Color(0xFF101A3A);
-  static const Color _blue = Color(0xFF0863C8);
-  static const Color _blueBright = Color(0xFF168DD5);
-  static const Color _blueSoft = Color(0xFFE2F0FF);
-  static const Color _border = Color(0xFFDCE7F7);
-  static const Color _secondary = Color(0xFF53647B);
-  static const Color _teal = Color(0xFF087B8B);
+  // Palette aligned with the Home screen and Inspection Details screen design.
+  static const Color _background = Color(0xFFF8FAFC);
+  static const Color _surface = Colors.white;
+  static const Color _ink = Color(0xFF0F172A);
+  static const Color _navy = Color(0xFF0A1E3F);
+  static const Color _blue = Color(0xFF074E95); // Home screen primary DHR blue
+  static const Color _blueSoft = Color(0xFFEBF3FC); // Home screen soft blue container
+  static const Color _border = Color(0xFFE2E8F0); // Home screen border
+  static const Color _secondary = Color(0xFF64748B); // Home screen secondary slate text
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +62,13 @@ class _OfflineModelDownloadScreenState
       child: Scaffold(
         backgroundColor: _background,
         appBar: AppBar(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white,
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+          ),
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
           elevation: 0,
           centerTitle: true,
           leading: IconButton(
@@ -74,60 +81,64 @@ class _OfflineModelDownloadScreenState
                 context.pop();
               }
             },
-            icon: const Icon(Icons.arrow_back_rounded, color: _navy, size: 24),
+            icon: const Icon(
+              Symbols.arrow_back_rounded,
+              color: _ink,
+              size: 22,
+            ),
+            tooltip: 'Back',
           ),
           title: Text(
             l10n.offlinePhotoHelperPackTitle,
             style: const TextStyle(
-              color: _navy,
-              fontSize: 18,
+              color: _ink,
+              fontSize: 17,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.2,
             ),
           ),
         ),
-        body: Stack(
+        body: ListView(
+          padding: EdgeInsets.fromLTRB(
+            16,
+            12,
+            16,
+            24 + MediaQuery.of(context).padding.bottom,
+          ),
           children: [
-            const Positioned(
-              left: -40,
-              right: -40,
-              bottom: -70,
-              height: 150,
-              child: _BottomWaveDecoration(),
-            ),
-            ListView(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                16,
-                16,
-                24 + MediaQuery.of(context).padding.bottom,
+            _buildHero(state, l10n),
+            const SizedBox(height: 18),
+            _buildStoragePanel(),
+            const SizedBox(height: 16),
+            Text(
+              l10n.downloadPreferencesHeading,
+              style: const TextStyle(
+                color: _blue,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.65,
               ),
-              children: [
-                _buildHero(state, l10n),
-                const SizedBox(height: 20),
-                _buildStoragePanel(),
-                const SizedBox(height: 12),
-                _buildWifiPanel(
-                  downloadSettings: downloadSettings,
-                  isDownloading: state.isDownloading,
-                  l10n: l10n,
-                  manager: manager,
-                ),
-                if (!downloadSettings.wifiOnly) ...[
-                  const SizedBox(height: 8),
-                  _buildMobileDataWarning(l10n),
-                ],
-                const SizedBox(height: 12),
-                _buildStatusAndActions(
-                  context: context,
-                  state: state,
-                  l10n: l10n,
-                  manager: manager,
-                  isOnline: isOnline,
-                ),
-                const SizedBox(height: 8),
-              ],
             ),
+            const SizedBox(height: 8),
+            _buildWifiPanel(
+              downloadSettings: downloadSettings,
+              isDownloading: state.isDownloading,
+              l10n: l10n,
+              manager: manager,
+            ),
+            if (!downloadSettings.wifiOnly) ...[
+              const SizedBox(height: 8),
+              _buildMobileDataWarning(l10n),
+            ],
+            const SizedBox(height: 16),
+            _buildStatusAndActions(
+              context: context,
+              state: state,
+              l10n: l10n,
+              manager: manager,
+              isOnline: isOnline,
+            ),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -138,16 +149,16 @@ class _OfflineModelDownloadScreenState
     return Column(
       children: [
         Container(
-          width: 84,
-          height: 84,
+          width: 72,
+          height: 72,
           decoration: BoxDecoration(
             color: _blueSoft,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: const Icon(
-            Icons.layers_rounded,
-            size: 38,
-            color: _blueBright,
+            Symbols.layers_rounded,
+            size: 34,
+            color: _blue,
           ),
         ),
         const SizedBox(height: 12),
@@ -155,11 +166,11 @@ class _OfflineModelDownloadScreenState
           state.modelName,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            color: _navy,
-            fontSize: 24,
-            height: 1.2,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.4,
+            color: _ink,
+            fontSize: 18,
+            height: 1.25,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.2,
           ),
         ),
         const SizedBox(height: 4),
@@ -168,41 +179,41 @@ class _OfflineModelDownloadScreenState
           textAlign: TextAlign.center,
           style: const TextStyle(
             color: _secondary,
-            fontSize: 15,
+            fontSize: 13,
             fontWeight: FontWeight.w400,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           decoration: BoxDecoration(
             color: _blueSoft,
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.cloud_download_outlined, color: _blueBright, size: 16),
+              Icon(Symbols.cloud_download_rounded, color: _blue, size: 16),
               SizedBox(width: 6),
               Text(
                 'AI Model',
                 style: TextStyle(
                   color: _blue,
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         Text(
           l10n.offlineModelOfflineNotice,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            color: Color(0xFF26364D),
-            fontSize: 14,
-            height: 1.45,
+            color: Color(0xFF334155),
+            fontSize: 13,
+            height: 1.4,
             fontWeight: FontWeight.w400,
           ),
         ),
@@ -211,7 +222,7 @@ class _OfflineModelDownloadScreenState
           l10n.offlineModelVersion(state.version ?? '1.0.0'),
           style: const TextStyle(
             color: _secondary,
-            fontSize: 11,
+            fontSize: 11.5,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -223,26 +234,26 @@ class _OfflineModelDownloadScreenState
 
   Widget _buildStoragePanel() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      decoration: _panelDecoration(radius: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: _panelDecoration(radius: 16),
       child: Row(
         children: [
           Expanded(
             child: _buildStorageMetric(
-              icon: Icons.storage_rounded,
+              icon: Symbols.storage_rounded,
               label: 'Download Size',
               value: '~2.6 GB',
             ),
           ),
           Container(
-            width: 1,
-            height: 44,
+            width: 1.2,
+            height: 42,
             margin: const EdgeInsets.symmetric(horizontal: 10),
             color: _border,
           ),
           Expanded(
             child: _buildStorageMetric(
-              icon: Icons.smartphone_rounded,
+              icon: Symbols.smartphone_rounded,
               label: 'Required Free Space',
               value: '≥ 4 GB',
             ),
@@ -266,7 +277,7 @@ class _OfflineModelDownloadScreenState
             color: _blueSoft,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: _blueBright, size: 20),
+          child: Icon(icon, color: _blue, size: 20),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -292,8 +303,8 @@ class _OfflineModelDownloadScreenState
                   value,
                   style: const TextStyle(
                     color: _navy,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: -0.2,
                   ),
                 ),
@@ -313,7 +324,7 @@ class _OfflineModelDownloadScreenState
   }) {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
-      decoration: _panelDecoration(radius: 18),
+      decoration: _panelDecoration(radius: 16),
       child: Row(
         children: [
           Container(
@@ -323,7 +334,7 @@ class _OfflineModelDownloadScreenState
               color: _blueSoft,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.wifi_rounded, color: _blueBright, size: 20),
+            child: const Icon(Symbols.wifi_rounded, color: _blue, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -333,8 +344,8 @@ class _OfflineModelDownloadScreenState
                 Text(
                   l10n.offlineModelWifiOnly,
                   style: const TextStyle(
-                    color: _navy,
-                    fontSize: 15,
+                    color: _ink,
+                    fontSize: 14.5,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -354,7 +365,7 @@ class _OfflineModelDownloadScreenState
           Switch.adaptive(
             value: downloadSettings.wifiOnly,
             activeThumbColor: Colors.white,
-            activeTrackColor: _teal,
+            activeTrackColor: _blue,
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: const Color(0xFFB8C5D5),
             onChanged: isDownloading
@@ -384,8 +395,11 @@ class _OfflineModelDownloadScreenState
       ),
       child: Row(
         children: [
-          const Icon(Icons.warning_amber_rounded,
-              color: Color(0xFFC77725), size: 18),
+          const Icon(
+            Symbols.warning_amber_rounded,
+            color: Color(0xFFC77725),
+            size: 18,
+          ),
           const SizedBox(width: 9),
           Expanded(
             child: Text(
@@ -411,7 +425,7 @@ class _OfflineModelDownloadScreenState
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: _panelDecoration(radius: 18),
+      decoration: _panelDecoration(radius: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -429,16 +443,22 @@ class _OfflineModelDownloadScreenState
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(l10n.offlineModelDownloading,
-                    style: const TextStyle(
-                        color: _navy,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700)),
-                Text('${state.progressPercent}%',
-                    style: const TextStyle(
-                        color: _blue,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800)),
+                Text(
+                  l10n.offlineModelDownloading,
+                  style: const TextStyle(
+                    color: _ink,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  '${state.progressPercent}%',
+                  style: const TextStyle(
+                    color: _blue,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -463,9 +483,12 @@ class _OfflineModelDownloadScreenState
             const SizedBox(height: 12),
             _outlinedActionButton(
               label: l10n.offlineModelCancelDownload,
-              icon: Icons.close_rounded,
+              icon: Symbols.close_rounded,
               color: AppTheme.statusRed,
-              onPressed: () async => manager.cancelDownload(),
+              onPressed: () async {
+                ScaffoldMessenger.of(context).clearSnackBars();
+                await manager.cancelDownload();
+              },
             ),
           ] else if (state.status == OfflineModelStatus.initializing) ...[
             const Center(
@@ -492,7 +515,7 @@ class _OfflineModelDownloadScreenState
             const SizedBox(height: 12),
             _outlinedActionButton(
               label: l10n.offlineModelDelete,
-              icon: Icons.delete_outline_rounded,
+              icon: Symbols.delete_outline_rounded,
               color: AppTheme.statusRed,
               onPressed: () => _confirmAndDeleteModel(context, manager, l10n),
             ),
@@ -504,7 +527,7 @@ class _OfflineModelDownloadScreenState
             const SizedBox(height: 12),
             _primaryActionButton(
               label: l10n.offlineModelActivate,
-              icon: Icons.play_arrow_rounded,
+              icon: Symbols.play_arrow_rounded,
               isLoading: _isLoading,
               onPressed: _isLoading
                   ? null
@@ -517,7 +540,7 @@ class _OfflineModelDownloadScreenState
             ],
             _primaryActionButton(
               label: l10n.downloadOnWifiButton,
-              icon: Icons.download_rounded,
+              icon: Symbols.download_rounded,
               isLoading: _isLoading,
               onPressed: _isLoading
                   ? null
@@ -539,8 +562,11 @@ class _OfflineModelDownloadScreenState
       ),
       child: Row(
         children: [
-          const Icon(Icons.check_circle_outline,
-              color: AppTheme.statusGreen, size: 19),
+          const Icon(
+            Symbols.check_circle_rounded,
+            color: AppTheme.statusGreen,
+            size: 19,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -579,14 +605,20 @@ class _OfflineModelDownloadScreenState
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline_rounded,
-              color: AppTheme.statusRed, size: 18),
+          const Icon(
+            Symbols.error_outline_rounded,
+            color: AppTheme.statusRed,
+            size: 18,
+          ),
           const SizedBox(width: 9),
           Expanded(
             child: Text(
               message,
               style: const TextStyle(
-                  color: AppTheme.statusRed, fontSize: 12, height: 1.35),
+                color: AppTheme.statusRed,
+                fontSize: 12,
+                height: 1.35,
+              ),
             ),
           ),
         ],
@@ -602,7 +634,7 @@ class _OfflineModelDownloadScreenState
   }) {
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 48,
       child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: isLoading
@@ -614,7 +646,7 @@ class _OfflineModelDownloadScreenState
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
-            : Icon(icon, size: 18),
+            : Icon(icon, size: 20),
         label: Text(
           label,
           textAlign: TextAlign.center,
@@ -664,11 +696,18 @@ class _OfflineModelDownloadScreenState
     );
   }
 
-  BoxDecoration _panelDecoration({double radius = 18}) {
+  BoxDecoration _panelDecoration({double radius = 16}) {
     return BoxDecoration(
-      color: _surface.withValues(alpha: 0.94),
+      color: _surface,
       borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: _border, width: 1),
+      border: Border.all(color: _border, width: 1.2),
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+          blurRadius: 10,
+          offset: const Offset(0, 3),
+        ),
+      ],
     );
   }
 
@@ -689,11 +728,11 @@ class _OfflineModelDownloadScreenState
         label = l10n.offlineModelDownloaded;
         break;
       case OfflineModelStatus.downloading:
-        color = _blueBright;
+        color = _blue;
         label = l10n.offlineModelDownloading;
         break;
       case OfflineModelStatus.initializing:
-        color = _blueBright;
+        color = _blue;
         label = l10n.offlineModelInitializing;
         break;
       case OfflineModelStatus.failed:
@@ -732,7 +771,7 @@ class _OfflineModelDownloadScreenState
         overflow: TextOverflow.visible,
         style: TextStyle(
           color: color,
-          fontSize: 11,
+          fontSize: 11.5,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -779,15 +818,21 @@ class _OfflineModelDownloadScreenState
     setState(() => _isLoading = true);
     try {
       await manager.download();
+    } on OfflineModelDownloadCancelledException {
+      // User cancelled download cleanly
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Download error: $e'),
-            backgroundColor: AppTheme.statusRed,
-          ),
-        );
+      if (!context.mounted) return;
+      final currentStatus = ref.read(offlineModelStateProvider).value?.status;
+      if (currentStatus == OfflineModelStatus.notDownloaded) {
+        // Download was cancelled by user
+        return;
       }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Download error: $e'),
+          backgroundColor: AppTheme.statusRed,
+        ),
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -800,12 +845,12 @@ class _OfflineModelDownloadScreenState
     return await showDialog<bool>(
           context: context,
           builder: (ctx) => TrackGuardDialog(
-            icon: Icons.cancel_rounded,
+            icon: Symbols.cancel_rounded,
             isDestructive: true,
             title: l10n.offlineModelDownloadInProgress,
             message: l10n.cancelDownloadConfirmation,
             primaryLabel: l10n.cancelDownloadAndLeave,
-            primaryIcon: Icons.close_rounded,
+            primaryIcon: Symbols.close_rounded,
             onPrimaryPressed: () => Navigator.of(ctx).pop(true),
             cancelLabel: l10n.stayOnPage,
             onCancelPressed: () => Navigator.of(ctx).pop(false),
@@ -822,7 +867,7 @@ class _OfflineModelDownloadScreenState
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => TrackGuardDialog(
-        icon: Icons.delete_forever_rounded,
+        icon: Symbols.delete_forever_rounded,
         isDestructive: true,
         title: l10n.offlineModelDeleteTitle,
         message: l10n.offlineModelDeleteConfirmation,
@@ -834,8 +879,11 @@ class _OfflineModelDownloadScreenState
           ),
           child: Row(
             children: [
-              const Icon(Icons.shield_outlined,
-                  size: 16, color: TrackGuardDialog.green),
+              const Icon(
+                Symbols.shield_rounded,
+                size: 16,
+                color: TrackGuardDialog.green,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -851,7 +899,7 @@ class _OfflineModelDownloadScreenState
           ),
         ),
         primaryLabel: l10n.offlineModelDelete,
-        primaryIcon: Icons.delete_outline_rounded,
+        primaryIcon: Symbols.delete_outline_rounded,
         onPrimaryPressed: () => Navigator.of(ctx).pop(true),
         cancelLabel: 'Cancel',
         onCancelPressed: () => Navigator.of(ctx).pop(false),
@@ -881,47 +929,4 @@ class _OfflineModelDownloadScreenState
       }
     }
   }
-}
-
-class _BottomWaveDecoration extends StatelessWidget {
-  const _BottomWaveDecoration();
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(painter: _BottomWavePainter());
-  }
-}
-
-class _BottomWavePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final first = Path()
-      ..moveTo(0, size.height * 0.58)
-      ..cubicTo(size.width * 0.22, size.height * 0.24,
-          size.width * 0.31, size.height * 0.94,
-          size.width * 0.56, size.height * 0.58)
-      ..cubicTo(size.width * 0.76, size.height * 0.28,
-          size.width * 0.86, size.height * 0.35,
-          size.width, size.height * 0.56)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
-      ..close();
-    canvas.drawPath(first, Paint()..color = const Color(0xFFDDEBFC));
-
-    final second = Path()
-      ..moveTo(0, size.height * 0.78)
-      ..cubicTo(size.width * 0.25, size.height * 0.48,
-          size.width * 0.34, size.height * 0.82,
-          size.width * 0.58, size.height * 0.72)
-      ..cubicTo(size.width * 0.78, size.height * 0.63,
-          size.width * 0.88, size.height * 0.58,
-          size.width, size.height * 0.75)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
-      ..close();
-    canvas.drawPath(second, Paint()..color = const Color(0xFFEAF2FE));
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

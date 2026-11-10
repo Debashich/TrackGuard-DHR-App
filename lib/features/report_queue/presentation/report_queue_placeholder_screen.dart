@@ -95,17 +95,6 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
               letterSpacing: -0.2,
             ),
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Symbols.person_rounded,
-                color: Color(0xFF0F172A),
-                size: 22,
-              ),
-              tooltip: l10n.navigationProfile,
-              onPressed: () => context.push('/profile'),
-            ),
-          ],
         ),
         body: RefreshIndicator(
           onRefresh: () async {
@@ -526,7 +515,7 @@ class _ReportQueueScreenState extends ConsumerState<ReportQueueScreen> {
                     const Icon(
                       Symbols.chevron_right_rounded,
                       size: 19,
-                      color: Color(0xFF0284C7),
+                      color: Color(0xFF074E95),
                     ),
                   ],
                 ),
